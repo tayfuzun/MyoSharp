@@ -9,45 +9,50 @@ MyoSharp is compatible with .NET 2.0+
 
 Sample Usage
 ```
-using MyoSharp.Device;
-using MyoSharp.Discovery;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace MyoSharp
+using MyoSharp.Device;
+using MyoSharp.Discovery;
+
+namespace MyoSharp.ConsoleSample
 {
-    class Program
+    internal class Program
     {
+        private static readonly Dictionary<IntPtr, IMyo> _myos = new Dictionary<IntPtr, IMyo>();
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            var hub = Hub.Create("com.myosharp.myoapp"); // creates the hub and initializes it
-            hub.StartListening(); // starts searching for nearby Myos
+            var hub = Hub.Create("com.myosharp.consolesample");
+            hub.StartListening();
 
-            hub.Paired += hub_Paired;
+            hub.Paired += Hub_Paired;
 
             Console.ReadLine();
         }
 
-        // This event is fired when the Myo has paired
-        static void hub_Paired(object sender, MyoEventArgs e)
+        private static void Hub_Paired(object sender, PairedEventArgs e)
         {
-            e.Myo.PoseChange += Myo_PoseChange;
-            e.Myo.Connected += Myo_Connected;
+            var myo = Myo.Create((IHub)sender, e.MyoHandle);
+            myo.PoseChanged += Myo_PoseChange;
+            myo.Connected += Myo_Connected;
+            _myos[e.MyoHandle] = myo;
         }
 
-        // This event fires when the Myo has successfully connected
-        static void Myo_Connected(object sender, MyoEventArgs e)
+        private static void Myo_Connected(object sender, MyoEventArgs e)
         {
+            e.Myo.Disconnected += Myo_Disconnected;
             Console.WriteLine("Myo Connected");
         }
 
-        // This event is fired when the Myo detects a pose change
-        static void Myo_PoseChange(object sender, PoseEventArgs e)
+        private static void Myo_Disconnected(object sender, MyoEventArgs e)
+        {
+            Console.WriteLine("Oh no, looks like the Myo disconnected!");
+        }
+
+        private static void Myo_PoseChange(object sender, PoseEventArgs e)
         {
             Console.WriteLine("Pose Detected: " + e.Pose);
         }
