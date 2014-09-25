@@ -1,0 +1,6 @@
+*/bin/*
+*.suo
+*/obj/*
+*.csproj.user
+*.csproj.FileListAbsolute.txt
+MyoSharp/obj/Debug/DesignTimeResolveAssemblyReferencesInput.cache
