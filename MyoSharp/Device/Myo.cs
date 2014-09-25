@@ -22,9 +22,12 @@ namespace MyoSharp.Device
         protected Myo(IHub hub, IntPtr handle)
         {
             _hub = hub;
+            _hub.RouteMyoEvent += Hub_RouteMyoEvent;
+
             _handle = handle;
 
-            _hub.RouteMyoEvent += Hub_RouteMyoEvent;
+            this.Pose = Pose.Unknown;
+            this.Arm = Arm.Unknown;
         }
 
         /// <summary>
@@ -41,12 +44,47 @@ namespace MyoSharp.Device
         {
             get { return _handle; }
         }
-        
+
+        public bool IsConnected
+        {
+            get;
+            private set;
+        }
+
+        public Arm Arm
+        {
+            get;
+            private set;
+        }
+
+        public Pose Pose
+        {
+            get;
+            private set;
+        }
+
+        public QuaternionF Orientation
+        {
+            get;
+            private set;
+        }
+
+        public Vector3F Accelerometer
+        {
+            get;
+            private set;
+        }
+
+        public Vector3F Gyroscope
+        {
+            get;
+            private set;
+        }
+
         protected IHub Hub
         {
             get { return _hub; }
         }
-
         #endregion
 
         #region Events
@@ -156,6 +194,7 @@ namespace MyoSharp.Device
                     break;
 
                 case MyoEventType.ArmLost:
+                    this.Arm = Arm.Unknown;
                     OnArmLost(timestamp);
                     break;
 
@@ -199,10 +238,12 @@ namespace MyoSharp.Device
         /// <param name="timestamp">The timestamp of the event.</param>
         protected virtual void OnPoseChanged(IntPtr evt, DateTime timestamp)
         {
+            var pose = GetEventPose(evt);
+            this.Pose = pose;
+
             var handler = PoseChanged;
             if (handler != null)
             {
-                var pose = GetEventPose(evt);
                 var args = new PoseEventArgs(this, timestamp, pose);
                 handler.Invoke(this, args);
             }
@@ -227,14 +268,16 @@ namespace MyoSharp.Device
         /// <param name="timestamp">The timestamp of the event.</param>
         protected virtual void OnAcquiredGyroscopeData(IntPtr evt, DateTime timestamp)
         {
+            var gyroscope = GetGyroscope(evt);
+            this.Gyroscope = gyroscope;
+
             var handler = GyroscopeDataAcquired;
             if (handler != null)
             {
-                var vector = GetGyroscope(evt);
                 var args = new GyroscopeDataEventArgs(
                     this,
                     timestamp,
-                    vector);
+                    gyroscope);
                 GyroscopeDataAcquired(this, args);
             }
         }
@@ -246,14 +289,16 @@ namespace MyoSharp.Device
         /// <param name="timestamp">The timestamp of the event.</param>
         protected virtual void OnAcquiredAccelerometerData(IntPtr evt, DateTime timestamp)
         {
+            var accelerometer = GetEventAccelerometer(evt);
+            this.Accelerometer = accelerometer;
+
             var handler = AccelerometerDataAcquired;
             if (handler != null)
             {
-                var vector = GetEventAccelerometer(evt);
                 var args = new AccelerometerDataEventArgs(
                     this, 
-                    timestamp, 
-                    vector);
+                    timestamp,
+                    accelerometer);
                 handler.Invoke(this, args);
             }
         }
@@ -265,14 +310,17 @@ namespace MyoSharp.Device
         /// <param name="timestamp">The timestamp of the event.</param>
         protected virtual void OnAcquiredOrientationData(IntPtr evt, DateTime timestamp)
         {
+            var orientation = GetEventOrientation(evt);
+            this.Orientation = orientation;
+
             var handler = OrientationDataAcquired;
             if (handler != null)
             {
-                var vector = GetEventOrientation(evt);
+                
                 var args = new OrientationDataEventArgs(
                     this,
                     timestamp,
-                    vector);
+                    orientation);
                 handler.Invoke(this, args);
             }
         }
@@ -283,6 +331,8 @@ namespace MyoSharp.Device
         /// <param name="timestamp">The timestamp of the event.</param>
         protected virtual void OnArmLost(DateTime timestamp)
         {
+            this.Arm = Arm.Unknown;
+
             var handler = ArmLost;
             if (handler != null)
             {
@@ -298,10 +348,12 @@ namespace MyoSharp.Device
         /// <param name="timestamp">The timestamp of the event.</param>
         protected virtual void OnArmRecognized(IntPtr evt, DateTime timestamp)
         {
+            var arm = GetArm(evt);
+            this.Arm = arm;
+
             var handler = ArmRecognized;
             if (handler != null)
             {
-                var arm = GetArm(evt);
                 var xDirection = GetEventDirectionX(evt);
                 var args = new ArmRecognizedEventArgs(
                     this,
@@ -318,6 +370,8 @@ namespace MyoSharp.Device
         /// <param name="timestamp">The timestamp of the event.</param>
         protected virtual void OnDisconnected(DateTime timestamp)
         {
+            this.IsConnected = false;
+            
             var handler = Disconnected;
             if (handler != null)
             {
@@ -332,6 +386,8 @@ namespace MyoSharp.Device
         /// <param name="timestamp">The timestamp of the event.</param>
         protected virtual void OnConnected(DateTime timestamp)
         {
+            this.IsConnected = true;
+
             var handler = Connected;
             if (handler != null)
             {

@@ -19,7 +19,25 @@ namespace MyoSharp.ConsoleSample
 
             hub.Paired += Hub_Paired;
 
-            Console.ReadLine();
+            string userInput;
+
+            while (!string.IsNullOrEmpty((userInput = Console.ReadLine())))
+            {
+                if (userInput.Equals("pose", StringComparison.OrdinalIgnoreCase))
+                {
+                    foreach (var myo in _myos.Values)
+                    {
+                        Console.WriteLine("Myo ({0}) in pose {1}.", myo.Handle, myo.Pose);
+                    }
+                }
+                else if (userInput.Equals("arm", StringComparison.OrdinalIgnoreCase))
+                {
+                    foreach (var myo in _myos.Values)
+                    {
+                        Console.WriteLine("Myo ({0}) is on {1} arm.", myo.Handle, myo.Arm.ToString().ToLower());
+                    }
+                }
+            }
         }
 
         private static void Hub_Paired(object sender, PairedEventArgs e)

@@ -66,6 +66,8 @@
     <Compile Include="Device\ArmRecognizedEventArgs.cs" />
     <Compile Include="Device\GyroscopeDataEventArgs.cs" />
     <Compile Include="Device\IMyo.cs" />
+    <Compile Include="Device\IMyoDeviceState.cs" />
+    <Compile Include="Device\IMyoEventGenerator.cs" />
     <Compile Include="Device\OrientationDataEventArgs.cs" />
     <Compile Include="Device\OrientationIndex.cs" />
     <Compile Include="Device\PoseEventArgs.cs" />
