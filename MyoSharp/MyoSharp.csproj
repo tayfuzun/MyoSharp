@@ -85,6 +85,7 @@
     <Compile Include="Internal\MyoResult.cs" />
     <Compile Include="Internal\PlatformInvocation.cs" />
     <Compile Include="Device\Pose.cs" />
+    <Compile Include="PoseSequence.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Math\Quaternion.cs" />
     <Compile Include="Math\Vector3F.cs" />

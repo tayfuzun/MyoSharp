@@ -48,10 +48,17 @@ namespace MyoSharp.ConsoleSample
             _myos[e.MyoHandle] = myo;
         }
 
+        private static void PoseSeq_PoseSequenceComplete(object sender, PoseEventArgs e)
+        {
+            e.Myo.Vibrate(VibrationType.Long);
+        }
+
         private static void Myo_Connected(object sender, MyoEventArgs e)
         {
             e.Myo.Disconnected += Myo_Disconnected;
             Console.WriteLine("Myo Connected");
+            var poseSeq = new PoseSequence(e.Myo, Pose.WaveOut, Pose.WaveIn );
+            poseSeq.PoseSequenceComplete += PoseSeq_PoseSequenceComplete;
         }
 
         private static void Myo_Disconnected(object sender, MyoEventArgs e)
