@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyoSharp", "MyoSharp\MyoSharp.csproj", "{B075C7E9-FE48-4508-B44C-1A259BCC8B22}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyoSharp.ConsoleSample", "MyoSharp.ConsoleSample\MyoSharp.ConsoleSample.csproj", "{27DA6BB8-8526-437E-9293-A877FC175653}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,6 +21,12 @@ Global
 		{B075C7E9-FE48-4508-B44C-1A259BCC8B22}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B075C7E9-FE48-4508-B44C-1A259BCC8B22}.Release|x86.ActiveCfg = Release|x86
 		{B075C7E9-FE48-4508-B44C-1A259BCC8B22}.Release|x86.Build.0 = Release|x86
+		{27DA6BB8-8526-437E-9293-A877FC175653}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27DA6BB8-8526-437E-9293-A877FC175653}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27DA6BB8-8526-437E-9293-A877FC175653}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{27DA6BB8-8526-437E-9293-A877FC175653}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27DA6BB8-8526-437E-9293-A877FC175653}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27DA6BB8-8526-437E-9293-A877FC175653}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
