@@ -7,7 +7,7 @@ The goal of this project is to allow a high-level object-oriented C# API for dev
 
 MyoSharp is compatible with .NET 2.0+
 
-Sample Usage
+<h3>Sample Usage</h3>
 ```
 using System;
 using System.Collections.Generic;
@@ -57,5 +57,23 @@ namespace MyoSharp.ConsoleSample
             Console.WriteLine("Pose Detected: " + e.Pose);
         }
     }
+}
+```
+
+<h3>Detecting Sequences of Poses</h3>
+With this implementation you can define your own creative sequences of poses, see example below.
+```
+private static void Main(string[] args)
+{
+    var poseSeq = new PoseSequence(e.Myo, Pose.WaveOut, Pose.WaveIn, Pose.WaveOut ); 
+    poseSeq.PoseSequenceComplete += PoseSeq_PoseSequenceComplete;
+}
+
+// This event will fire when the Myo detects the 3 poses defined above 
+// (WaveOut, WaveIn, WaveOut) in a sequence
+private static void PoseSeq_PoseSequenceComplete(object sender, PoseEventArgs e)
+{
+    Console.WriteLine("Pose Sequence Detected!");
+    e.Myo.Vibrate(VibrationType.Long);
 }
 ```
