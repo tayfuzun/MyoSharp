@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 
 using MyoSharp.Math;
+using MyoSharp.Poses;
 
 namespace MyoSharp.Device
 {

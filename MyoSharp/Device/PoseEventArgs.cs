@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 
+using MyoSharp.Poses;
+
 namespace MyoSharp.Device
 {
     public class PoseEventArgs : MyoEventArgs

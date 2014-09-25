@@ -7,6 +7,7 @@ using System.Text;
 using MyoSharp.Discovery;
 using MyoSharp.Internal;
 using MyoSharp.Math;
+using MyoSharp.Poses;
 
 namespace MyoSharp.Device
 {

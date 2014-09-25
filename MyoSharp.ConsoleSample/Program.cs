@@ -5,6 +5,7 @@ using System.Text;
 
 using MyoSharp.Device;
 using MyoSharp.Discovery;
+using MyoSharp.Poses;
 
 namespace MyoSharp.ConsoleSample
 {
@@ -47,19 +48,24 @@ namespace MyoSharp.ConsoleSample
             myo.PoseChanged += Myo_PoseChange;
             myo.Connected += Myo_Connected;
             myo.Disconnected += Myo_Disconnected;
+
+            // map a sequence of poses
+            var poseSequence = PoseSequence.Create(myo, Pose.WaveOut, Pose.WaveIn);
+            poseSequence.PoseSequenceCompleted += PoseSeq_PoseSequenceComplete;
+
             _myos[e.MyoHandle] = myo;
         }
 
         private static void PoseSeq_PoseSequenceComplete(object sender, PoseEventArgs e)
         {
+            Console.WriteLine("{0} arm Myo did a fancy pose!", e.Myo.Arm);
             e.Myo.Vibrate(VibrationType.Long);
         }
 
         private static void Myo_Connected(object sender, MyoEventArgs e)
         {
             Console.WriteLine("Myo {0} Connected", e.Myo.Handle);
-            var poseSeq = new PoseSequence(e.Myo, Pose.WaveOut, Pose.WaveIn );
-            poseSeq.PoseSequenceComplete += PoseSeq_PoseSequenceComplete;
+            e.Myo.Vibrate(VibrationType.Short);
         }
 
         private static void Myo_Disconnected(object sender, MyoEventArgs e)
