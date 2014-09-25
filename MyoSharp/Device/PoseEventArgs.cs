@@ -7,7 +7,7 @@ namespace MyoSharp.Device
     public class PoseEventArgs : MyoEventArgs
     {
         #region Constructors
-        public PoseEventArgs(Myo myo, DateTime timestamp, Pose pose)
+        public PoseEventArgs(IMyo myo, DateTime timestamp, Pose pose)
             : base(myo, timestamp)
         {
             this.Pose = pose;

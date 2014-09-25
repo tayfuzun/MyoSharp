@@ -7,7 +7,7 @@ namespace MyoSharp.Device
     public class ArmRecognizedEventArgs : MyoEventArgs
     {
         #region Constructors
-        public ArmRecognizedEventArgs(Myo myo, DateTime timestamp, Arm arm, XDirection xDirection)
+        public ArmRecognizedEventArgs(IMyo myo, DateTime timestamp, Arm arm, XDirection xDirection)
             : base(myo, timestamp)
         {
             this.Arm = arm;

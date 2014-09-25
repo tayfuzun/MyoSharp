@@ -9,7 +9,9 @@ namespace MyoSharp.Discovery
     public interface IHub : IDisposable
     {
         #region Events
-        event EventHandler<MyoEventArgs> Paired;
+        event EventHandler<PairedEventArgs> Paired;
+
+        event EventHandler<RouteMyoEventArgs> RouteMyoEvent;
         #endregion
 
         #region Methods

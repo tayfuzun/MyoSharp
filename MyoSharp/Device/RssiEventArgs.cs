@@ -7,7 +7,7 @@ namespace MyoSharp.Device
     public class RssiEventArgs : MyoEventArgs
     {
         #region Constructors
-        public RssiEventArgs(Myo myo, DateTime timestamp, sbyte rssi)
+        public RssiEventArgs(IMyo myo, DateTime timestamp, sbyte rssi)
             : base(myo, timestamp)
         {
             this.Rssi = rssi;

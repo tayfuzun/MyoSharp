@@ -9,7 +9,7 @@ namespace MyoSharp.Device
     public class AccelerometerDataEventArgs : MyoEventArgs
     {
         #region Constructors
-        public AccelerometerDataEventArgs(Myo myo, DateTime timestamp, Vector3F accelerometer)
+        public AccelerometerDataEventArgs(IMyo myo, DateTime timestamp, Vector3F accelerometer)
             : base(myo, timestamp)
         {
             this.Accelerometer = accelerometer;

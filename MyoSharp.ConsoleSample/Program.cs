@@ -10,9 +10,11 @@ namespace MyoSharp.ConsoleSample
 {
     internal class Program
     {
+        private static readonly Dictionary<IntPtr, IMyo> _myos = new Dictionary<IntPtr, IMyo>();
+
         private static void Main(string[] args)
         {
-            var hub = Hub.Create("com.myosharp.myoapp");
+            var hub = Hub.Create("com.myosharp.consolesample");
             hub.StartListening();
 
             hub.Paired += Hub_Paired;
@@ -20,10 +22,12 @@ namespace MyoSharp.ConsoleSample
             Console.ReadLine();
         }
 
-        private static void Hub_Paired(object sender, MyoEventArgs e)
+        private static void Hub_Paired(object sender, PairedEventArgs e)
         {
-            e.Myo.PoseChange += Myo_PoseChange;
-            e.Myo.Connected += Myo_Connected;
+            var myo = Myo.Create((IHub)sender, e.MyoHandle);
+            myo.PoseChanged += Myo_PoseChange;
+            myo.Connected += Myo_Connected;
+            _myos[e.MyoHandle] = myo;
         }
 
         private static void Myo_Connected(object sender, MyoEventArgs e)

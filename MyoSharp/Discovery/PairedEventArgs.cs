@@ -4,18 +4,18 @@ using System.Text;
 
 namespace MyoSharp.Device
 {
-    public class MyoEventArgs : EventArgs
+    public class PairedEventArgs : EventArgs
     {
         #region Constructors
-        public MyoEventArgs(IMyo myo, DateTime timestamp)
+        public PairedEventArgs(IntPtr myohandle, DateTime timestamp)
         {
-            this.Myo = myo;
+            this.MyoHandle = myohandle;
             this.Timestamp = timestamp;
         }
         #endregion
 
         #region Properties
-        public IMyo Myo { get; private set; }
+        public IntPtr MyoHandle { get; private set; }
 
         public DateTime Timestamp { get; private set; }
         #endregion

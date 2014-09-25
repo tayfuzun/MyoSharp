@@ -9,7 +9,7 @@ namespace MyoSharp.Device
     public class GyroscopeDataEventArgs : MyoEventArgs
     {
         #region Constructors
-        public GyroscopeDataEventArgs(Myo myo, DateTime timestamp, Vector3F gyroscope)
+        public GyroscopeDataEventArgs(IMyo myo, DateTime timestamp, Vector3F gyroscope)
             : base(myo, timestamp)
         {
             this.Gyroscope = gyroscope;

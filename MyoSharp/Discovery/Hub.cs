@@ -18,8 +18,6 @@ namespace MyoSharp.Discovery
         #endregion
 
         #region Fields
-        private readonly Dictionary<IntPtr, Myo> _myos = new Dictionary<IntPtr, Myo>();
-
         private bool _disposed;
         private readonly IntPtr _handle;
 
@@ -39,7 +37,9 @@ namespace MyoSharp.Discovery
         #endregion
 
         #region Events
-        public event EventHandler<MyoEventArgs> Paired;
+        public event EventHandler<PairedEventArgs> Paired;
+
+        public event EventHandler<RouteMyoEventArgs> RouteMyoEvent;
         #endregion
 
         #region Methods
@@ -83,34 +83,50 @@ namespace MyoSharp.Discovery
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!_disposed)
+            if (_disposed)
             {
-                try
-                {
-                    StopListening();
+                return;
+            }
 
-                    // free managed objects
-                    ////if (disposing)
-                    ////{
-                    //// TODO: implement this if necessary
-                    ////}
+            try
+            {
+                StopListening();
 
-                    // free unmanaged objects
-                    ShutdownHub(_handle);
-                }
-                finally
-                {
-                    _disposed = true;
-                }
+                // free managed objects
+                ////if (disposing)
+                ////{
+                //// TODO: implement this if necessary
+                ////}
+
+                // free unmanaged objects
+                ShutdownHub(_handle);
+            }
+            finally
+            {
+                _disposed = true;
             }
         }
 
-        protected virtual void OnPaired(Myo myo)
+        protected virtual void OnPaired(IntPtr myoHandle)
         {
             var handler = Paired;
             if (handler != null)
             {
-                var args = new MyoEventArgs(myo, DateTime.Now);
+                var args = new PairedEventArgs(myoHandle, DateTime.Now);
+                handler.Invoke(this, args);
+            }
+        }
+
+        protected virtual void OnRouteMyoEvent(IntPtr myoHandle, IntPtr evt, MyoEventType type, DateTime timestamp)
+        {
+            var handler = RouteMyoEvent;
+            if (handler != null)
+            {
+                var args = new RouteMyoEventArgs(
+                    myoHandle,
+                    evt,
+                    type,
+                    timestamp);
                 handler.Invoke(this, args);
             }
         }
@@ -197,17 +213,15 @@ namespace MyoSharp.Discovery
             switch (type)
             {
                 case MyoEventType.Paired:
-                    var myo = new Myo(this, myoHandle);
-                    _myos.Add(myoHandle, myo);
-                    OnPaired(myo);
-                    break;
-                case MyoEventType.Disconnected:
-                    var timeOfDisconnect= GetEventTimestamp(evt);
-                    _myos[myoHandle].HandleEvent(type, timeOfDisconnect, evt);
+                    OnPaired(myoHandle);
                     break;
                 default:
                     var timestamp = GetEventTimestamp(evt);
-                    _myos[myoHandle].HandleEvent(type, timestamp, evt);
+                    OnRouteMyoEvent(
+                        myoHandle, 
+                        evt, 
+                        type, 
+                        timestamp);
                     break;
             }
 
