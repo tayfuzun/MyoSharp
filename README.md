@@ -65,6 +65,8 @@ With this implementation you can define your own creative sequences of poses, se
 ``` C#
 private static void Main(string[] args)
 {
+    var hub = hub;// Hub setup is ommitted
+    var myo = Myo.Create((IHub)hub, e.MyoHandle);
     var poseSeq = new PoseSequence(e.Myo, Pose.WaveOut, Pose.WaveIn, Pose.WaveOut ); 
     poseSeq.PoseSequenceComplete += PoseSeq_PoseSequenceComplete;
 }
