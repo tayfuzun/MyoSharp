@@ -8,7 +8,7 @@ The goal of this project is to allow a high-level object-oriented C# API for dev
 MyoSharp is compatible with .NET 2.0+
 
 Sample Usage
-
+```
 using MyoSharp.Device;
 using MyoSharp.Discovery;
 using System;
@@ -25,29 +25,32 @@ namespace MyoSharp
 
         static void Main(string[] args)
         {
-            var hub = Hub.Create("com.myosharp.myoapp");
-            hub.StartListening();
+            var hub = Hub.Create("com.myosharp.myoapp"); // creates the hub and initializes it
+            hub.StartListening(); // starts searching for nearby Myos
 
             hub.Paired += hub_Paired;
 
             Console.ReadLine();
         }
 
+        // This event is fired when the Myo has paired
         static void hub_Paired(object sender, MyoEventArgs e)
         {
             e.Myo.PoseChange += Myo_PoseChange;
             e.Myo.Connected += Myo_Connected;
         }
 
+        // This event fires when the Myo has successfully connected
         static void Myo_Connected(object sender, MyoEventArgs e)
         {
             Console.WriteLine("Myo Connected");
         }
 
+        // This event is fired when the Myo detects a pose change
         static void Myo_PoseChange(object sender, PoseEventArgs e)
         {
             Console.WriteLine("Pose Detected: " + e.Pose);
         }
     }
 }
-
+```
