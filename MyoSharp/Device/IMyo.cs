@@ -31,8 +31,15 @@ namespace MyoSharp.Device
         #endregion
 
         #region Methods
+        /// <summary>
+        /// Causes the Myo to vibrate.
+        /// </summary>
+        /// <param name="type">The type of vibration.</param>
         void Vibrate(VibrationType type);
 
+        /// <summary>
+        /// Requests RSSI from the Myo.
+        /// </summary>
         void RequestRssi();
         #endregion
     }
