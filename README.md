@@ -8,7 +8,7 @@ The goal of this project is to allow a high-level object-oriented C# API for dev
 MyoSharp is compatible with .NET 2.0+
 
 <h3>Sample Usage</h3>
-```
+``` C#
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -62,7 +62,7 @@ namespace MyoSharp.ConsoleSample
 
 <h3>Detecting Sequences of Poses</h3>
 With this implementation you can define your own creative sequences of poses, see example below.
-```
+``` C#
 private static void Main(string[] args)
 {
     var poseSeq = new PoseSequence(e.Myo, Pose.WaveOut, Pose.WaveIn, Pose.WaveOut ); 
