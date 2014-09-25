@@ -56,19 +56,19 @@ namespace MyoSharp.ConsoleSample
         private static void Myo_Connected(object sender, MyoEventArgs e)
         {
             e.Myo.Disconnected += Myo_Disconnected;
-            Console.WriteLine("Myo Connected");
+            Console.WriteLine("Myo {0} Connected", e.Myo.Handle);
             var poseSeq = new PoseSequence(e.Myo, Pose.WaveOut, Pose.WaveIn );
             poseSeq.PoseSequenceComplete += PoseSeq_PoseSequenceComplete;
         }
 
         private static void Myo_Disconnected(object sender, MyoEventArgs e)
         {
-            Console.WriteLine("Oh no, looks like the Myo disconnected!");
+            Console.WriteLine("Oh no, looks like {0} arm Myo disconnected!", e.Myo.Arm);
         }
 
         private static void Myo_PoseChange(object sender, PoseEventArgs e)
         {
-            Console.WriteLine("Pose Detected: " + e.Pose);
+            Console.WriteLine("{0} arm Myo detected {1} pose.", e.Myo.Arm, e.Myo.Pose);
         }
     }
 }
