@@ -14,7 +14,7 @@ namespace MyoSharp
 
         static void Main(string[] args)
         {
-            var hub = Hub.Create("com.pwnsauce.myo");
+            var hub = Hub.Create("com.myosharp.myoapp");
             hub.StartListening();
 
             hub.Paired += hub_Paired;
@@ -30,7 +30,13 @@ namespace MyoSharp
 
         static void Myo_Connected(object sender, MyoEventArgs e)
         {
+            e.Myo.Disconnected += Myo_Disconnected;
             Console.WriteLine("Myo Connected");
+        }
+
+        static void Myo_Disconnected(object sender, MyoEventArgs e)
+        {
+            Console.WriteLine("Oh no, looks like the Myo disconnected!");
         }
 
         static void Myo_PoseChange(object sender, PoseEventArgs e)

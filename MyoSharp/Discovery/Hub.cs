@@ -154,7 +154,7 @@ namespace MyoSharp.Discovery
             {
                 run_32(
                     hubHandle,
-                    1000,
+                    1000 / 20,
                     handler,
                     userData,
                     IntPtr.Zero);
@@ -163,7 +163,7 @@ namespace MyoSharp.Discovery
             {
                 run_64(
                      hubHandle,
-                     1000,
+                     1000 / 20,
                      handler,
                      userData,
                      IntPtr.Zero);
@@ -202,7 +202,10 @@ namespace MyoSharp.Discovery
                     _myos.Add(myoHandle, myo);
                     OnPaired(myo);
                     break;
-
+                case MyoEventType.Disconnected:
+                    var timeOfDisconnect= GetEventTimestamp(evt);
+                    _myos[myoHandle].HandleEvent(type, timeOfDisconnect, evt);
+                    break;
                 default:
                     var timestamp = GetEventTimestamp(evt);
                     _myos[myoHandle].HandleEvent(type, timestamp, evt);
