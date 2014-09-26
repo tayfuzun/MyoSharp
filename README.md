@@ -16,6 +16,8 @@ using System.Text;
 
 using MyoSharp.Device;
 using MyoSharp.Discovery;
+using MyoSharp.Communication;
+using MyoSharp.Poses;
 
 namespace MyoSharp.ConsoleSample
 {
@@ -25,36 +27,68 @@ namespace MyoSharp.ConsoleSample
 
         private static void Main(string[] args)
         {
-            var hub = Hub.Create("com.myosharp.consolesample");
-            hub.StartListening();
+            using (var channel = Channel.Create("com.myosharp.consolesample"))
+            {
+                channel.StartListening();
 
-            hub.Paired += Hub_Paired;
+                var deviceListener = DeviceListener.Create(channel);
+                deviceListener.Paired += DeviceListener_Paired;
 
-            Console.ReadLine();
+                UserInputLoop();
+            }
         }
 
-        private static void Hub_Paired(object sender, PairedEventArgs e)
+        private static void UserInputLoop()
         {
-            var myo = Myo.Create((IHub)sender, e.MyoHandle);
+            string userInput;
+            while (!string.IsNullOrEmpty((userInput = Console.ReadLine())))
+            {
+                if (userInput.Equals("pose", StringComparison.OrdinalIgnoreCase))
+                {
+                    foreach (var myo in _myos.Values)
+                    {
+                        Console.WriteLine("Myo ({0}) in pose {1}.", myo.Handle, myo.Pose);
+                    }
+                }
+                else if (userInput.Equals("arm", StringComparison.OrdinalIgnoreCase))
+                {
+                    foreach (var myo in _myos.Values)
+                    {
+                        Console.WriteLine("Myo ({0}) is on {1} arm.", myo.Handle, myo.Arm.ToString().ToLower());
+                    }
+                }
+            }
+        }
+
+        private static void DeviceListener_Paired(object sender, PairedEventArgs e)
+        {
+            // create a new Myo and hook up some events to it!
+            var myo = Myo.Create(
+                e.MyoHandle, 
+                ((IDeviceListener)sender).ChannelListener);
             myo.PoseChanged += Myo_PoseChange;
             myo.Connected += Myo_Connected;
+            myo.Disconnected += Myo_Disconnected;
+
             _myos[e.MyoHandle] = myo;
         }
 
         private static void Myo_Connected(object sender, MyoEventArgs e)
         {
-            e.Myo.Disconnected += Myo_Disconnected;
-            Console.WriteLine("Myo Connected");
+            Console.WriteLine("Myo {0} Connected", e.Myo.Handle);
+            e.Myo.Vibrate(VibrationType.Short);
         }
 
         private static void Myo_Disconnected(object sender, MyoEventArgs e)
         {
-            Console.WriteLine("Oh no, looks like the Myo disconnected!");
+            Console.WriteLine("Oh no, looks like {0} arm Myo disconnected!", e.Myo.Arm);
+            e.Myo.Dispose();
+            _myos.Remove(e.Myo.Handle);
         }
 
         private static void Myo_PoseChange(object sender, PoseEventArgs e)
         {
-            Console.WriteLine("Pose Detected: " + e.Pose);
+            Console.WriteLine("{0} arm Myo detected {1} pose.", e.Myo.Arm, e.Myo.Pose);
         }
     }
 }
@@ -65,8 +99,8 @@ With this implementation you can define your own creative sequences of poses, se
 ``` C#
 private static void Main(string[] args)
 {
-    var hub = hub;// Hub setup is ommitted
-    var myo = Myo.Create((IHub)hub, e.MyoHandle);
+    var channel = channel; // Hub setup is ommitted
+    var myo = Myo.Create((IChannel)hub, e.MyoHandle);
     var poseSeq = new PoseSequence(e.Myo, Pose.WaveOut, Pose.WaveIn, Pose.WaveOut ); 
     poseSeq.PoseSequenceComplete += PoseSeq_PoseSequenceComplete;
 }
