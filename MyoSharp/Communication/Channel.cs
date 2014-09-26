@@ -1,68 +1,73 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
 
 using MyoSharp.Internal;
 using MyoSharp.Device;
 
-namespace MyoSharp.Discovery
+namespace MyoSharp.Communication
 {
-    public class Hub : IHub
+    public class Channel : IChannel
     {
         #region Constants
         private static readonly DateTime TIMESTAMP_EPOCH = new DateTime(1970, 1, 1, 0, 0, 0, 0);
         #endregion
 
         #region Fields
-        private bool _disposed;
         private readonly IntPtr _handle;
-
-        private volatile Thread _eventThread;
+        private Thread _eventThread;
+        private volatile bool _killEventThread;
+        private bool _disposed;
         #endregion
 
         #region Constructors
-        private Hub(IntPtr hubHandle)
+        protected Channel(IntPtr handle)
         {
-            _handle = hubHandle;
+            if (handle == IntPtr.Zero)
+            {
+                throw new ArgumentException("handle", "The handle must be set.");
+            }
+
+            _handle = handle;
         }
 
-        ~Hub()
+        ~Channel()
         {
             Dispose(false);
         }
         #endregion
 
         #region Events
-        public event EventHandler<PairedEventArgs> Paired;
-
-        public event EventHandler<RouteMyoEventArgs> RouteMyoEvent;
+        public event EventHandler<RouteMyoEventArgs> EventReceived;
         #endregion
 
         #region Methods
-        public static IHub Create(string applicationIdentifier)
+        public static IChannel Create(string applicationIdentifier)
         {
-            IntPtr hubHandle;
-            var result = InitializeHub(
-                out hubHandle, 
+            IntPtr handle;
+            var result = InitializeMyoHub(
+                out handle, 
                 applicationIdentifier);
+
+            if (result == MyoResult.ErrorInvalidArgument)
+            {
+                throw new ArgumentException("applicationIdentifier", "The application identifier was invalid.");
+            }
 
             if (result != MyoResult.Success)
             {
                 throw new InvalidOperationException(string.Format("Unable to initialize Hub. Result code {0}.", result));
             }
 
-            return new Hub(hubHandle);
+            return new Channel(handle);
         }
 
         public void StartListening()
         {
+            _killEventThread = false;
             _eventThread = new Thread(new ThreadStart(EventListenerThread));
             _eventThread.IsBackground = true;
-            _eventThread.Name = "Myo Hub Listener Thread";
+            _eventThread.Name = "Myo Channel Listener Thread";
             _eventThread.Start();
         }
 
@@ -70,8 +75,8 @@ namespace MyoSharp.Discovery
         {
             if (_eventThread != null)
             {
+                _killEventThread = true;
                 _eventThread.Join();
-                _eventThread = null;
             }
         }
         
@@ -99,7 +104,7 @@ namespace MyoSharp.Discovery
                 ////}
 
                 // free unmanaged objects
-                ShutdownHub(_handle);
+                ShutdownMyoHub(_handle);
             }
             finally
             {
@@ -107,31 +112,21 @@ namespace MyoSharp.Discovery
             }
         }
 
-        protected virtual void OnPaired(IntPtr myoHandle)
+        protected virtual void OnEventReceived(IntPtr myoHandle, IntPtr evt, MyoEventType eventType, DateTime timestamp)
         {
-            var handler = Paired;
-            if (handler != null)
-            {
-                var args = new PairedEventArgs(myoHandle, DateTime.Now);
-                handler.Invoke(this, args);
-            }
-        }
-
-        protected virtual void OnRouteMyoEvent(IntPtr myoHandle, IntPtr evt, MyoEventType type, DateTime timestamp)
-        {
-            var handler = RouteMyoEvent;
+            var handler = EventReceived;
             if (handler != null)
             {
                 var args = new RouteMyoEventArgs(
-                    myoHandle,
+                    myoHandle, 
                     evt,
-                    type,
+                    eventType,
                     timestamp);
                 handler.Invoke(this, args);
             }
         }
 
-        private static void ShutdownHub(IntPtr hubPointer)
+        private static void ShutdownMyoHub(IntPtr hubPointer)
         {
             if (hubPointer == IntPtr.Zero)
             {
@@ -148,7 +143,7 @@ namespace MyoSharp.Discovery
             }
         }
 
-        private static MyoResult InitializeHub(out IntPtr hubPointer, string applicationIdentifier)
+        private static MyoResult InitializeMyoHub(out IntPtr hubPointer, string applicationIdentifier)
         {
             return PlatformInvocation.Running32Bit
                 ? init_hub_32(out hubPointer, applicationIdentifier, IntPtr.Zero)
@@ -209,29 +204,19 @@ namespace MyoSharp.Discovery
 
             var type = GetEventType(evt);
             var myoHandle = GetMyoForEvent(evt);
-
-            switch (type)
-            {
-                case MyoEventType.Paired:
-                    OnPaired(myoHandle);
-                    break;
-                default:
-                    var timestamp = GetEventTimestamp(evt);
-                    OnRouteMyoEvent(
-                        myoHandle, 
-                        evt, 
-                        type, 
-                        timestamp);
-                    break;
-            }
+            var timestamp = GetEventTimestamp(evt);
+            OnEventReceived(
+                myoHandle,
+                evt,
+                type,
+                timestamp);
 
             return MyoRunHandlerResult.Continue;
         }
 
         private void EventListenerThread()
         {
-            var currentThread = Thread.CurrentThread;
-            while (currentThread == _eventThread)
+            while (!_killEventThread)
             {
                 Run(
                     _handle, 

@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace MyoSharp.Device
+using MyoSharp.Device;
+
+namespace MyoSharp.Communication
 {
     public class RouteMyoEventArgs : EventArgs
     {

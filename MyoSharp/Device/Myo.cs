@@ -1,29 +1,36 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Text;
 
-using MyoSharp.Discovery;
 using MyoSharp.Internal;
 using MyoSharp.Math;
 using MyoSharp.Poses;
+using MyoSharp.Communication;
 
 namespace MyoSharp.Device
 {
     public class Myo : IMyo
     {
         #region Fields
-        private readonly IHub _hub;
-        private IntPtr _handle;
+        private readonly IChannelListener _channelListener;
+        private readonly IntPtr _handle;
         private bool _disposed;
         #endregion
 
         #region Constructors
-        protected Myo(IHub hub, IntPtr handle)
+        protected Myo(IntPtr handle, IChannelListener channelListener)
         {
-            _hub = hub;
-            _hub.RouteMyoEvent += Hub_RouteMyoEvent;
+            if (channelListener == null)
+            {
+                throw new ArgumentNullException("channelListener", "The channel listener cannot be null.");
+            }
+
+            if (handle == null)
+            {
+                throw new ArgumentException("The handle must be set.", "handle");
+            }
+
+            _channelListener = channelListener;
+            _channelListener.EventReceived += Channel_EventReceived;
 
             _handle = handle;
 
@@ -81,11 +88,6 @@ namespace MyoSharp.Device
             get;
             private set;
         }
-
-        protected IHub Hub
-        {
-            get { return _hub; }
-        }
         #endregion
 
         #region Events
@@ -110,26 +112,18 @@ namespace MyoSharp.Device
 
         #region Methods
         /// <summary>
-        /// Creates a new <see cref="IMyo"/> instance.
+        /// Creates a new <see cref="IMyo" /> instance.
         /// </summary>
-        /// <param name="hub">The hub this Myo should listen to.</param>
         /// <param name="handle">The handle of the Myo device.</param>
-        /// <returns>A new <see cref="IMyo"/> instance.</returns>
+        /// <param name="channelListener">The channel listener.</param>
+        /// <returns>
+        /// A new <see cref="IMyo" /> instance.
+        /// </returns>
         /// <exception cref="System.ArgumentNullException">Thrown when the hub is null.</exception>
         /// <exception cref="System.ArgumentException">Thrown when the handle is not set.</exception>
-        public static IMyo Create(IHub hub, IntPtr handle)
+        public static IMyo Create(IntPtr handle, IChannelListener channelListener)
         {
-            if (hub == null)
-            {
-                throw new ArgumentNullException("hub", "The hub cannot be null.");
-            }
-
-            if (handle == null)
-            {
-                throw new ArgumentException("The handle must be set.", "handle");
-            }
-
-            return new Myo(hub, handle);
+            return new Myo(handle, channelListener);
         }
 
         /// <summary>
@@ -413,7 +407,14 @@ namespace MyoSharp.Device
                 // free managed objects
                 if (disposing)
                 {
-                    _hub.RouteMyoEvent -= Hub_RouteMyoEvent;
+                    // free managed objects
+                    if (disposing)
+                    {
+                        if (_channelListener != null)
+                        {
+                            _channelListener.EventReceived -= Channel_EventReceived;
+                        }
+                    }
                 }
             }
             finally
@@ -567,8 +568,9 @@ namespace MyoSharp.Device
         #endregion  
 
         #region Event handlers
-        private void Hub_RouteMyoEvent(object sender, RouteMyoEventArgs e)
+        private void Channel_EventReceived(object sender, RouteMyoEventArgs e)
         {
+            // check if this event is for us
             if (e.MyoHandle != _handle)
             {
                 return;

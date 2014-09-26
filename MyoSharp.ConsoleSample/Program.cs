@@ -5,6 +5,7 @@ using System.Text;
 
 using MyoSharp.Device;
 using MyoSharp.Discovery;
+using MyoSharp.Communication;
 using MyoSharp.Poses;
 
 namespace MyoSharp.ConsoleSample
@@ -15,13 +16,20 @@ namespace MyoSharp.ConsoleSample
 
         private static void Main(string[] args)
         {
-            var hub = Hub.Create("com.myosharp.consolesample");
-            hub.StartListening();
+            using (var channel = Channel.Create("com.myosharp.consolesample"))
+            {
+                channel.StartListening();
 
-            hub.Paired += Hub_Paired;
+                var deviceListener = DeviceListener.Create(channel);
+                deviceListener.Paired += DeviceListener_Paired;
 
+                UserInputLoop();
+            }
+        }
+
+        private static void UserInputLoop()
+        {
             string userInput;
-
             while (!string.IsNullOrEmpty((userInput = Console.ReadLine())))
             {
                 if (userInput.Equals("pose", StringComparison.OrdinalIgnoreCase))
@@ -41,10 +49,12 @@ namespace MyoSharp.ConsoleSample
             }
         }
 
-        private static void Hub_Paired(object sender, PairedEventArgs e)
+        private static void DeviceListener_Paired(object sender, PairedEventArgs e)
         {
             // create a new Myo and hook up some events to it!
-            var myo = Myo.Create((IHub)sender, e.MyoHandle);
+            var myo = Myo.Create(
+                e.MyoHandle, 
+                ((IDeviceListener)sender).ChannelListener);
             myo.PoseChanged += Myo_PoseChange;
             myo.Connected += Myo_Connected;
             myo.Disconnected += Myo_Disconnected;

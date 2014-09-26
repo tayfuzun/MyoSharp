@@ -41,6 +41,9 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Communication\Channel.cs" />
+    <Compile Include="Communication\IChannel.cs" />
+    <Compile Include="Communication\IChannelListener.cs" />
     <Compile Include="Device\AccelerometerDataEventArgs.cs" />
     <Compile Include="Device\Arm.cs" />
     <Compile Include="Device\ArmRecognizedEventArgs.cs" />
@@ -54,12 +57,12 @@
     <Compile Include="Device\VersionComponent.cs" />
     <Compile Include="Device\VibrationType.cs" />
     <Compile Include="Device\XDirection.cs" />
-    <Compile Include="Discovery\RouteMyoEventArgs.cs" />
-    <Compile Include="Discovery\IHub.cs" />
+    <Compile Include="Communication\RouteMyoEventArgs.cs" />
+    <Compile Include="Discovery\IDeviceListener.cs" />
     <Compile Include="Device\MyoEventArgs.cs" />
     <Compile Include="Device\MyoEventType.cs" />
     <Compile Include="Device\RssiEventArgs.cs" />
-    <Compile Include="Discovery\Hub.cs" />
+    <Compile Include="Discovery\DeviceListener.cs" />
     <Compile Include="Device\Myo.cs" />
     <Compile Include="Discovery\PairedEventArgs.cs" />
     <Compile Include="Internal\MyoResult.cs" />
