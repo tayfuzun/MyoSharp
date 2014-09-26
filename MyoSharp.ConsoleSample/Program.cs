@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Text;
 
 using MyoSharp.Device;
 using MyoSharp.Discovery;
@@ -36,14 +34,14 @@ namespace MyoSharp.ConsoleSample
                 {
                     foreach (var myo in _myos.Values)
                     {
-                        Console.WriteLine("Myo ({0}) in pose {1}.", myo.Handle, myo.Pose);
+                        Console.WriteLine("Myo {0} in pose {1}.", myo.Handle, myo.Pose);
                     }
                 }
                 else if (userInput.Equals("arm", StringComparison.OrdinalIgnoreCase))
                 {
                     foreach (var myo in _myos.Values)
                     {
-                        Console.WriteLine("Myo ({0}) is on {1} arm.", myo.Handle, myo.Arm.ToString().ToLower());
+                        Console.WriteLine("Myo {0} is on {1} arm.", myo.Handle, myo.Arm.ToString().ToLower());
                     }
                 }
             }
@@ -51,6 +49,14 @@ namespace MyoSharp.ConsoleSample
 
         private static void DeviceListener_Paired(object sender, PairedEventArgs e)
         {
+            Console.WriteLine("Myo {0} has been paired!", e.MyoHandle);
+
+            // we already have a Myo from a previous pair attempt
+            if (_myos.ContainsKey(e.MyoHandle))
+            {
+                return;
+            }
+
             // create a new Myo and hook up some events to it!
             var myo = Myo.Create(
                 e.MyoHandle, 
@@ -63,29 +69,35 @@ namespace MyoSharp.ConsoleSample
             var poseSequence = PoseSequence.Create(myo, Pose.WaveOut, Pose.WaveIn);
             poseSequence.PoseSequenceCompleted += (_, poseArgs) =>
             {
-                Console.WriteLine("{0} arm Myo did a fancy pose!", poseArgs.Myo.Arm);
+                Console.WriteLine("{0} arm Myo has performed a fancy pose!", poseArgs.Myo.Arm);
                 myo.Vibrate(VibrationType.Long);
             };
+
+            // track when the user is holding a pose!
+            var held = HeldPose.Create(myo, Pose.Fist);
+            held.Triggered += (_, poseArgs) =>
+            {
+                Console.WriteLine("{0} arm Myo is holding the {1} pose!", poseArgs.Myo.Arm, poseArgs.Pose);
+            };
+            held.Start();
 
             _myos[e.MyoHandle] = myo;
         }
         
         private static void Myo_Connected(object sender, MyoEventArgs e)
         {
-            Console.WriteLine("Myo {0} Connected", e.Myo.Handle);
+            Console.WriteLine("Myo {0} has connected!", e.Myo.Handle);
             e.Myo.Vibrate(VibrationType.Short);
         }
 
         private static void Myo_Disconnected(object sender, MyoEventArgs e)
         {
-            Console.WriteLine("Oh no, looks like {0} arm Myo disconnected!", e.Myo.Arm);
-            e.Myo.Dispose();
-            _myos.Remove(e.Myo.Handle);
+            Console.WriteLine("Oh no! It looks like {0} arm Myo has disconnected!", e.Myo.Arm);
         }
 
         private static void Myo_PoseChange(object sender, PoseEventArgs e)
         {
-            Console.WriteLine("{0} arm Myo detected {1} pose.", e.Myo.Arm, e.Myo.Pose);
+            Console.WriteLine("{0} arm Myo detected {1} pose!", e.Myo.Arm, e.Myo.Pose);
         }
     }
 }

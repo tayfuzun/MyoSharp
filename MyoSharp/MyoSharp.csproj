@@ -67,6 +67,8 @@
     <Compile Include="Discovery\PairedEventArgs.cs" />
     <Compile Include="Internal\MyoResult.cs" />
     <Compile Include="Internal\PlatformInvocation.cs" />
+    <Compile Include="Poses\HeldPose.cs" />
+    <Compile Include="Poses\IHeldPose.cs" />
     <Compile Include="Poses\IPoseSequence.cs" />
     <Compile Include="Poses\Pose.cs" />
     <Compile Include="Poses\PoseSequenceEventArgs.cs" />
