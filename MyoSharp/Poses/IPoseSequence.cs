@@ -9,7 +9,7 @@ namespace MyoSharp.Poses
     public interface IPoseSequence : IDisposable
     {
         #region Events
-        event EventHandler<PoseEventArgs> PoseSequenceCompleted;
+        event EventHandler<PoseSequenceEventArgs> PoseSequenceCompleted;
         #endregion
     }
 }

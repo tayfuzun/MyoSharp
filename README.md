@@ -101,18 +101,24 @@ private static void Main(string[] args)
 {
     // NOTE: Setup left out for brevity
     var channel = Channel.Create(/*...*/);
-    var deviceListener = DeviceListener.Create(*...*/);
-    var myo = Myo.Create(*...*/);
+    var deviceListener = DeviceListener.Create(/*...*/);
+    var myo = Myo.Create(/*...*/);
     
-    var poseSeq = new PoseSequence(e.Myo, Pose.WaveOut, Pose.WaveIn, Pose.WaveOut ); 
-    poseSeq.PoseSequenceComplete += PoseSeq_PoseSequenceComplete;
+    // Create a new pose sequence that will listen to the Myo's pose change events
+    var poseSequence = new PoseSequence(
+	e.Myo, 
+	Pose.WaveOut, 
+	Pose.WaveIn, 
+	Pose.WaveOut ); 
+    
+    // This event will fire when the Myo detects the 3 poses defined above 
+    // (WaveOut, WaveIn, WaveOut) in a sequence
+    var poseSequence = PoseSequence.Create(myo, Pose.WaveOut, Pose.WaveIn);
+    poseSequence.PoseSequenceCompleted += (_, poseArgs) =>
+    {
+	Console.WriteLine("{0} arm Myo did a fancy pose!", poseArgs.Myo.Arm);
+	myo.Vibrate(VibrationType.Long);
+    };
 }
 
-// This event will fire when the Myo detects the 3 poses defined above 
-// (WaveOut, WaveIn, WaveOut) in a sequence
-private static void PoseSeq_PoseSequenceComplete(object sender, PoseEventArgs e)
-{
-    Console.WriteLine("Pose Sequence Detected!");
-    e.Myo.Vibrate(VibrationType.Long);
-}
 ```

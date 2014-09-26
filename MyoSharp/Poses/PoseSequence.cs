@@ -11,12 +11,12 @@ namespace MyoSharp.Poses
         #region Fields
         private readonly List<Pose> _sequence;
         private readonly List<Pose> _currentSequence;
-        private IMyo _myo;
+        private IMyoEventGenerator _myo;
         private bool _disposed;
         #endregion
 
         #region Constructors
-        protected PoseSequence(IMyo myo, IEnumerable<Pose> sequence)
+        protected PoseSequence(IMyoEventGenerator myo, IEnumerable<Pose> sequence)
         {
             if (myo == null)
             {
@@ -41,7 +41,7 @@ namespace MyoSharp.Poses
             _myo.PoseChanged += Myo_PoseChanged;
         }
 
-        protected PoseSequence(IMyo myo, params Pose[] sequence)
+        protected PoseSequence(IMyoEventGenerator myo, params Pose[] sequence)
             : this(myo, (IEnumerable<Pose>)sequence)
         {
         }
@@ -56,16 +56,16 @@ namespace MyoSharp.Poses
         #endregion
 
         #region Events
-        public event EventHandler<PoseEventArgs> PoseSequenceCompleted;
+        public event EventHandler<PoseSequenceEventArgs> PoseSequenceCompleted;
         #endregion
 
         #region Methods
-        public static IPoseSequence Create(IMyo myo, params Pose[] sequence)
+        public static IPoseSequence Create(IMyoEventGenerator myo, params Pose[] sequence)
         {
             return new PoseSequence(myo, sequence);
         }
 
-        public static IPoseSequence Create(IMyo myo, IEnumerable<Pose> sequence)
+        public static IPoseSequence Create(IMyoEventGenerator myo, IEnumerable<Pose> sequence)
         {
             return new PoseSequence(myo, sequence);
         }
@@ -101,6 +101,19 @@ namespace MyoSharp.Poses
                 _disposed = true;
             }
         }
+
+        protected virtual void OnPoseSequenceCompleted(IMyo myo, DateTime timestamp, IList<Pose> poses)
+        {
+            var handler = PoseSequenceCompleted;
+            if (handler != null)
+            {
+                var args = new PoseSequenceEventArgs(
+                    myo,
+                    timestamp,
+                    poses);
+                handler.Invoke(this, args);
+            }
+        }
         #endregion
 
         #region Event Handlers
@@ -120,7 +133,7 @@ namespace MyoSharp.Poses
                 }
 
                 // got a match
-                PoseSequenceCompleted(this, e);
+                OnPoseSequenceCompleted(e.Myo, e.Timestamp, _currentSequence);
                 _currentSequence.Clear();
             }
             else

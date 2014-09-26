@@ -61,17 +61,15 @@ namespace MyoSharp.ConsoleSample
 
             // map a sequence of poses
             var poseSequence = PoseSequence.Create(myo, Pose.WaveOut, Pose.WaveIn);
-            poseSequence.PoseSequenceCompleted += PoseSeq_PoseSequenceComplete;
+            poseSequence.PoseSequenceCompleted += (_, poseArgs) =>
+            {
+                Console.WriteLine("{0} arm Myo did a fancy pose!", poseArgs.Myo.Arm);
+                myo.Vibrate(VibrationType.Long);
+            };
 
             _myos[e.MyoHandle] = myo;
         }
-
-        private static void PoseSeq_PoseSequenceComplete(object sender, PoseEventArgs e)
-        {
-            Console.WriteLine("{0} arm Myo did a fancy pose!", e.Myo.Arm);
-            e.Myo.Vibrate(VibrationType.Long);
-        }
-
+        
         private static void Myo_Connected(object sender, MyoEventArgs e)
         {
             Console.WriteLine("Myo {0} Connected", e.Myo.Handle);
