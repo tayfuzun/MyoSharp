@@ -7,6 +7,9 @@ using MyoSharp.Device;
 
 namespace MyoSharp.Communication
 {
+    /// <summary>
+    /// A class that can listen to Myo Bluetooth data.
+    /// </summary>
     public class Channel : IChannel
     {
         #region Constants
@@ -21,6 +24,11 @@ namespace MyoSharp.Communication
         #endregion
 
         #region Constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Channel"/> class.
+        /// </summary>
+        /// <param name="handle">The handle to the underlying Myo hub communication device.</param>
+        /// <exception cref="System.ArgumentException">Thrown when the handle is not set.</exception>
         protected Channel(IntPtr handle)
         {
             if (handle == IntPtr.Zero)
@@ -31,6 +39,9 @@ namespace MyoSharp.Communication
             _handle = handle;
         }
 
+        /// <summary>
+        /// Finalizes an instance of the <see cref="Channel"/> class.
+        /// </summary>
         ~Channel()
         {
             Dispose(false);
@@ -38,10 +49,47 @@ namespace MyoSharp.Communication
         #endregion
 
         #region Events
+        /// <summary>
+        /// The event that is triggered when an event is received on a communication channel.
+        /// </summary>
         public event EventHandler<RouteMyoEventArgs> EventReceived;
         #endregion
 
         #region Methods
+        /// <summary>
+        /// Creates a new <see cref="IChannel"/> instance.
+        /// </summary>
+        /// <returns>A new <see cref="IChannel"/> instance.</returns>
+        /// <exception cref="System.ArgumentException">
+        /// Thrown when the specified application identifier is invalid.
+        /// </exception>
+        /// <exception cref="System.InvalidOperationException">
+        /// Thrown when there is a failure to connect to the Bluetooth hub.
+        /// </exception>
+        public static IChannel Create()
+        {
+            return Create(string.Empty);
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="IChannel"/> instance for the specified application identifier.
+        /// </summary>
+        /// <param name="applicationIdentifier">
+        /// The application identifier must follow a reverse domain name format (ex. com.domainname.appname). Application
+        /// identifiers can be formed from the set of alphanumeric ASCII characters (a-z, A-Z, 0-9). The hyphen (-) and
+        /// underscore (_) characters are permitted if they are not adjacent to a period (.) character  (i.e. not at the
+        /// start or end of each segment), but are not permitted in the top-level domain. Application identifiers must have
+        /// three or more segments. For example, if a company's domain is example.com and the application is named
+        /// hello-world, one could use "com.example.hello-world" as a valid application identifier. The application identifier
+        /// can be an empty string. The application identifier cannot be longer than 255 characters.
+        /// </param>
+        /// <returns>A new <see cref="IChannel"/> instance.</returns>
+        /// <exception cref="System.ArgumentException">
+        /// Thrown when the specified application identifier is invalid.
+        /// </exception>
+        /// <exception cref="System.InvalidOperationException">
+        /// Thrown when there is a failure to connect to the Bluetooth hub.
+        /// </exception>
         public static IChannel Create(string applicationIdentifier)
         {
             IntPtr handle;
@@ -62,15 +110,24 @@ namespace MyoSharp.Communication
             return new Channel(handle);
         }
 
+        /// <summary>
+        /// Starts listening on the communication channel.
+        /// </summary>
         public void StartListening()
         {
-            _killEventThread = false;
-            _eventThread = new Thread(new ThreadStart(EventListenerThread));
-            _eventThread.IsBackground = true;
-            _eventThread.Name = "Myo Channel Listener Thread";
-            _eventThread.Start();
+            if (_eventThread == null)
+            {
+                _killEventThread = false;
+                _eventThread = new Thread(new ThreadStart(EventListenerThread));
+                _eventThread.IsBackground = true;
+                _eventThread.Name = "Myo Channel Listener Thread";
+                _eventThread.Start();
+            }
         }
 
+        /// <summary>
+        /// Stops listening on the communication channel.
+        /// </summary>
         public void StopListening()
         {
             if (_eventThread != null)
@@ -79,13 +136,23 @@ namespace MyoSharp.Communication
                 _eventThread.Join();
             }
         }
-        
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        /// <param name="disposing">
+        /// <c>true</c> to release both managed and unmanaged resources; 
+        /// <c>false</c> to release only unmanaged resources.
+        /// </param>
         protected virtual void Dispose(bool disposing)
         {
             if (_disposed)
@@ -112,7 +179,18 @@ namespace MyoSharp.Communication
             }
         }
 
-        protected virtual void OnEventReceived(IntPtr myoHandle, IntPtr evt, MyoEventType eventType, DateTime timestamp)
+        /// <summary>
+        /// Called when an event has been received on the communication channel.
+        /// </summary>
+        /// <param name="myoHandle">The Myo handle.</param>
+        /// <param name="evt">The event handle.</param>
+        /// <param name="eventType">The type of the event.</param>
+        /// <param name="timestamp">The timestamp of the event.</param>
+        protected virtual void OnEventReceived(
+            IntPtr myoHandle, 
+            IntPtr evt, 
+            MyoEventType eventType, 
+            DateTime timestamp)
         {
             var handler = EventReceived;
             if (handler != null)
