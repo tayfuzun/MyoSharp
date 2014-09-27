@@ -25,11 +25,22 @@ namespace MyoSharp.Communication
 
         #region Constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="Channel"/> class.
+        /// Initializes a new instance of the <see cref="Channel" /> class.
         /// </summary>
         /// <param name="handle">The handle to the underlying Myo hub communication device.</param>
         /// <exception cref="System.ArgumentException">Thrown when the handle is not set.</exception>
         protected Channel(IntPtr handle)
+            : this(handle, false)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Channel" /> class.
+        /// </summary>
+        /// <param name="handle">The handle to the underlying Myo hub communication device.</param>
+        /// <param name="autostart">If set to <c>true</c>, the channel will be automatically started.</param>
+        /// <exception cref="System.ArgumentException">Thrown when the handle is not set.</exception>
+        protected Channel(IntPtr handle, bool autostart)
         {
             if (handle == IntPtr.Zero)
             {
@@ -37,6 +48,11 @@ namespace MyoSharp.Communication
             }
 
             _handle = handle;
+
+            if (autostart)
+            {
+                StartListening();
+            }
         }
 
         /// <summary>
@@ -70,27 +86,20 @@ namespace MyoSharp.Communication
         {
             return Create(string.Empty);
         }
-
-        /// <summary>
-        /// Creates a new <see cref="IChannel"/> instance for the specified application identifier.
-        /// </summary>
-        /// <param name="applicationIdentifier">
-        /// The application identifier must follow a reverse domain name format (ex. com.domainname.appname). Application
+        /// <param name="applicationIdentifier">The application identifier must follow a reverse domain name format (ex. com.domainname.appname). Application
         /// identifiers can be formed from the set of alphanumeric ASCII characters (a-z, A-Z, 0-9). The hyphen (-) and
         /// underscore (_) characters are permitted if they are not adjacent to a period (.) character  (i.e. not at the
         /// start or end of each segment), but are not permitted in the top-level domain. Application identifiers must have
         /// three or more segments. For example, if a company's domain is example.com and the application is named
         /// hello-world, one could use "com.example.hello-world" as a valid application identifier. The application identifier
-        /// can be an empty string. The application identifier cannot be longer than 255 characters.
-        /// </param>
-        /// <returns>A new <see cref="IChannel"/> instance.</returns>
-        /// <exception cref="System.ArgumentException">
-        /// Thrown when the specified application identifier is invalid.
-        /// </exception>
-        /// <exception cref="System.InvalidOperationException">
-        /// Thrown when there is a failure to connect to the Bluetooth hub.
-        /// </exception>
-        public static IChannel Create(string applicationIdentifier)
+        /// can be an empty string. The application identifier cannot be longer than 255 characters.</param>
+        /// <param name="autostart">If set to <c>true</c>, the channel will be automatically started.</param>
+        /// <returns>
+        /// A new <see cref="IChannel" /> instance.
+        /// </returns>
+        /// <exception cref="System.ArgumentException">Thrown when the specified application identifier is invalid.</exception>
+        /// <exception cref="System.InvalidOperationException">Thrown when there is a failure to connect to the Bluetooth hub.</exception>
+        public static IChannel Create(string applicationIdentifier = "", bool autostart = false)
         {
             IntPtr handle;
             var result = InitializeMyoHub(
@@ -107,7 +116,7 @@ namespace MyoSharp.Communication
                 throw new InvalidOperationException(string.Format("Unable to initialize Hub. Result code {0}.", result));
             }
 
-            return new Channel(handle);
+            return new Channel(handle, autostart);
         }
 
         /// <summary>

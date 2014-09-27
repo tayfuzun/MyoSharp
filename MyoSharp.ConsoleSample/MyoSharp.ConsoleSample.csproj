@@ -32,11 +32,17 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>MyoSharp.ConsoleSample.BasicSetupExample</StartupObject>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
+    <Compile Include="BasicSetupExample.cs" />
+    <Compile Include="HeldPoseExample.cs" />
+    <Compile Include="Internal\ConsoleHelper.cs" />
+    <Compile Include="PoseSequenceExample.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
