@@ -17,11 +17,16 @@ namespace MyoSharp.Discovery
         #endregion
 
         #region Constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DeviceListener"/> class.
+        /// </summary>
+        /// <param name="channelListener">The channel listener.</param>
+        /// <exception cref="System.ArgumentNullException">Thrown when the channel listener is null.</exception>
         protected DeviceListener(IChannelListener channelListener)
         {
             if (channelListener == null)
             {
-                throw new ArgumentNullException("channelListener", "The channel cannot be null.");
+                throw new ArgumentNullException("channelListener", "The channel listener cannot be null.");
             }
 
             _channelListener = channelListener;
@@ -38,10 +43,17 @@ namespace MyoSharp.Discovery
         #endregion
 
         #region Events
+        /// <summary>
+        /// The event that is triggered when a device has paired.
+        /// </summary>
         public event EventHandler<PairedEventArgs> Paired;
         #endregion
 
         #region Properties
+        /// <summary>
+        /// Gets the <see cref="IChannelListener" /> that this
+        /// <see cref="IDeviceListener" /> is listening to events with.
+        /// </summary>
         public IChannelListener ChannelListener
         {
             get { return _channelListener; }
@@ -49,6 +61,12 @@ namespace MyoSharp.Discovery
         #endregion
 
         #region Methods
+        /// <summary>
+        /// Creates a new <see cref="IDeviceListener"/> instance.
+        /// </summary>
+        /// <param name="channelListener">The channel listener that will be used to listen for events.</param>
+        /// <returns>A new <see cref="IDeviceListener"/> instance.</returns>
+        /// <exception cref="System.ArgumentNullException">Thrown when the channel listener is null.</exception>
         public static IDeviceListener Create(IChannelListener channelListener)
         {
             return new DeviceListener(channelListener);
@@ -63,6 +81,13 @@ namespace MyoSharp.Discovery
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        /// <param name="disposing">
+        /// <c>true</c> to release both managed and unmanaged resources; 
+        /// <c>false</c> to release only unmanaged resources.
+        /// </param>
         protected virtual void Dispose(bool disposing)
         {
             if (_disposed)
@@ -87,6 +112,10 @@ namespace MyoSharp.Discovery
             }
         }
 
+        /// <summary>
+        /// Called when a device has paired.
+        /// </summary>
+        /// <param name="myoHandle">The Myo handle.</param>
         protected virtual void OnPaired(IntPtr myoHandle)
         {
             var handler = Paired;
