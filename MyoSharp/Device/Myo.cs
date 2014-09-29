@@ -88,6 +88,12 @@ namespace MyoSharp.Device
             get;
             private set;
         }
+        public XDirection XDirectionOnArm
+        {
+            get;
+            private set;
+        }
+
         #endregion
 
         #region Events
@@ -350,6 +356,7 @@ namespace MyoSharp.Device
             if (handler != null)
             {
                 var xDirection = GetEventDirectionX(evt);
+                XDirectionOnArm = xDirection;
                 var args = new ArmRecognizedEventArgs(
                     this,
                     timestamp,
