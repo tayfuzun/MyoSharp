@@ -36,6 +36,7 @@ namespace MyoSharp.Device
 
             this.Pose = Pose.Unknown;
             this.Arm = Arm.Unknown;
+            this.XDirectionOnArm = XDirection.Unknown;
         }
 
         /// <summary>
@@ -88,6 +89,7 @@ namespace MyoSharp.Device
             get;
             private set;
         }
+
         public XDirection XDirectionOnArm
         {
             get;
@@ -352,11 +354,12 @@ namespace MyoSharp.Device
             var arm = GetArm(evt);
             this.Arm = arm;
 
+            var xDirection = GetEventDirectionX(evt);
+            this.XDirectionOnArm = xDirection;
+
             var handler = ArmRecognized;
             if (handler != null)
             {
-                var xDirection = GetEventDirectionX(evt);
-                XDirectionOnArm = xDirection;
                 var args = new ArmRecognizedEventArgs(
                     this,
                     timestamp,
