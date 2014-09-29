@@ -10,90 +10,60 @@ MyoSharp is compatible with .NET 2.0+
 <h3>Sample Usage</h3>
 ``` C#
 using System;
-using System.Collections.Generic;
 
 using MyoSharp.Device;
-using MyoSharp.Discovery;
-using MyoSharp.Communication;
-using MyoSharp.Poses;
+using MyoSharp.ConsoleSample.Internal;
 
 namespace MyoSharp.ConsoleSample
 {
-    internal class Program
+    /// <summary>
+    /// This example will show you the basics for setting up and working with 
+    /// a Myo using MyoSharp. Primary communication with the device happens 
+    /// over Bluetooth, but this C# wrapper hooks into the unmanaged Myo SDK to
+    /// listen on their "hub". The unmanaged hub feeds us information about 
+    /// events, so a channel within MyoSharp is responsible for publishing 
+    /// these events for other C# code to consume. A device listener uses a 
+    /// channel to listen for pairing events. When a Myo pairs up, a device 
+    /// listener publishes events for others to listen to. Once we have access 
+    /// to a channel and a Myo handle (from something like a Pair event), we 
+    /// can create our own Myo object. With a Myo object, we can do things like
+    /// cause it to vibrate or monitor for poses changes.
+    /// </summary>
+    internal class BasicSetupExample
     {
-        private static readonly Dictionary<IntPtr, IMyo> _myos = new Dictionary<IntPtr, IMyo>();
-
+        #region Methods
         private static void Main(string[] args)
         {
-            using (var channel = Channel.Create("com.myosharp.consolesample"))
+            // create a hub that will manage Myo devices for us
+            using (var hub = Hub.Create())
             {
-                channel.StartListening();
-
-                var deviceListener = DeviceListener.Create(channel);
-                deviceListener.Paired += DeviceListener_Paired;
-
-                UserInputLoop();
-            }
-        }
-
-        private static void UserInputLoop()
-        {
-            string userInput;
-            while (!string.IsNullOrEmpty((userInput = Console.ReadLine())))
-            {
-                if (userInput.Equals("pose", StringComparison.OrdinalIgnoreCase))
+                // listen for when the Myo connects
+                hub.MyoConnected += (sender, e) =>
                 {
-                    foreach (var myo in _myos.Values)
-                    {
-                        Console.WriteLine("Myo {0} in pose {1}.", myo.Handle, myo.Pose);
-                    }
-                }
-                else if (userInput.Equals("arm", StringComparison.OrdinalIgnoreCase))
+                    Console.WriteLine("Myo {0} has connected!", e.Myo.Handle);
+                    e.Myo.Vibrate(VibrationType.Short);
+                    e.Myo.PoseChanged += Myo_PoseChanged;
+                };
+
+                // listen for when the Myo disconnects
+                hub.MyoDisconnected += (sender, e) =>
                 {
-                    foreach (var myo in _myos.Values)
-                    {
-                        Console.WriteLine("Myo {0} is on {1} arm.", myo.Handle, myo.Arm.ToString().ToLower());
-                    }
-                }
+                    Console.WriteLine("Oh no! It looks like {0} arm Myo has disconnected!", e.Myo.Arm);
+                    e.Myo.PoseChanged -= Myo_PoseChanged;
+                };
+
+                // wait on user input
+                ConsoleHelper.UserInputLoop(hub);
             }
         }
+        #endregion
 
-        private static void DeviceListener_Paired(object sender, PairedEventArgs e)
-        {
-            Console.WriteLine("Myo {0} has been paired!", e.MyoHandle);
-
-            // we already have a Myo from a previous pair attempt
-            if (_myos.ContainsKey(e.MyoHandle))
-            {
-                return;
-            }
-
-            // create a new Myo and hook up some events to it!
-            var myo = Myo.Create(
-                e.MyoHandle, 
-                ((IDeviceListener)sender).ChannelListener);
-            myo.PoseChanged += Myo_PoseChange;
-            myo.Connected += Myo_Connected;
-            myo.Disconnected += Myo_Disconnected;
-
-            _myos[e.MyoHandle] = myo;
-        }
-        
-        private static void Myo_Connected(object sender, MyoEventArgs e)
-        {
-            Console.WriteLine("Myo {0} has connected!", e.Myo.Handle);
-            e.Myo.Vibrate(VibrationType.Short);
-        }
-
-        private static void Myo_Disconnected(object sender, MyoEventArgs e)
-        {
-            Console.WriteLine("Oh no! It looks like {0} arm Myo has disconnected!", e.Myo.Arm);
-        }
-
-        private static void Myo_PoseChange(object sender, PoseEventArgs e)
+        #region Event Handlers
+        private static void Myo_PoseChanged(object sender, PoseEventArgs e)
         {
             Console.WriteLine("{0} arm Myo detected {1} pose!", e.Myo.Arm, e.Myo.Pose);
         }
+        #endregion
     }
 }
 ```
@@ -101,52 +71,113 @@ namespace MyoSharp.ConsoleSample
 <h3>Detecting Sequences of Poses</h3>
 With this implementation, you can define your own creative sequences of poses. See the example below.
 ``` C#
-private static void Main(string[] args)
-{
-    // NOTE: Setup left out for brevity
-    var channel = Channel.Create(/*...*/);
-    var deviceListener = DeviceListener.Create(/*...*/);
-    var myo = Myo.Create(/*...*/);
-    
-    // Create a new pose sequence that will listen to the Myo's pose change events
-    var poseSequence = new PoseSequence(
-	e.Myo, 
-	Pose.WaveOut, 
-	Pose.WaveIn, 
-	Pose.WaveOut ); 
-    
-    // This event will fire when the Myo detects the 3 poses defined above 
-    // (WaveOut, WaveIn, WaveOut) in a sequence
-    var poseSequence = PoseSequence.Create(myo, Pose.WaveOut, Pose.WaveIn);
-    poseSequence.PoseSequenceCompleted += (_, poseArgs) =>
-    {
-	Console.WriteLine("{0} arm Myo did a fancy pose!", poseArgs.Myo.Arm);
-	myo.Vibrate(VibrationType.Long);
-    };
-}
+using System;
 
+using MyoSharp.Device;
+using MyoSharp.ConsoleSample.Internal;
+using MyoSharp.Poses;
+
+namespace MyoSharp.ConsoleSample
+{
+    /// <summary>
+    /// Myo devices can notify you every time the device detects that the user 
+    /// is performing a different pose. However, sometimes it's useful to know
+    /// when a user has performed a series of poses. A 
+    /// <see cref="PoseSequence"/> can monitor a Myo for a series of poses and
+    /// notify you when that sequence has completed.
+    /// </summary>
+    internal class PoseSequenceExample
+    {
+        #region Methods
+        private static void Main(string[] args)
+        {
+            // create a hub to manage Myos
+            using (var hub = Hub.Create())
+            {
+                // listen for when a Myo connects
+                hub.MyoConnected += (sender, e) =>
+                {
+                    Console.WriteLine("Myo {0} has connected!", e.Myo.Handle);
+
+                    // for every Myo that connects, listen for special sequences
+                    var sequence = PoseSequence.Create(
+                        e.Myo, 
+                        Pose.WaveOut, 
+                        Pose.WaveIn);
+                    sequence.PoseSequenceCompleted += Sequence_PoseSequenceCompleted;
+                };
+
+                ConsoleHelper.UserInputLoop(hub);
+            }
+        }
+        #endregion
+
+        #region Event Handlers
+        private static void Sequence_PoseSequenceCompleted(object sender, PoseSequenceEventArgs e)
+        {
+            Console.WriteLine("{0} arm Myo has performed a pose sequence!", e.Myo.Arm);
+            e.Myo.Vibrate(VibrationType.Medium);
+        }
+        #endregion
+    }
+}
 ```
 
 <h3>Detecting Poses Being Held</h3>
 It's easy to be notified when a pose is being held by the user. You can even define an interval to adjust granularity. See the example below.
 ``` C#
-private static void Main(string[] args)
-{
-    // NOTE: Setup left out for brevity
-    var channel = Channel.Create(/*...*/);
-    var deviceListener = DeviceListener.Create(/*...*/);
-    var myo = Myo.Create(/*...*/);
-    
-    // This event will fire at a regular interval as long as the specified pose is being held
-    var held = HeldPose.Create(myo, Pose.Fist);
-    held.Interval = TimeSpan.FromSeconds(0.5);
-    held.Triggered += (_, poseArgs) =>
-    {
-	Console.WriteLine("{0} arm Myo is holding the {1} pose!", poseArgs.Myo.Arm, poseArgs.Pose);
-    };
-    held.Start();
-}
+using System;
 
+using MyoSharp.Device;
+using MyoSharp.ConsoleSample.Internal;
+using MyoSharp.Poses;
+
+namespace MyoSharp.ConsoleSample
+{
+    /// <summary>
+    /// Myo devices can notify you every time the device detects that the user 
+    /// is performing a different pose. However, sometimes it's useful to know
+    /// when a user is still holding a pose and not just that they've 
+    /// transitioned from one pose to another. The <see cref="HeldPose"/> class
+    /// monitors a Myo and notifies you as long as a particular pose is held.
+    /// </summary>
+    internal class HeldPoseExample
+    {
+        #region Methods
+        private static void Main(string[] args)
+        {
+            // create a hub to manage Myos
+            using (var hub = Hub.Create())
+            {
+                // listen for when a Myo connects
+                hub.MyoConnected += (sender, e) =>
+                {
+                    Console.WriteLine("Myo {0} has connected!", e.Myo.Handle);
+
+                    // setup for the pose we want to watch for
+                    var pose = HeldPose.Create(e.Myo, Pose.Fist);
+
+                    // set the interval for the event to be fired as long as 
+                    // the pose is held by the user
+                    pose.Interval = TimeSpan.FromSeconds(0.5);
+
+                    pose.Start();
+                    pose.Triggered += Pose_Triggered;
+                };
+
+                ConsoleHelper.UserInputLoop(hub);
+            }
+        }
+        #endregion
+
+        #region Event Handlers
+        private static void Pose_Triggered(object sender, PoseEventArgs e)
+        {
+            Console.WriteLine("{0} arm Myo is holding pose {1}!", e.Myo.Arm, e.Pose);
+        }
+        #endregion
+    }
+}
 ```
 
 
