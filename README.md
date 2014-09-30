@@ -244,5 +244,5 @@ namespace MyoSharp.ConsoleSample
 ```
 
 
-
+MyoSharp uses the MIT License.
             
