@@ -17,7 +17,10 @@ namespace MyoSharp.Device
         #endregion
 
         #region Properties
-        public QuaternionF Orientation { get; private set; }
+        public double Roll { get; set; }
+        public double Yaw { get; set; }
+        public double Pitch { get; set; }
+        internal QuaternionF Orientation { get; private set; }
         #endregion
     }
 }

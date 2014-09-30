@@ -324,6 +324,9 @@ namespace MyoSharp.Device
                     this,
                     timestamp,
                     orientation);
+                args.Roll = CalculateRoll(orientation);
+                args.Pitch = CalculatePitch(orientation);
+                args.Yaw = CalculateYaw(orientation);
                 handler.Invoke(this, args);
             }
         }
@@ -512,6 +515,21 @@ namespace MyoSharp.Device
             return PlatformInvocation.Running32Bit
                 ? event_get_pose_32(evt)
                 : event_get_pose_64(evt);
+        }
+
+        protected static double CalculateRoll(QuaternionF orientation)
+        {
+            return System.Math.Atan2(2.0f * (orientation.W * orientation.X + orientation.Y * orientation.Z), 1.0f - 2.0f * (orientation.X * orientation.X + orientation.Y * orientation.Y));
+        }
+
+        protected static double CalculatePitch(QuaternionF orientation)
+        {
+            return System.Math.Asin(2.0f * (orientation.W * orientation.Y - orientation.Z * orientation.X));
+        }
+
+        protected static double CalculateYaw(QuaternionF orientation)
+        {
+            return System.Math.Atan2(2.0f * (orientation.W * orientation.Z + orientation.X * orientation.Y), 1.0f - 2.0f * (orientation.Y * orientation.Y + orientation.Z * orientation.Z));
         }
         #endregion
 
