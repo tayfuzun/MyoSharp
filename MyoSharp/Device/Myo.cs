@@ -323,10 +323,12 @@ namespace MyoSharp.Device
                 var args = new OrientationDataEventArgs(
                     this,
                     timestamp,
-                    orientation);
-                args.Roll = CalculateRoll(orientation);
-                args.Pitch = CalculatePitch(orientation);
-                args.Yaw = CalculateYaw(orientation);
+                    orientation,
+                    CalculateRoll(orientation),
+                    CalculatePitch(orientation),
+                    CalculateYaw(orientation)
+                );
+                
                 handler.Invoke(this, args);
             }
         }

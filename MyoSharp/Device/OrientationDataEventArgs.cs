@@ -9,17 +9,20 @@ namespace MyoSharp.Device
     public class OrientationDataEventArgs : MyoEventArgs
     {
         #region Constructors
-        public OrientationDataEventArgs(IMyo myo, DateTime timestamp, QuaternionF orientation)
+        public OrientationDataEventArgs(IMyo myo, DateTime timestamp, QuaternionF orientation, double roll, double pitch, double yaw)
             : base(myo, timestamp)
         {
             this.Orientation = orientation;
+            this.Roll = roll;
+            this.Pitch = pitch;
+            this.Yaw = yaw;
         }
         #endregion
 
         #region Properties
-        public double Roll { get; set; }
-        public double Yaw { get; set; }
-        public double Pitch { get; set; }
+        public double Roll { get; private set; }
+        public double Yaw { get; private set; }
+        public double Pitch { get; private set; }
         internal QuaternionF Orientation { get; private set; }
         #endregion
     }
