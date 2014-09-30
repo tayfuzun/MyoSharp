@@ -16,7 +16,15 @@ The goal of this project is to create a high-level object-oriented C# API for de
 
 MyoSharp is compatible with .NET 2.0+
 
-<h3>Sample Usage</h3>
+### Getting Started
+* [`Setup`](#setup)
+* [`Pose Sequences`](#poseseq)
+* [`Holding Poses`](#posehold)
+* [`Roll, Pitch and Yaw Data`](#rpy)
+
+
+<a name='setup' />
+### Sample Usage
 ``` C#
 using System;
 
@@ -77,7 +85,8 @@ namespace MyoSharp.ConsoleSample
 }
 ```
 
-<h3>Detecting Sequences of Poses</h3>
+<a name='poseseq' />
+### Detecting Sequences of Poses
 With this implementation, you can define your own creative sequences of poses. See the example below.
 ``` C#
 using System;
@@ -132,7 +141,8 @@ namespace MyoSharp.ConsoleSample
 }
 ```
 
-<h3>Detecting Poses Being Held</h3>
+<a name='posehold' />
+### Detecting Poses Being Held
 It's easy to be notified when a pose is being held by the user. You can even define an interval to adjust granularity. See the example below.
 ``` C#
 using System;
@@ -187,7 +197,8 @@ namespace MyoSharp.ConsoleSample
         #endregion
     }
 ```
-<h3>Getting Roll, Pitch and Yaw data</h3>
+<a name='rpy' />
+### Getting Roll, Pitch and Yaw data
 Don't get lost in the orientation Quaternion vectors, use the <strong>OrientationDataEventArgs</strong> object to get the roll, pitch and yaw of the Myo
 ``` C#
 using System;
@@ -252,6 +263,7 @@ namespace MyoSharp.ConsoleSample
 }
 ```
 
-
+<a name='license' />
+### License
 MyoSharp uses the MIT License.
             
