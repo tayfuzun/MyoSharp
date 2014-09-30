@@ -21,6 +21,7 @@ MyoSharp is compatible with .NET 2.0+
 * [`Pose Sequences`](#poseseq)
 * [`Holding Poses`](#posehold)
 * [`Roll, Pitch and Yaw Data`](#rpy)
+* [`License`](#license)
 
 
 <a name='setup' />
