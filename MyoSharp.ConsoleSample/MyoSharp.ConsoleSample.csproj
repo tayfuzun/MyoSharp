@@ -42,6 +42,7 @@
     <Compile Include="BasicSetupExample.cs" />
     <Compile Include="HeldPoseExample.cs" />
     <Compile Include="Internal\ConsoleHelper.cs" />
+    <Compile Include="OrientationExample.cs" />
     <Compile Include="PoseSequenceExample.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
