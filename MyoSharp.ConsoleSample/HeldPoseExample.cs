@@ -37,7 +37,7 @@ namespace MyoSharp.ConsoleSample
                     Console.WriteLine("Myo {0} has connected!", e.Myo.Handle);
 
                     // setup for the pose we want to watch for
-                    var pose = HeldPose.Create(e.Myo, Pose.Fist);
+                    var pose = HeldPose.Create(e.Myo, Pose.Fist, Pose.FingersSpread);
 
                     // set the interval for the event to be fired as long as 
                     // the pose is held by the user

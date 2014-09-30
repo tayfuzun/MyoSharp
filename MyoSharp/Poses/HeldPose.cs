@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Timers;
+using System.Collections.Generic;
 
 using MyoSharp.Device;
 
@@ -12,28 +13,28 @@ namespace MyoSharp.Poses
         #endregion
 
         #region Fields
-        private readonly Pose _targetPose;
+        private readonly List<Pose> _targetPoses;
         private readonly Timer _timer;
+        private readonly IMyoEventGenerator _myo;
 
         private bool _timerAlive;
         private bool _timerPaused;
-        private IMyoEventGenerator _myo;
         private IMyo _triggeringMyo;
         private bool _disposed;
         private Pose _lastPose;
         #endregion
 
         #region Constructors
-        protected HeldPose(IMyoEventGenerator myo, Pose targetPose, TimeSpan interval)
+        protected HeldPose(IMyoEventGenerator myo, TimeSpan interval, IEnumerable<Pose> targetPoses)
         {
             if (myo == null)
             {
                 throw new ArgumentNullException("myo", "The Myo cannot be null.");
             }
 
-            if (targetPose == Pose.Unknown)
+            if (targetPoses == null)
             {
-                throw new ArgumentException("The target pose must be specified.", "targetPose");
+                throw new ArgumentNullException("targetPoses", "The target poses cannot be null.");
             }
 
             if (interval.TotalMilliseconds <= 0)
@@ -41,12 +42,22 @@ namespace MyoSharp.Poses
                 throw new ArgumentException("The interval must be a positive time value.", "interval");
             }
 
+            _targetPoses = new List<Pose>(targetPoses);
+            if (_targetPoses.Contains(Pose.Unknown))
+            {
+                throw new ArgumentException("All target poses must be specified.", "targetPoses");
+            }
+
+            if (_targetPoses.Count < 1)
+            {
+                throw new ArgumentException("At least one target pose must be specified.", "targetPoses");
+            }
+
             _timer = new Timer();
             _timer.AutoReset = true;
             _timer.Interval = interval.TotalMilliseconds;
             _timer.Elapsed += Timer_Elapsed;
             
-            _targetPose = targetPose;
             _lastPose = Pose.Unknown;
 
             _myo = myo;
@@ -89,12 +100,41 @@ namespace MyoSharp.Poses
         #region Methods
         public static IHeldPose Create(IMyoEventGenerator myo, Pose targetPose)
         {
-            return Create(myo, targetPose, DEFAULT_INTERVAL);
+            return Create(
+                myo, 
+                DEFAULT_INTERVAL, 
+                targetPose);
         }
 
-        public static IHeldPose Create(IMyoEventGenerator myo, Pose targetPose, TimeSpan interval)
+        public static IHeldPose Create(IMyoEventGenerator myo, params Pose[] targetPoses)
         {
-            return new HeldPose(myo, targetPose, interval);
+            return Create(
+                myo,
+                (IEnumerable<Pose>)targetPoses);
+        }
+
+        public static IHeldPose Create(IMyoEventGenerator myo, IEnumerable<Pose> targetPoses)
+        {
+            return new HeldPose(
+                myo,
+                DEFAULT_INTERVAL,
+                targetPoses);
+        }
+
+        public static IHeldPose Create(IMyoEventGenerator myo, TimeSpan interval, params Pose[] targetPoses)
+        {
+            return Create(
+                myo, 
+                interval, 
+                (IEnumerable<Pose>)targetPoses);
+        }
+
+        public static IHeldPose Create(IMyoEventGenerator myo, TimeSpan interval, IEnumerable<Pose> targetPoses)
+        {
+            return new HeldPose(
+                myo, 
+                interval,
+                targetPoses);
         }
 
         public void Start()
@@ -181,7 +221,8 @@ namespace MyoSharp.Poses
         #region Event Handlers
         private void Timer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            if (_lastPose != _targetPose)
+            var currentPose = _lastPose;
+            if (!_targetPoses.Contains(currentPose))
             {
                 return;
             }
@@ -189,11 +230,12 @@ namespace MyoSharp.Poses
             OnTriggered(
                 _triggeringMyo, 
                 e.SignalTime,
-                _targetPose);
+                currentPose);
         }
 
         private void Myo_PoseChanged(object sender, PoseEventArgs e)
         {
+            var samePose = _lastPose == e.Pose;
             _lastPose = e.Pose;
             _triggeringMyo = e.Myo;
 
@@ -204,7 +246,7 @@ namespace MyoSharp.Poses
                     return;
                 }
 
-                if (e.Pose == _targetPose)
+                if (samePose && _targetPoses.Contains(e.Pose))
                 {
                     if (_timerPaused)
                     {
