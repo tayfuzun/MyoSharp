@@ -267,4 +267,4 @@ namespace MyoSharp.ConsoleSample
 <a name='license' />
 ### License
 MyoSharp uses the MIT License.
-            
+Copyright (c) 2014 Nick Cosentino, Tayfun Uzun
