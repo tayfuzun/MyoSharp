@@ -102,20 +102,9 @@ namespace MyoSharp.Communication
         public static IChannel Create(string applicationIdentifier = "", bool autostart = false)
         {
             IntPtr handle;
-            var result = InitializeMyoHub(
+            InitializeMyoHub(
                 out handle, 
                 applicationIdentifier);
-
-            if (result == MyoResult.ErrorInvalidArgument)
-            {
-                throw new ArgumentException("applicationIdentifier", "The application identifier was invalid.");
-            }
-
-            if (result != MyoResult.Success)
-            {
-                throw new InvalidOperationException(string.Format("Unable to initialize Hub. Result code {0}.", result));
-            }
-
             return new Channel(handle, autostart);
         }
 
@@ -230,11 +219,32 @@ namespace MyoSharp.Communication
             }
         }
 
-        private static MyoResult InitializeMyoHub(out IntPtr hubPointer, string applicationIdentifier)
+        private static void InitializeMyoHub(out IntPtr hubPointer, string applicationIdentifier)
         {
-            return PlatformInvocation.Running32Bit
-                ? init_hub_32(out hubPointer, applicationIdentifier, IntPtr.Zero)
-                : init_hub_64(out hubPointer, applicationIdentifier, IntPtr.Zero);
+            var errorHandle = IntPtr.Zero;
+            try
+            {
+                var result = PlatformInvocation.Running32Bit
+                    ? init_hub_32(out hubPointer, applicationIdentifier, out errorHandle)
+                    : init_hub_64(out hubPointer, applicationIdentifier, out errorHandle);
+
+                if (result == MyoResult.Success)
+                {
+                    return;
+                }
+
+                var errorMessage = GetErrorString(errorHandle);
+                if (result == MyoResult.ErrorInvalidArgument)
+                {
+                    throw new ArgumentException(errorMessage);
+                }
+
+                throw new Exception(errorMessage);
+            }
+            finally
+            {
+                FreeMyoError(errorHandle);
+            }
         }
 
         private static DateTime GetEventTimestamp(IntPtr evt)
@@ -279,6 +289,25 @@ namespace MyoSharp.Communication
             return PlatformInvocation.Running32Bit
                 ? event_get_myo_32(evt)
                 : event_get_myo_64(evt);
+        }
+
+        private static string GetErrorString(IntPtr errorHandle)
+        {
+            return PlatformInvocation.Running32Bit
+                ? libmyo_error_cstring_32(errorHandle)
+                : libmyo_error_cstring_64(errorHandle);
+        }
+
+        private static void FreeMyoError(IntPtr errorHandle)
+        {
+            if (PlatformInvocation.Running32Bit)
+            {
+                libmyo_free_error_details_32(errorHandle);
+            }
+            else
+            {
+                libmyo_free_error_details_64(errorHandle);
+            }
         }
 
         private MyoRunHandlerResult HandleEvent(IntPtr userData, IntPtr evt)
@@ -333,10 +362,10 @@ namespace MyoSharp.Communication
         private static extern IntPtr event_get_myo_64(IntPtr evt);
 
         [DllImport(PlatformInvocation.MyoDllPath32, EntryPoint = "libmyo_init_hub", CallingConvention = CallingConvention.Cdecl)]
-        private static extern MyoResult init_hub_32(out IntPtr hub, string applicationIdentifier, IntPtr error);
+        private static extern MyoResult init_hub_32(out IntPtr hub, string applicationIdentifier, out IntPtr error);
 
         [DllImport(PlatformInvocation.MyoDllPath64, EntryPoint = "libmyo_init_hub", CallingConvention = CallingConvention.Cdecl)]
-        private static extern MyoResult init_hub_64(out IntPtr hub, string applicationIdentifier, IntPtr error);
+        private static extern MyoResult init_hub_64(out IntPtr hub, string applicationIdentifier, out IntPtr error);
 
         [DllImport(PlatformInvocation.MyoDllPath32, EntryPoint = "libmyo_shutdown_hub", CallingConvention = CallingConvention.Cdecl)]
         private static extern MyoResult shutdown_hub_32(IntPtr hub, IntPtr error);
@@ -349,7 +378,19 @@ namespace MyoSharp.Communication
 
         [DllImport(PlatformInvocation.MyoDllPath64, EntryPoint = "libmyo_run", CallingConvention = CallingConvention.Cdecl)]
         private static extern MyoResult run_64(IntPtr hub, uint durationMs, MyoRunHandler handler, IntPtr userData, IntPtr error);
-        
+
+        [DllImport(PlatformInvocation.MyoDllPath32, EntryPoint = "libmyo_error_cstring", CallingConvention = CallingConvention.Cdecl)]
+        private static extern string libmyo_error_cstring_32(IntPtr errorHandle);
+
+        [DllImport(PlatformInvocation.MyoDllPath64, EntryPoint = "libmyo_error_cstring", CallingConvention = CallingConvention.Cdecl)]
+        private static extern string libmyo_error_cstring_64(IntPtr errorHandle);
+
+        [DllImport(PlatformInvocation.MyoDllPath32, EntryPoint = "libmyo_free_error_details", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void libmyo_free_error_details_32(IntPtr errorHandle);
+
+        [DllImport(PlatformInvocation.MyoDllPath64, EntryPoint = "libmyo_free_error_details", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void libmyo_free_error_details_64(IntPtr errorHandle);
+                
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate MyoRunHandlerResult MyoRunHandler(IntPtr userData, IntPtr evt);
 
