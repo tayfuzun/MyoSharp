@@ -422,13 +422,9 @@ namespace MyoSharp.Device
                 // free managed objects
                 if (disposing)
                 {
-                    // free managed objects
-                    if (disposing)
+                    if (_channelListener != null)
                     {
-                        if (_channelListener != null)
-                        {
-                            _channelListener.EventReceived -= Channel_EventReceived;
-                        }
+                        _channelListener.EventReceived -= Channel_EventReceived;
                     }
                 }
             }
