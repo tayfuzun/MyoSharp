@@ -10,6 +10,8 @@ namespace MyoSharp.Device
     public interface IMyoDeviceState
     {
         #region Properties
+        bool IsUnlocked { get; }
+
         bool IsConnected { get; }
 
         Arm Arm { get; }

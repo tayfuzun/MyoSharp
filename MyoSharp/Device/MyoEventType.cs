@@ -14,6 +14,8 @@ namespace MyoSharp.Device
         ArmLost,
         Orientation,
         Pose,
-        Rssi
+        Rssi,
+        Unlocked,
+        Locked,
     }
 }

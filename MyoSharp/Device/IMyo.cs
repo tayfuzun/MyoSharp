@@ -19,6 +19,17 @@ namespace MyoSharp.Device
         /// Requests RSSI from the Myo.
         /// </summary>
         void RequestRssi();
+
+        /// <summary>
+        /// Causes the Myo to unlock.
+        /// </summary>
+        /// <param name="type">The type of unlock.</param>
+        void Unlock(UnlockType type);
+
+        /// <summary>
+        /// Causes the Myo to lock.
+        /// </summary>
+        void Lock();
         #endregion
     }
 }

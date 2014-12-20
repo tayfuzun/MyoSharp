@@ -57,6 +57,7 @@
     <Compile Include="Device\OrientationDataEventArgs.cs" />
     <Compile Include="Device\OrientationIndex.cs" />
     <Compile Include="Device\PoseEventArgs.cs" />
+    <Compile Include="Device\UnlockType.cs" />
     <Compile Include="Device\VersionComponent.cs" />
     <Compile Include="Device\VibrationType.cs" />
     <Compile Include="Device\XDirection.cs" />

@@ -60,6 +60,12 @@ namespace MyoSharp.Device
             private set;
         }
 
+        public bool IsUnlocked
+        {
+            get;
+            private set;
+        }
+
         public Arm Arm
         {
             get;
@@ -116,6 +122,10 @@ namespace MyoSharp.Device
         public event EventHandler<GyroscopeDataEventArgs> GyroscopeDataAcquired;
 
         public event EventHandler<RssiEventArgs> Rssi;
+
+        public event EventHandler<MyoEventArgs> Locked;
+
+        public event EventHandler<MyoEventArgs> Unlocked;
         #endregion
 
         #region Methods
@@ -166,6 +176,37 @@ namespace MyoSharp.Device
         }
 
         /// <summary>
+        /// Causes the Myo to lock.
+        /// </summary>
+        public void Lock()
+        {
+            if (PlatformInvocation.Running32Bit)
+            {
+                lock_32(_handle, IntPtr.Zero);
+            }
+            else
+            {
+                lock_64(_handle, IntPtr.Zero);
+            }
+        }
+
+        /// <summary>
+        /// Causes the Myo to unlock.
+        /// </summary>
+        /// <param name="type">The type of unlock.</param>
+        public void Unlock(UnlockType type)
+        {
+            if (PlatformInvocation.Running32Bit)
+            {
+                unlock_32(_handle, type, IntPtr.Zero);
+            }
+            else
+            {
+                unlock_64(_handle, type, IntPtr.Zero);
+            }
+        }
+
+        /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
@@ -211,6 +252,14 @@ namespace MyoSharp.Device
 
                 case MyoEventType.Rssi:
                     OnRssi(evt, timestamp);
+                    break;
+
+                case MyoEventType.Locked:
+                    OnLock(timestamp);
+                    break;
+
+                case MyoEventType.Unlocked:
+                    OnUnlock(timestamp);
                     break;
             }
         }
@@ -434,6 +483,38 @@ namespace MyoSharp.Device
             }
         }
 
+        /// <summary>
+        /// Called when the Myo has locked.
+        /// </summary>
+        /// <param name="timestamp">The timestamp of the event.</param>
+        protected virtual void OnLock(DateTime timestamp)
+        {
+            this.IsUnlocked = false;
+
+            var handler = Locked;
+            if (handler != null)
+            {
+                var args = new MyoEventArgs(this, timestamp);
+                handler.Invoke(this, args);
+            }
+        }
+        
+        /// <summary>
+        /// Called when the Myo has unlocked.
+        /// </summary>
+        /// <param name="timestamp">The timestamp of the event.</param>
+        protected virtual void OnUnlock(DateTime timestamp)
+        {
+            this.IsUnlocked = true;
+
+            var handler = Unlocked;
+            if (handler != null)
+            {
+                var args = new MyoEventArgs(this, timestamp);
+                handler.Invoke(this, args);
+            }
+        }
+
         protected static sbyte GetEventRssi(IntPtr evt)
         {
             return PlatformInvocation.Running32Bit
@@ -591,6 +672,18 @@ namespace MyoSharp.Device
 
         [DllImport(PlatformInvocation.MyoDllPath64, EntryPoint = "libmyo_event_get_rssi", CallingConvention = CallingConvention.Cdecl)]
         private static extern sbyte event_get_rssi_64(IntPtr evt);
+
+        [DllImport(PlatformInvocation.MyoDllPath32, EntryPoint = "libmyo_myo_unlock", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void unlock_32(IntPtr myo, UnlockType type, IntPtr error);
+        
+        [DllImport(PlatformInvocation.MyoDllPath64, EntryPoint = "libmyo_myo_unlock", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void unlock_64(IntPtr myo, UnlockType type, IntPtr error);
+        
+        [DllImport(PlatformInvocation.MyoDllPath32, EntryPoint = "libmyo_myo_lock", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void lock_32(IntPtr myo, IntPtr error);
+        
+        [DllImport(PlatformInvocation.MyoDllPath64, EntryPoint = "libmyo_myo_lock", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void lock_64(IntPtr myo, IntPtr error);
         #endregion  
 
         #region Event handlers

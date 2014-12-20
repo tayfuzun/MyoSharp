@@ -24,6 +24,10 @@ namespace MyoSharp.Device
         event EventHandler<GyroscopeDataEventArgs> GyroscopeDataAcquired;
 
         event EventHandler<RssiEventArgs> Rssi;
+
+        event EventHandler<MyoEventArgs> Locked;
+
+        event EventHandler<MyoEventArgs> Unlocked;
         #endregion
     }
 }
