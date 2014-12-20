@@ -281,7 +281,7 @@ namespace MyoSharp.Device
                     this,
                     timestamp,
                     gyroscope);
-                GyroscopeDataAcquired(this, args);
+                handler.Invoke(this, args);
             }
         }
 
@@ -386,7 +386,7 @@ namespace MyoSharp.Device
             if (handler != null)
             {
                 var args = new MyoEventArgs(this, timestamp);
-                handler(this, args);
+                handler.Invoke(this, args);
             }
         }
 
@@ -402,7 +402,7 @@ namespace MyoSharp.Device
             if (handler != null)
             {
                 var args = new MyoEventArgs(this, timestamp);
-                handler(this, args);
+                handler.Invoke(this, args);
             }
         }
 
@@ -441,8 +441,8 @@ namespace MyoSharp.Device
         protected static sbyte GetEventRssi(IntPtr evt)
         {
             return PlatformInvocation.Running32Bit
-                ? GetEventRssi(evt)
-                : GetEventRssi(evt);
+                ? event_get_rssi_32(evt)
+                : event_get_rssi_64(evt);
         }
 
         protected static Vector3F GetEventAccelerometer(IntPtr evt)
