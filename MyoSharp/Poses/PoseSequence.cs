@@ -144,7 +144,7 @@ namespace MyoSharp.Poses
                     case Pose.WaveIn:
                     case Pose.FingersSpread:
                     case Pose.Fist:
-                    case Pose.ThumbToPinky:
+                    case Pose.DoubleTap:
                         _currentSequence.Add(e.Pose);
                         break;
                 }

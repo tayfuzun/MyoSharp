@@ -32,14 +32,9 @@ namespace MyoSharp.Poses
         FingersSpread = 4,
 
         /// <summary>
-        /// Reserved value; not a valid pose.
+        /// When the user has tapped their thumb and middle finger together twice in succession.
         /// </summary>
-        Reserved1 = 5,
-
-        /// <summary>
-        /// When the user is touching the tip of their thumb to the tip of their pinky.
-        /// </summary>
-        ThumbToPinky = 6,
+        DoubleTap = 5,
 
         /// <summary>
         /// Unknown pose.
