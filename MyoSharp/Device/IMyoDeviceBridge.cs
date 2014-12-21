@@ -6,6 +6,9 @@ using MyoSharp.Poses;
 
 namespace MyoSharp.Device
 {
+    /// <summary>
+    /// An interface that defines functionality for bridging the Myo interface between this library and another.
+    /// </summary>
     public interface IMyoDeviceBridge
     {
         #region Methods

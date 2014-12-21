@@ -47,7 +47,7 @@ namespace MyoSharp.Device
             {
                 throw new ArgumentNullException("emgData", "The EMG data cannot be null.");
             }
-
+            
             return new EmgData(emgData);
         }
 

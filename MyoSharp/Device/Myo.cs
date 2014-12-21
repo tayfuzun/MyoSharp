@@ -6,6 +6,10 @@ using MyoSharp.Communication;
 
 namespace MyoSharp.Device
 {
+    /// <summary>
+    /// A class that contains functionality for controlling a Myo and 
+    /// interacting with the device.
+    /// </summary>
     public class Myo : IMyo
     {
         #region Fields
@@ -16,6 +20,14 @@ namespace MyoSharp.Device
         #endregion
 
         #region Constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Myo"/> class.
+        /// </summary>
+        /// <param name="channelListener">The channel listener. Cannot be <c>null</c>.</param>
+        /// <param name="myoDeviceDriver">The Myo device driver. Cannot be <c>null</c>.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// The exception that is thrown when <paramref name="channelListener"/> or <paramref name="myoDeviceDriver"/> is <c>null</c>.
+        /// </exception>
         protected Myo(IChannelListener channelListener, IMyoDeviceDriver myoDeviceDriver)
         {
             if (channelListener == null)
@@ -109,28 +121,40 @@ namespace MyoSharp.Device
         #endregion
 
         #region Events
+        /// <inheritdoc />
         public event EventHandler<MyoEventArgs> Connected;
 
+        /// <inheritdoc />
         public event EventHandler<MyoEventArgs> Disconnected;
 
+        /// <inheritdoc />
         public event EventHandler<ArmRecognizedEventArgs> ArmRecognized;
 
+        /// <inheritdoc />
         public event EventHandler<MyoEventArgs> ArmLost;
 
+        /// <inheritdoc />
         public event EventHandler<PoseEventArgs> PoseChanged;
 
+        /// <inheritdoc />
         public event EventHandler<OrientationDataEventArgs> OrientationDataAcquired;
 
+        /// <inheritdoc />
         public event EventHandler<AccelerometerDataEventArgs> AccelerometerDataAcquired;
 
+        /// <inheritdoc />
         public event EventHandler<GyroscopeDataEventArgs> GyroscopeDataAcquired;
 
+        /// <inheritdoc />
         public event EventHandler<RssiEventArgs> Rssi;
 
+        /// <inheritdoc />
         public event EventHandler<MyoEventArgs> Locked;
 
+        /// <inheritdoc />
         public event EventHandler<MyoEventArgs> Unlocked;
 
+        /// <inheritdoc />
         public event EventHandler<EmgDataEventArgs> EmgDataAcquired;
         #endregion
 

@@ -5,10 +5,14 @@ using MyoSharp.Communication;
 
 namespace MyoSharp.Discovery
 {
+    /// <summary>
+    /// A class that can listen for new devices on a specified channel.
+    /// </summary>
     public class DeviceListener : IDeviceListener
     {
         #region Fields
         private readonly IChannelListener _channelListener;
+
         private bool _disposed;
         #endregion
 
@@ -17,7 +21,7 @@ namespace MyoSharp.Discovery
         /// Initializes a new instance of the <see cref="DeviceListener"/> class.
         /// </summary>
         /// <param name="channelListener">The channel listener.</param>
-        /// <exception cref="System.ArgumentNullException">Thrown when the channel listener is null.</exception>
+        /// <exception cref="System.ArgumentNullException">Thrown when <paramref name="channelListener"/> is <c>null</c>.</exception>
         protected DeviceListener(IChannelListener channelListener)
         {
             if (channelListener == null)
@@ -39,9 +43,7 @@ namespace MyoSharp.Discovery
         #endregion
 
         #region Events
-        /// <summary>
-        /// The event that is triggered when a device has paired.
-        /// </summary>
+        /// <inheritdoc />
         public event EventHandler<PairedEventArgs> Paired;
         #endregion
 
@@ -62,9 +64,14 @@ namespace MyoSharp.Discovery
         /// </summary>
         /// <param name="channelListener">The channel listener that will be used to listen for events.</param>
         /// <returns>A new <see cref="IDeviceListener"/> instance.</returns>
-        /// <exception cref="System.ArgumentNullException">Thrown when the channel listener is null.</exception>
+        /// <exception cref="System.ArgumentNullException">Thrown when <paramref name="channelListener"/> is <c>null</c>.</exception>
         public static IDeviceListener Create(IChannelListener channelListener)
         {
+            if (channelListener == null)
+            {
+                throw new ArgumentNullException("channelListener", "The channel listener cannot be null.");
+            }
+
             return new DeviceListener(channelListener);
         }
 
