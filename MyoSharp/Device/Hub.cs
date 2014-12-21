@@ -215,6 +215,8 @@ namespace MyoSharp.Device
                     }
 
                     _myos.Clear();
+
+                    _deviceListener.Paired -= DeviceListener_Paired;
                 }
             }
             finally
