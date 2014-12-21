@@ -26,7 +26,7 @@ namespace MyoSharp.ConsoleSample
     internal class PoseSequenceExample
     {
         #region Methods
-        private static void Main(string[] args)
+        private static void Main()
         {
             // create a hub to manage Myos
             using (var hub = Hub.Create())

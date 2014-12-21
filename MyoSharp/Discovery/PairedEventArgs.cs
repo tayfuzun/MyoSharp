@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace MyoSharp.Device
+namespace MyoSharp.Discovery
 {
     /// <summary>
     /// A class that contains information about a paired event for a device.

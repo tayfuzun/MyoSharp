@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Text;
 
-using MyoSharp.Device;
-
 namespace MyoSharp.Poses
 {
     public interface IPoseSequence : IDisposable

@@ -1,6 +1,5 @@
 ﻿using System;
 
-using MyoSharp.Device;
 using MyoSharp.Communication;
 
 namespace MyoSharp.Discovery

@@ -7,10 +7,6 @@ namespace MyoSharp.Discovery
 {
     public class DeviceListener : IDeviceListener
     {
-        #region Constants
-        private static readonly DateTime TIMESTAMP_EPOCH = new DateTime(1970, 1, 1, 0, 0, 0, 0);
-        #endregion
-
         #region Fields
         private readonly IChannelListener _channelListener;
         private bool _disposed;

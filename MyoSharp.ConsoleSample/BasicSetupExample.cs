@@ -31,7 +31,7 @@ namespace MyoSharp.ConsoleSample
     internal class BasicSetupExample
     {
         #region Methods
-        private static void Main(string[] args)
+        private static void Main()
         {
             // create a hub that will manage Myo devices for us
             using (var hub = Hub.Create())

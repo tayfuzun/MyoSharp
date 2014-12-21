@@ -44,7 +44,7 @@ namespace MyoSharp.Communication
         {
             if (handle == IntPtr.Zero)
             {
-                throw new ArgumentException("handle", "The handle must be set.");
+                throw new ArgumentException("The handle must be set.", "handle");
             }
 
             _handle = handle;
@@ -86,6 +86,30 @@ namespace MyoSharp.Communication
         {
             return Create(string.Empty);
         }
+
+        /// <summary>
+        /// Creates a new <see cref="IChannel"/> instance.
+        /// </summary>
+        /// <param name="applicationIdentifier">The application identifier must follow a reverse domain name format (ex. com.domainname.appname). Application
+        /// identifiers can be formed from the set of alphanumeric ASCII characters (a-z, A-Z, 0-9). The hyphen (-) and
+        /// underscore (_) characters are permitted if they are not adjacent to a period (.) character  (i.e. not at the
+        /// start or end of each segment), but are not permitted in the top-level domain. Application identifiers must have
+        /// three or more segments. For example, if a company's domain is example.com and the application is named
+        /// hello-world, one could use "com.example.hello-world" as a valid application identifier. The application identifier
+        /// can be an empty string. The application identifier cannot be longer than 255 characters.</param>
+        /// <returns>
+        /// A new <see cref="IChannel" /> instance.
+        /// </returns>
+        /// <exception cref="System.ArgumentException">Thrown when the specified application identifier is invalid.</exception>
+        /// <exception cref="System.InvalidOperationException">Thrown when there is a failure to connect to the Bluetooth hub.</exception>
+        public static IChannel Create(string applicationIdentifier)
+        {
+            return Create(applicationIdentifier, false);
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="IChannel"/> instance.
+        /// </summary>
         /// <param name="applicationIdentifier">The application identifier must follow a reverse domain name format (ex. com.domainname.appname). Application
         /// identifiers can be formed from the set of alphanumeric ASCII characters (a-z, A-Z, 0-9). The hyphen (-) and
         /// underscore (_) characters are permitted if they are not adjacent to a period (.) character  (i.e. not at the
@@ -99,7 +123,7 @@ namespace MyoSharp.Communication
         /// </returns>
         /// <exception cref="System.ArgumentException">Thrown when the specified application identifier is invalid.</exception>
         /// <exception cref="System.InvalidOperationException">Thrown when there is a failure to connect to the Bluetooth hub.</exception>
-        public static IChannel Create(string applicationIdentifier = "", bool autostart = false)
+        public static IChannel Create(string applicationIdentifier, bool autostart)
         {
             IntPtr handle;
             InitializeMyoHub(
@@ -113,14 +137,19 @@ namespace MyoSharp.Communication
         /// </summary>
         public void StartListening()
         {
-            if (_eventThread == null)
+            if (_eventThread != null)
             {
-                _killEventThread = false;
-                _eventThread = new Thread(new ThreadStart(EventListenerThread));
-                _eventThread.IsBackground = true;
-                _eventThread.Name = "Myo Channel Listener Thread";
-                _eventThread.Start();
+                return;
             }
+
+            _killEventThread = false;
+            _eventThread = new Thread(EventListenerThread)
+            {
+                IsBackground = true,
+                Name = "Myo Channel Listener Thread",
+            };
+
+            _eventThread.Start();
         }
 
         /// <summary>
@@ -252,7 +281,7 @@ namespace MyoSharp.Communication
             var timestampSeconds = PlatformInvocation.Running32Bit
                 ? event_get_timestamp_32(evt)
                 : event_get_timestamp_64(evt);
-            return TIMESTAMP_EPOCH.AddMilliseconds(timestampSeconds / 1000);
+            return TIMESTAMP_EPOCH.AddMilliseconds(timestampSeconds / 1000d);
         }
 
         private static void Run(IntPtr hubHandle, MyoRunHandler handler, IntPtr userData)
@@ -336,7 +365,7 @@ namespace MyoSharp.Communication
             {
                 Run(
                     _handle, 
-                    (MyoRunHandler)HandleEvent, 
+                    HandleEvent, 
                     (IntPtr)GCHandle.Alloc(this));
             }
         }

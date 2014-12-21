@@ -53,9 +53,11 @@ namespace MyoSharp.Poses
                 throw new ArgumentException("At least one target pose must be specified.", "targetPoses");
             }
 
-            _timer = new Timer();
-            _timer.AutoReset = true;
-            _timer.Interval = interval.TotalMilliseconds;
+            _timer = new Timer()
+            {
+                AutoReset = true,
+                Interval = interval.TotalMilliseconds,
+            };
             _timer.Elapsed += Timer_Elapsed;
             
             _lastPose = Pose.Unknown;
@@ -89,7 +91,7 @@ namespace MyoSharp.Poses
             {
                 if (value.TotalMilliseconds <= 0)
                 {
-                    throw new ArgumentException("The interval must be a positive time value.", "interval");
+                    throw new ArgumentException("The interval must be a positive time value.", "value");
                 }
 
                 _timer.Interval = value.TotalMilliseconds;

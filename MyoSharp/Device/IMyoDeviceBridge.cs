@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Text;
 
-using MyoSharp.Internal;
 using MyoSharp.Poses;
 
 namespace MyoSharp.Device

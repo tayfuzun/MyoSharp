@@ -11,7 +11,8 @@ namespace MyoSharp.Poses
         #region Fields
         private readonly List<Pose> _sequence;
         private readonly List<Pose> _currentSequence;
-        private IMyoEventGenerator _myo;
+        private readonly IMyoEventGenerator _myo;
+
         private bool _disposed;
         #endregion
 

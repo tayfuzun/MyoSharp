@@ -24,7 +24,7 @@ namespace MyoSharp.ConsoleSample
     internal class OrientationExample
     {
         #region Methods
-        private static void Main(string[] args)
+        private static void Main()
         {
             // create a hub that will manage Myo devices for us
             using (var hub = Hub.Create())
@@ -53,12 +53,12 @@ namespace MyoSharp.ConsoleSample
         #region Event Handlers
         private static void Myo_OrientationDataAcquired(object sender, OrientationDataEventArgs e)
         {
-            var pi = (float)System.Math.PI;
+            const float PI = (float)System.Math.PI;
 
             // convert the values to a 0-9 scale (for easier digestion/understanding)
-            var roll = (int)((e.Roll + pi) / (pi * 2.0f) * 10);
-            var pitch = (int)((e.Pitch + pi) / (pi * 2.0f) * 10);
-            var yaw = (int)((e.Yaw + pi) / (pi * 2.0f) * 10);
+            var roll = (int)((e.Roll + PI) / (PI * 2.0f) * 10);
+            var pitch = (int)((e.Pitch + PI) / (PI * 2.0f) * 10);
+            var yaw = (int)((e.Yaw + PI) / (PI * 2.0f) * 10);
 
             Console.Clear();
             Console.WriteLine(@"Roll: {0}", roll);
