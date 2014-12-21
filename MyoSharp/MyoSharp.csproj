@@ -42,7 +42,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Communication\Channel.cs" />
+    <Compile Include="Communication\ChannelBridge.cs" />
+    <Compile Include="Communication\ChannelDriver.cs" />
+    <Compile Include="Communication\IChannelBridge.cs" />
     <Compile Include="Communication\IChannel.cs" />
+    <Compile Include="Communication\IChannelDriver.cs" />
     <Compile Include="Communication\IChannelListener.cs" />
     <Compile Include="Device\AccelerometerDataEventArgs.cs" />
     <Compile Include="Device\Arm.cs" />
@@ -73,7 +77,7 @@
     <Compile Include="Discovery\DeviceListener.cs" />
     <Compile Include="Device\Myo.cs" />
     <Compile Include="Discovery\PairedEventArgs.cs" />
-    <Compile Include="Internal\MyoResult.cs" />
+    <Compile Include="Communication\MyoResult.cs" />
     <Compile Include="Internal\PlatformInvocation.cs" />
     <Compile Include="Poses\HeldPose.cs" />
     <Compile Include="Poses\IHeldPose.cs" />

@@ -1,5 +1,6 @@
 ﻿using System;
 
+using MyoSharp.Communication;
 using MyoSharp.Device;
 using MyoSharp.ConsoleSample.Internal;
 using MyoSharp.Poses;
@@ -29,7 +30,8 @@ namespace MyoSharp.ConsoleSample
         private static void Main()
         {
             // create a hub to manage Myos
-            using (var hub = Hub.Create())
+            using (var channel = Channel.Create(ChannelDriver.Create(ChannelBridge.Create())))
+            using (var hub = Hub.Create(channel))
             {
                 // listen for when a Myo connects
                 hub.MyoConnected += (sender, e) =>
@@ -46,6 +48,9 @@ namespace MyoSharp.ConsoleSample
                     pose.Start();
                     pose.Triggered += Pose_Triggered;
                 };
+
+                // start listening for Myo data
+                channel.StartListening();
 
                 ConsoleHelper.UserInputLoop(hub);
             }

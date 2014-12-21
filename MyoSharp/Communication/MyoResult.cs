@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace MyoSharp.Internal
+namespace MyoSharp.Communication
 {
-    internal enum MyoResult
+    public enum MyoResult
     {
         Success,
         Error,

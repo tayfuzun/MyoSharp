@@ -28,7 +28,7 @@ MyoSharp is compatible with .NET 2.0+
 ### Sample Usage
 ``` C#
 using System;
-
+using MyoSharp.Communication;
 using MyoSharp.Device;
 using MyoSharp.ConsoleSample.Internal;
 
@@ -47,13 +47,24 @@ namespace MyoSharp.ConsoleSample
     /// can create our own Myo object. With a Myo object, we can do things like
     /// cause it to vibrate or monitor for poses changes.
     /// </summary>
+    /// <remarks>
+    /// Not sure how to use this example?
+    /// - Open Visual Studio
+    /// - Go to the solution explorer
+    /// - Find the project that this file is contained within
+    /// - Right click on the project in the solution explorer, go to "properties"
+    /// - Go to the "Application" tab
+    /// - Under "Startup object" pick this example from the list
+    /// - Hit F5 and you should be good to go!
+    /// </remarks>
     internal class BasicSetupExample
     {
         #region Methods
-        private static void Main(string[] args)
+        private static void Main()
         {
             // create a hub that will manage Myo devices for us
-            using (var hub = Hub.Create())
+            using (var channel = Channel.Create(ChannelDriver.Create(ChannelBridge.Create())))
+            using (var hub = Hub.Create(channel))
             {
                 // listen for when the Myo connects
                 hub.MyoConnected += (sender, e) =>
@@ -73,6 +84,9 @@ namespace MyoSharp.ConsoleSample
                     e.Myo.Locked -= Myo_Locked;
                     e.Myo.Unlocked -= Myo_Unlocked;
                 };
+
+                // start listening for Myo data
+                channel.StartListening();
 
                 // wait on user input
                 ConsoleHelper.UserInputLoop(hub);
@@ -106,6 +120,7 @@ With this implementation, you can define your own creative sequences of poses. S
 ``` C#
 using System;
 
+using MyoSharp.Communication;
 using MyoSharp.Device;
 using MyoSharp.ConsoleSample.Internal;
 using MyoSharp.Poses;
@@ -119,13 +134,24 @@ namespace MyoSharp.ConsoleSample
     /// <see cref="PoseSequence"/> can monitor a Myo for a series of poses and
     /// notify you when that sequence has completed.
     /// </summary>
+    /// <remarks>
+    /// Not sure how to use this example?
+    /// - Open Visual Studio
+    /// - Go to the solution explorer
+    /// - Find the project that this file is contained within
+    /// - Right click on the project in the solution explorer, go to "properties"
+    /// - Go to the "Application" tab
+    /// - Under "Startup object" pick this example from the list
+    /// - Hit F5 and you should be good to go!
+    /// </remarks>
     internal class PoseSequenceExample
     {
         #region Methods
-        private static void Main(string[] args)
+        private static void Main()
         {
             // create a hub to manage Myos
-            using (var hub = Hub.Create())
+            using (var channel = Channel.Create(ChannelDriver.Create(ChannelBridge.Create())))
+            using (var hub = Hub.Create(channel))
             {
                 // listen for when a Myo connects
                 hub.MyoConnected += (sender, e) =>
@@ -139,6 +165,9 @@ namespace MyoSharp.ConsoleSample
                         Pose.WaveIn);
                     sequence.PoseSequenceCompleted += Sequence_PoseSequenceCompleted;
                 };
+
+                // start listening for Myo data
+                channel.StartListening();
 
                 ConsoleHelper.UserInputLoop(hub);
             }
@@ -162,6 +191,7 @@ It's easy to be notified when a pose is being held by the user. You can even def
 ``` C#
 using System;
 
+using MyoSharp.Communication;
 using MyoSharp.Device;
 using MyoSharp.ConsoleSample.Internal;
 using MyoSharp.Poses;
@@ -175,13 +205,24 @@ namespace MyoSharp.ConsoleSample
     /// transitioned from one pose to another. The <see cref="HeldPose"/> class
     /// monitors a Myo and notifies you as long as a particular pose is held.
     /// </summary>
+    /// <remarks>
+    /// Not sure how to use this example?
+    /// - Open Visual Studio
+    /// - Go to the solution explorer
+    /// - Find the project that this file is contained within
+    /// - Right click on the project in the solution explorer, go to "properties"
+    /// - Go to the "Application" tab
+    /// - Under "Startup object" pick this example from the list
+    /// - Hit F5 and you should be good to go!
+    /// </remarks>
     internal class HeldPoseExample
     {
         #region Methods
-        private static void Main(string[] args)
+        private static void Main()
         {
             // create a hub to manage Myos
-            using (var hub = Hub.Create())
+            using (var channel = Channel.Create(ChannelDriver.Create(ChannelBridge.Create())))
+            using (var hub = Hub.Create(channel))
             {
                 // listen for when a Myo connects
                 hub.MyoConnected += (sender, e) =>
@@ -199,6 +240,9 @@ namespace MyoSharp.ConsoleSample
                     pose.Triggered += Pose_Triggered;
                 };
 
+                // start listening for Myo data
+                channel.StartListening();
+
                 ConsoleHelper.UserInputLoop(hub);
             }
         }
@@ -211,6 +255,7 @@ namespace MyoSharp.ConsoleSample
         }
         #endregion
     }
+}
 ```
 <a name='rpy' />
 ### Getting Roll, Pitch and Yaw data
@@ -218,6 +263,7 @@ Don't get lost in the orientation Quaternion vectors, use the <strong>Orientatio
 ``` C#
 using System;
 
+using MyoSharp.Communication;
 using MyoSharp.Device;
 using MyoSharp.ConsoleSample.Internal;
 
@@ -229,13 +275,24 @@ namespace MyoSharp.ConsoleSample
     /// raw vectors from the orientation event args are converted to roll, pitch and yaw
     /// on a scale from 0 to 9, depending on the position of the myo
     /// </summary>
+    /// <remarks>
+    /// Not sure how to use this example?
+    /// - Open Visual Studio
+    /// - Go to the solution explorer
+    /// - Find the project that this file is contained within
+    /// - Right click on the project in the solution explorer, go to "properties"
+    /// - Go to the "Application" tab
+    /// - Under "Startup object" pick this example from the list
+    /// - Hit F5 and you should be good to go!
+    /// </remarks>
     internal class OrientationExample
     {
         #region Methods
-        private static void Main(string[] args)
+        private static void Main()
         {
             // create a hub that will manage Myo devices for us
-            using (var hub = Hub.Create())
+            using (var channel = Channel.Create(ChannelDriver.Create(ChannelBridge.Create())))
+            using (var hub = Hub.Create(channel))
             {
                 // listen for when the Myo connects
                 hub.MyoConnected += (sender, e) =>
@@ -252,6 +309,9 @@ namespace MyoSharp.ConsoleSample
                     e.Myo.OrientationDataAcquired -= Myo_OrientationDataAcquired;
                 };
 
+                // start listening for Myo data
+                channel.StartListening();
+
                 // wait on user input
                 ConsoleHelper.UserInputLoop(hub);
             }
@@ -261,12 +321,12 @@ namespace MyoSharp.ConsoleSample
         #region Event Handlers
         private static void Myo_OrientationDataAcquired(object sender, OrientationDataEventArgs e)
         {
-            var pi = (float)System.Math.PI;
+            const float PI = (float)System.Math.PI;
 
             // convert the values to a 0-9 scale (for easier digestion/understanding)
-            var roll = (int)((e.Roll + pi) / (pi * 2.0f) * 10);
-            var pitch = (int)((e.Pitch + pi) / (pi * 2.0f) * 10);
-            var yaw = (int)((e.Yaw + pi) / (pi * 2.0f) * 10);
+            var roll = (int)((e.Roll + PI) / (PI * 2.0f) * 10);
+            var pitch = (int)((e.Pitch + PI) / (PI * 2.0f) * 10);
+            var yaw = (int)((e.Yaw + PI) / (PI * 2.0f) * 10);
 
             Console.Clear();
             Console.WriteLine(@"Roll: {0}", roll);

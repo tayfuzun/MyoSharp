@@ -20,34 +20,6 @@ namespace MyoSharp.Device
 
         #region Constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="Hub"/> class and 
-        /// immediately starts listening for Myo activity.
-        /// </summary>
-        /// <exception cref="System.InvalidOperationException">
-        /// Thrown when there is a failure to connect to the Bluetooth hub.
-        /// </exception>
-        protected Hub()
-            : this(string.Empty)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Hub"/> class and 
-        /// immediately starts listening for Myo activity.
-        /// </summary>
-        /// <param name="applicationIdentifier">The application identifier.</param>
-        /// <exception cref="System.ArgumentException">
-        /// Thrown when the specified application identifier is invalid.
-        /// </exception>
-        /// <exception cref="System.InvalidOperationException">
-        /// Thrown when there is a failure to connect to the Bluetooth hub.
-        /// </exception>
-        protected Hub(string applicationIdentifier)
-            : this(Channel.Create(applicationIdentifier, true))
-        {
-        }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="Hub"/> class.
         /// </summary>
         /// <param name="channelListener">The channel listener.</param>
@@ -108,24 +80,6 @@ namespace MyoSharp.Device
         #endregion
 
         #region Methods
-        /// <summary>
-        /// Creates a new <see cref="IHub" /> instance.
-        /// </summary>
-        /// <param name="applicationIdentifier">The application identifier.</param>
-        /// <returns>
-        /// A new <see cref="IHub" /> instance.
-        /// </returns>
-        /// <exception cref="System.ArgumentException">
-        /// Thrown when the specified application identifier is invalid.
-        /// </exception>
-        /// <exception cref="System.InvalidOperationException">
-        /// Thrown when there is a failure to connect to the Bluetooth hub.
-        /// </exception>
-        public static IHub Create(string applicationIdentifier = "")
-        {
-            return new Hub(Channel.Create(applicationIdentifier, true));
-        }
-
         /// <summary>
         /// Creates a new <see cref="IHub"/> instance.
         /// </summary>
