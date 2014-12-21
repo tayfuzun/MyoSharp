@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 
-using MyoSharp.Internal;
 using MyoSharp.Math;
 using MyoSharp.Poses;
 using MyoSharp.Communication;
@@ -12,27 +10,28 @@ namespace MyoSharp.Device
     {
         #region Fields
         private readonly IChannelListener _channelListener;
-        private readonly IntPtr _handle;
+        private readonly IMyoDeviceDriver _myoDeviceDriver;
+
         private bool _disposed;
         #endregion
 
         #region Constructors
-        protected Myo(IntPtr handle, IChannelListener channelListener)
+        protected Myo(IChannelListener channelListener, IMyoDeviceDriver myoDeviceDriver)
         {
             if (channelListener == null)
             {
                 throw new ArgumentNullException("channelListener", "The channel listener cannot be null.");
             }
 
-            if (handle == null)
+            if (myoDeviceDriver == null)
             {
-                throw new ArgumentException("The handle must be set.", "handle");
+                throw new ArgumentNullException("myoDeviceDriver", "The device driver cannot be null.");
             }
 
             _channelListener = channelListener;
             _channelListener.EventReceived += Channel_EventReceived;
 
-            _handle = handle;
+            _myoDeviceDriver = myoDeviceDriver;
 
             this.Pose = Pose.Unknown;
             this.Arm = Arm.Unknown;
@@ -51,7 +50,7 @@ namespace MyoSharp.Device
         #region Properties
         public IntPtr Handle
         {
-            get { return _handle; }
+            get { return _myoDeviceDriver.Handle; }
         }
 
         public bool IsConnected
@@ -130,80 +129,27 @@ namespace MyoSharp.Device
 
         #region Methods
         /// <summary>
-        /// Creates a new <see cref="IMyo" /> instance.
+        /// Creates a new <see cref="IMyo"/> instance.
         /// </summary>
-        /// <param name="handle">The handle of the Myo device.</param>
         /// <param name="channelListener">The channel listener.</param>
+        /// <param name="myoDeviceDriver">The myo device driver.</param>
         /// <returns>
-        /// A new <see cref="IMyo" /> instance.
+        /// A new <see cref="IMyo"/> instance.
         /// </returns>
-        /// <exception cref="System.ArgumentNullException">Thrown when the hub is null.</exception>
-        /// <exception cref="System.ArgumentException">Thrown when the handle is not set.</exception>
-        public static IMyo Create(IntPtr handle, IChannelListener channelListener)
+        /// <exception cref="System.ArgumentNullException">The exception that is thrown when <paramref name="channelListener"/> or <paramref name="myoDeviceDriver"/> is <c>null</c>.</exception>
+        public static IMyo Create(IChannelListener channelListener, IMyoDeviceDriver myoDeviceDriver)
         {
-            return new Myo(handle, channelListener);
-        }
+            if (channelListener == null)
+            {
+                throw new ArgumentNullException("channelListener", "The channel listener cannot be null.");
+            }
 
-        /// <summary>
-        /// Causes the Myo to vibrate.
-        /// </summary>
-        /// <param name="type">The type of vibration.</param>
-        public void Vibrate(VibrationType type)
-        {
-            if (PlatformInvocation.Running32Bit)
+            if (myoDeviceDriver == null)
             {
-                vibrate_32(_handle, type, IntPtr.Zero);
+                throw new ArgumentNullException("myoDeviceDriver", "The device driver cannot be null.");
             }
-            else
-            {
-                vibrate_64(_handle, type, IntPtr.Zero);
-            }
-        }
 
-        /// <summary>
-        /// Requests RSSI from the Myo.
-        /// </summary>
-        public void RequestRssi()
-        {
-            if (PlatformInvocation.Running32Bit)
-            {
-                request_rssi_32(_handle, IntPtr.Zero);
-            }
-            else
-            {
-                request_rssi_64(_handle, IntPtr.Zero);
-            }
-        }
-
-        /// <summary>
-        /// Causes the Myo to lock.
-        /// </summary>
-        public void Lock()
-        {
-            if (PlatformInvocation.Running32Bit)
-            {
-                lock_32(_handle, IntPtr.Zero);
-            }
-            else
-            {
-                lock_64(_handle, IntPtr.Zero);
-            }
-        }
-
-        /// <summary>
-        /// Causes the Myo to unlock.
-        /// </summary>
-        /// <param name="type">The type of unlock.</param>
-        public void Unlock(UnlockType type)
-        {
-            if (PlatformInvocation.Running32Bit)
-            {
-                unlock_32(_handle, type, IntPtr.Zero);
-            }
-            else
-            {
-                unlock_64(_handle, type, IntPtr.Zero);
-            }
+            return new Myo(channelListener, myoDeviceDriver);
         }
 
         /// <summary>
@@ -213,6 +159,30 @@ namespace MyoSharp.Device
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        /// <inheritdoc />
+        public void Vibrate(VibrationType type)
+        {
+            _myoDeviceDriver.Vibrate(type);
+        }
+
+        /// <inheritdoc />
+        public void RequestRssi()
+        {
+            _myoDeviceDriver.RequestRssi();
+        }
+
+        /// <inheritdoc />
+        public void Unlock(UnlockType type)
+        {
+            _myoDeviceDriver.Unlock(type);
+        }
+
+        /// <inheritdoc />
+        public void Lock()
+        {
+            _myoDeviceDriver.Lock();
         }
 
         /// <summary>
@@ -274,7 +244,7 @@ namespace MyoSharp.Device
             var handler = Rssi;
             if (handler != null)
             {
-                var rssi = GetEventRssi(evt);
+                var rssi = _myoDeviceDriver.GetEventRssi(evt);
                 var args = new RssiEventArgs(
                     this, 
                     timestamp, 
@@ -290,7 +260,7 @@ namespace MyoSharp.Device
         /// <param name="timestamp">The timestamp of the event.</param>
         protected virtual void OnPoseChanged(IntPtr evt, DateTime timestamp)
         {
-            var pose = GetEventPose(evt);
+            var pose = _myoDeviceDriver.GetEventPose(evt);
             this.Pose = pose;
 
             var handler = PoseChanged;
@@ -320,7 +290,7 @@ namespace MyoSharp.Device
         /// <param name="timestamp">The timestamp of the event.</param>
         protected virtual void OnAcquiredGyroscopeData(IntPtr evt, DateTime timestamp)
         {
-            var gyroscope = GetGyroscope(evt);
+            var gyroscope = _myoDeviceDriver.GetGyroscope(evt);
             this.Gyroscope = gyroscope;
 
             var handler = GyroscopeDataAcquired;
@@ -341,7 +311,7 @@ namespace MyoSharp.Device
         /// <param name="timestamp">The timestamp of the event.</param>
         protected virtual void OnAcquiredAccelerometerData(IntPtr evt, DateTime timestamp)
         {
-            var accelerometer = GetEventAccelerometer(evt);
+            var accelerometer = _myoDeviceDriver.GetEventAccelerometer(evt);
             this.Accelerometer = accelerometer;
 
             var handler = AccelerometerDataAcquired;
@@ -362,7 +332,7 @@ namespace MyoSharp.Device
         /// <param name="timestamp">The timestamp of the event.</param>
         protected virtual void OnAcquiredOrientationData(IntPtr evt, DateTime timestamp)
         {
-            var orientation = GetEventOrientation(evt);
+            var orientation = _myoDeviceDriver.GetEventOrientation(evt);
             this.Orientation = orientation;
 
             var handler = OrientationDataAcquired;
@@ -405,10 +375,10 @@ namespace MyoSharp.Device
         /// <param name="timestamp">The timestamp of the event.</param>
         protected virtual void OnArmRecognized(IntPtr evt, DateTime timestamp)
         {
-            var arm = GetArm(evt);
+            var arm = _myoDeviceDriver.GetArm(evt);
             this.Arm = arm;
 
-            var xDirection = GetEventDirectionX(evt);
+            var xDirection = _myoDeviceDriver.GetEventDirectionX(evt);
             this.XDirectionOnArm = xDirection;
 
             var handler = ArmRecognized;
@@ -515,87 +485,6 @@ namespace MyoSharp.Device
             }
         }
 
-        protected static sbyte GetEventRssi(IntPtr evt)
-        {
-            return PlatformInvocation.Running32Bit
-                ? event_get_rssi_32(evt)
-                : event_get_rssi_64(evt);
-        }
-
-        protected static Vector3F GetEventAccelerometer(IntPtr evt)
-        {
-            float x = GetEventAccelerometer(evt, 0);
-            float y = GetEventAccelerometer(evt, 1);
-            float z = GetEventAccelerometer(evt, 2);
-            return new Vector3F(x, y, z);
-        }
-
-        protected static float GetEventAccelerometer(IntPtr evt, uint index)
-        {
-            return PlatformInvocation.Running32Bit
-                ? event_get_accelerometer_32(evt, index)
-                : event_get_accelerometer_64(evt, index);
-        }
-
-        protected static XDirection GetEventDirectionX(IntPtr evt)
-        {
-            return PlatformInvocation.Running32Bit
-                ? event_get_x_direction_32(evt)
-                : event_get_x_direction_64(evt);
-        }
-
-        protected static QuaternionF GetEventOrientation(IntPtr evt)
-        {
-            float x = GetEventOrientation(evt, OrientationIndex.X);
-            float y = GetEventOrientation(evt, OrientationIndex.Y);
-            float z = GetEventOrientation(evt, OrientationIndex.Z);
-            float w = GetEventOrientation(evt, OrientationIndex.W);
-            return new QuaternionF(x, y, z, w);
-        }
-
-        protected static float GetEventOrientation(IntPtr evt, OrientationIndex index)
-        {
-            return PlatformInvocation.Running32Bit
-                ? event_get_orientation_32(evt, index)
-                : event_get_orientation_64(evt, index);
-        }
-
-        protected static float GetFirmwareVersion(IntPtr evt, VersionComponent component)
-        {
-            return PlatformInvocation.Running32Bit
-                ? event_get_firmware_version_32(evt, component)
-                : event_get_firmware_version_64(evt, component);
-        }
-
-        protected static Arm GetArm(IntPtr evt)
-        {
-            return PlatformInvocation.Running32Bit
-                ? event_get_arm_32(evt)
-                : event_get_arm_64(evt);
-        }
-
-        protected static Vector3F GetGyroscope(IntPtr evt)
-        {
-            float x = GetGyroscope(evt, 0);
-            float y = GetGyroscope(evt, 1);
-            float z = GetGyroscope(evt, 2);
-            return new Vector3F(x, y, z);
-        }
-
-        protected static float GetGyroscope(IntPtr evt, uint index)
-        {
-            return PlatformInvocation.Running32Bit
-                ? event_get_gyroscope_32(evt, index)
-                : event_get_gyroscope_64(evt, index);
-        }
-
-        protected static Pose GetEventPose(IntPtr evt)
-        {
-            return PlatformInvocation.Running32Bit
-                ? event_get_pose_32(evt)
-                : event_get_pose_64(evt);
-        }
-
         protected static double CalculateRoll(QuaternionF orientation)
         {
             return System.Math.Atan2(2.0f * (orientation.W * orientation.X + orientation.Y * orientation.Z), 1.0f - 2.0f * (orientation.X * orientation.X + orientation.Y * orientation.Y));
@@ -612,85 +501,11 @@ namespace MyoSharp.Device
         }
         #endregion
 
-        #region PInvokes
-        [DllImport(PlatformInvocation.MyoDllPath32, EntryPoint = "libmyo_vibrate", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void vibrate_32(IntPtr myo, VibrationType type, IntPtr error);
-
-        [DllImport(PlatformInvocation.MyoDllPath64, EntryPoint = "libmyo_vibrate", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void vibrate_64(IntPtr myo, VibrationType type, IntPtr error);
-
-        [DllImport(PlatformInvocation.MyoDllPath32, EntryPoint = "libmyo_request_rssi", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void request_rssi_32(IntPtr myo, IntPtr error);
-
-        [DllImport(PlatformInvocation.MyoDllPath64, EntryPoint = "libmyo_request_rssi", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void request_rssi_64(IntPtr myo, IntPtr error);
-
-        [DllImport(PlatformInvocation.MyoDllPath32, EntryPoint = "libmyo_event_get_firmware_version", CallingConvention = CallingConvention.Cdecl)]
-        private static extern uint event_get_firmware_version_32(IntPtr evt, VersionComponent component);
-
-        [DllImport(PlatformInvocation.MyoDllPath64, EntryPoint = "libmyo_event_get_firmware_version", CallingConvention = CallingConvention.Cdecl)]
-        private static extern uint event_get_firmware_version_64(IntPtr evt, VersionComponent component);
-
-        [DllImport(PlatformInvocation.MyoDllPath32, EntryPoint = "libmyo_event_get_arm", CallingConvention = CallingConvention.Cdecl)]
-        private static extern Arm event_get_arm_32(IntPtr evt);
-
-        [DllImport(PlatformInvocation.MyoDllPath64, EntryPoint = "libmyo_event_get_arm", CallingConvention = CallingConvention.Cdecl)]
-        private static extern Arm event_get_arm_64(IntPtr evt);
-
-        [DllImport(PlatformInvocation.MyoDllPath32, EntryPoint = "libmyo_event_get_x_direction", CallingConvention = CallingConvention.Cdecl)]
-        private static extern XDirection event_get_x_direction_32(IntPtr evt);
-
-        [DllImport(PlatformInvocation.MyoDllPath64, EntryPoint = "libmyo_event_get_x_direction", CallingConvention = CallingConvention.Cdecl)]
-        private static extern XDirection event_get_x_direction_64(IntPtr evt);
-
-        [DllImport(PlatformInvocation.MyoDllPath32, EntryPoint = "libmyo_event_get_orientation", CallingConvention = CallingConvention.Cdecl)]
-        private static extern float event_get_orientation_32(IntPtr evt, OrientationIndex index);
-
-        [DllImport(PlatformInvocation.MyoDllPath64, EntryPoint = "libmyo_event_get_orientation", CallingConvention = CallingConvention.Cdecl)]
-        private static extern float event_get_orientation_64(IntPtr evt, OrientationIndex index);
-
-        [DllImport(PlatformInvocation.MyoDllPath32, EntryPoint = "libmyo_event_get_accelerometer", CallingConvention = CallingConvention.Cdecl)]
-        private static extern float event_get_accelerometer_32(IntPtr evt, uint index);
-
-        [DllImport(PlatformInvocation.MyoDllPath64, EntryPoint = "libmyo_event_get_accelerometer", CallingConvention = CallingConvention.Cdecl)]
-        private static extern float event_get_accelerometer_64(IntPtr evt, uint index);
-
-        [DllImport(PlatformInvocation.MyoDllPath32, EntryPoint = "libmyo_event_get_gyroscope", CallingConvention = CallingConvention.Cdecl)]
-        private static extern float event_get_gyroscope_32(IntPtr evt, uint index);
-
-        [DllImport(PlatformInvocation.MyoDllPath64, EntryPoint = "libmyo_event_get_gyroscope", CallingConvention = CallingConvention.Cdecl)]
-        private static extern float event_get_gyroscope_64(IntPtr evt, uint index);
-
-        [DllImport(PlatformInvocation.MyoDllPath32, EntryPoint = "libmyo_event_get_pose", CallingConvention = CallingConvention.Cdecl)]
-        private static extern Pose event_get_pose_32(IntPtr evt);
-
-        [DllImport(PlatformInvocation.MyoDllPath64, EntryPoint = "libmyo_event_get_pose", CallingConvention = CallingConvention.Cdecl)]
-        private static extern Pose event_get_pose_64(IntPtr evt);
-
-        [DllImport(PlatformInvocation.MyoDllPath32, EntryPoint = "libmyo_event_get_rssi", CallingConvention = CallingConvention.Cdecl)]
-        private static extern sbyte event_get_rssi_32(IntPtr evt);
-
-        [DllImport(PlatformInvocation.MyoDllPath64, EntryPoint = "libmyo_event_get_rssi", CallingConvention = CallingConvention.Cdecl)]
-        private static extern sbyte event_get_rssi_64(IntPtr evt);
-
-        [DllImport(PlatformInvocation.MyoDllPath32, EntryPoint = "libmyo_myo_unlock", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void unlock_32(IntPtr myo, UnlockType type, IntPtr error);
-        
-        [DllImport(PlatformInvocation.MyoDllPath64, EntryPoint = "libmyo_myo_unlock", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void unlock_64(IntPtr myo, UnlockType type, IntPtr error);
-        
-        [DllImport(PlatformInvocation.MyoDllPath32, EntryPoint = "libmyo_myo_lock", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void lock_32(IntPtr myo, IntPtr error);
-        
-        [DllImport(PlatformInvocation.MyoDllPath64, EntryPoint = "libmyo_myo_lock", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void lock_64(IntPtr myo, IntPtr error);
-        #endregion  
-
         #region Event handlers
         private void Channel_EventReceived(object sender, RouteMyoEventArgs e)
         {
             // check if this event is for us
-            if (e.MyoHandle != _handle)
+            if (e.MyoHandle != this.Handle)
             {
                 return;
             }

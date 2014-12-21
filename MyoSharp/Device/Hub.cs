@@ -158,14 +158,36 @@ namespace MyoSharp.Device
         }
 
         /// <summary>
-        /// Creates a new <see cref="IMyo"/> instance.
+        /// Creates a new <see cref="IMyo" /> instance.
+        /// </summary>
+        /// <param name="channelListener">The channel listener.</param>
+        /// <param name="myoDeviceDriver">The Myo device driver.</param>
+        /// <returns>
+        /// Returns a new <see cref="IMyo" /> instance.
+        /// </returns>
+        protected virtual IMyo CreateMyo(IChannelListener channelListener, IMyoDeviceDriver myoDeviceDriver)
+        {
+            return Myo.Create(channelListener, myoDeviceDriver);
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="IMyoDeviceDriver"/>.
         /// </summary>
         /// <param name="myoHandle">The Myo handle.</param>
-        /// <param name="channelListener">The channel listener.</param>
-        /// <returns>A new <see cref="IMyo"/> instance.</returns>
-        protected virtual IMyo CreateMyo(IntPtr myoHandle, IChannelListener channelListener)
+        /// <param name="myoDeviceBridge">The Myo device bridge.</param>
+        /// <returns>Returns a new <see cref="IMyoDeviceDriver"/> instance.</returns>
+        protected virtual IMyoDeviceDriver CreateMyoDeviceDriver(IntPtr myoHandle, IMyoDeviceBridge myoDeviceBridge)
         {
-            return Myo.Create(myoHandle, channelListener);
+            return MyoDeviceDriver.Create(myoHandle, myoDeviceBridge);
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="IMyoDeviceBridge"/>.
+        /// </summary>
+        /// <returns>Returns a new <see cref="IMyoDeviceBridge"/> instance.</returns>
+        protected virtual IMyoDeviceBridge CreateMyoDeviceBridge()
+        {
+            return MyoDeviceBridge.Create();
         }
 
         /// <summary>
@@ -251,9 +273,16 @@ namespace MyoSharp.Device
         #region Event Handlers
         private void DeviceListener_Paired(object sender, PairedEventArgs e)
         {
+            var myoDeviceBridge = CreateMyoDeviceBridge();
+
+            var myoDeviceDriver = CreateMyoDeviceDriver(
+                e.MyoHandle,
+                myoDeviceBridge);
+
             var myo = CreateMyo(
-                e.MyoHandle, 
-                ((IDeviceListener)sender).ChannelListener);
+                ((IDeviceListener)sender).ChannelListener,
+                myoDeviceDriver);
+
             HookMyoEvents(myo);
         }
 
