@@ -56,6 +56,14 @@ namespace MyoSharp.Device
         void Lock32(IntPtr myo, IntPtr error);
 
         void Lock64(IntPtr myo, IntPtr error);
+
+        void StreamEmg32(IntPtr myo, StreamEmgType streamEmgType, IntPtr error);
+
+        void StreamEmg64(IntPtr myo, StreamEmgType streamEmgType, IntPtr error);
+
+        sbyte EventGetEmg32(IntPtr evt, int sensor);
+
+        sbyte EventGetEmg64(IntPtr evt, int sensor);
         #endregion
     }
 }

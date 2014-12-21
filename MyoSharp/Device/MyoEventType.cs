@@ -17,5 +17,6 @@ namespace MyoSharp.Device
         Rssi,
         Unlocked,
         Locked,
+        Emg,
     }
 }

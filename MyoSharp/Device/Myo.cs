@@ -36,6 +36,7 @@ namespace MyoSharp.Device
             this.Pose = Pose.Unknown;
             this.Arm = Arm.Unknown;
             this.XDirectionOnArm = XDirection.Unknown;
+            this.EmgData = Device.EmgData.Create(new int[0]);
         }
 
         /// <summary>
@@ -101,6 +102,10 @@ namespace MyoSharp.Device
             private set;
         }
 
+        public IEmgData EmgData
+        {
+            get; private set;
+        }
         #endregion
 
         #region Events
@@ -125,6 +130,8 @@ namespace MyoSharp.Device
         public event EventHandler<MyoEventArgs> Locked;
 
         public event EventHandler<MyoEventArgs> Unlocked;
+
+        public event EventHandler<EmgDataEventArgs> EmgDataAcquired;
         #endregion
 
         #region Methods
@@ -185,6 +192,12 @@ namespace MyoSharp.Device
             _myoDeviceDriver.Lock();
         }
 
+        /// <inheritdoc />
+        public void SetEmgStreaming(bool enabled)
+        {
+            _myoDeviceDriver.SetEmgStreaming(enabled);
+        }
+
         /// <summary>
         /// Handles an event that was received for this device.
         /// </summary>
@@ -208,7 +221,6 @@ namespace MyoSharp.Device
                     break;
 
                 case MyoEventType.ArmLost:
-                    this.Arm = Arm.Unknown;
                     OnArmLost(timestamp);
                     break;
 
@@ -231,6 +243,38 @@ namespace MyoSharp.Device
                 case MyoEventType.Unlocked:
                     OnUnlock(timestamp);
                     break;
+
+                case MyoEventType.Emg:
+                    OnEmgData(evt, timestamp);
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Called when the Myo sends a <see cref="MyoEventType.Emg"/> event.
+        /// </summary>
+        /// <param name="evt">The pointer to the event.</param>
+        /// <param name="timestamp">The timestamp of the event.</param>
+        protected virtual void OnEmgData(IntPtr evt, DateTime timestamp)
+        {
+            const int NUMBER_OF_SENSORS = 8;
+            var rawEmgData = new int[NUMBER_OF_SENSORS];
+            for (int i = 0; i < rawEmgData.Length; i++)
+            {
+                rawEmgData[i] = _myoDeviceDriver.GetEventEmg(evt, i);
+            }
+
+            var emgData = Device.EmgData.Create(rawEmgData);
+            this.EmgData = emgData;
+
+            var handler = EmgDataAcquired;
+            if (handler != null)
+            {
+                var args = new EmgDataEventArgs(
+                    this,
+                    timestamp,
+                    emgData);
+                handler.Invoke(this, args);
             }
         }
 

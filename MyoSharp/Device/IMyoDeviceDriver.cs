@@ -43,6 +43,10 @@ namespace MyoSharp.Device
         float GetGyroscope(IntPtr evt, uint index);
         
         Pose GetEventPose(IntPtr evt);
+
+        void SetEmgStreaming(bool enabled);
+
+        sbyte GetEventEmg(IntPtr evt, int sensor);
         #endregion
     }
 }

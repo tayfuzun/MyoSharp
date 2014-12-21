@@ -217,6 +217,31 @@ namespace MyoSharp.Device
                 ? _myoDeviceBridge.EventGetPose32(evt)
                 : _myoDeviceBridge.EventGetPose64(evt);
         }
+
+        /// <inheritdoc />
+        public void SetEmgStreaming(bool enabled)
+        {
+            var streamEmgType = enabled
+                ? StreamEmgType.Enabled
+                : StreamEmgType.Disabled;
+
+            if (PlatformInvocation.Running32Bit)
+            {
+                _myoDeviceBridge.StreamEmg32(_handle, streamEmgType, IntPtr.Zero);
+            }
+            else
+            {
+                _myoDeviceBridge.StreamEmg64(_handle, streamEmgType, IntPtr.Zero);
+            }
+        }
+
+        /// <inheritdoc />
+        public sbyte GetEventEmg(IntPtr evt, int sensor)
+        {
+            return PlatformInvocation.Running32Bit
+                ? _myoDeviceBridge.EventGetEmg32(evt, sensor)
+                : _myoDeviceBridge.EventGetEmg64(evt, sensor);
+        }
         #endregion
     }
 }

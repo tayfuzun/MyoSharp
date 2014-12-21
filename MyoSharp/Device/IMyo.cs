@@ -30,6 +30,12 @@ namespace MyoSharp.Device
         /// Causes the Myo to lock.
         /// </summary>
         void Lock();
+
+        /// <summary>
+        /// Sets whether or not this Myo will have EMG streaming enabled or not.
+        /// </summary>
+        /// <param name="enabled">If set to <c>true</c>, EMG streaming will be enabled; Otherwise, it will be disabled.</param>
+        void SetEmgStreaming(bool enabled);
         #endregion
     }
 }

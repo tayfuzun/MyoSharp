@@ -23,6 +23,8 @@ namespace MyoSharp.Device
         Vector3F Accelerometer { get; }
 
         Vector3F Gyroscope { get; }
+
+        IEmgData EmgData { get; }
         #endregion
     }
 }

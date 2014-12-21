@@ -28,6 +28,8 @@ namespace MyoSharp.Device
         event EventHandler<MyoEventArgs> Locked;
 
         event EventHandler<MyoEventArgs> Unlocked;
+
+        event EventHandler<EmgDataEventArgs> EmgDataAcquired;
         #endregion
     }
 }

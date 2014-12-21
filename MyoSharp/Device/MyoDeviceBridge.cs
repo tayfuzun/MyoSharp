@@ -168,6 +168,30 @@ namespace MyoSharp.Device
         {
             lock_64(myo, error);
         }
+
+        /// <inheritdoc />
+        public void StreamEmg32(IntPtr myo, StreamEmgType streamEmgType, IntPtr error)
+        {
+            stream_emg_32(myo, streamEmgType, error);
+        }
+
+        /// <inheritdoc />
+        public void StreamEmg64(IntPtr myo, StreamEmgType streamEmgType, IntPtr error)
+        {
+            stream_emg_64(myo, streamEmgType, error);
+        }
+
+        /// <inheritdoc />
+        public sbyte EventGetEmg32(IntPtr evt, int sensor)
+        {
+            return event_get_emg_32(evt, sensor);
+        }
+
+        /// <inheritdoc />
+        public sbyte EventGetEmg64(IntPtr evt, int sensor)
+        {
+            return event_get_emg_64(evt, sensor);
+        }
         #endregion
 
         #region PInvokes
@@ -242,6 +266,18 @@ namespace MyoSharp.Device
 
         [DllImport(PlatformInvocation.MyoDllPath64, EntryPoint = "libmyo_myo_lock", CallingConvention = CallingConvention.Cdecl)]
         private static extern void lock_64(IntPtr myo, IntPtr error);
+
+        [DllImport(PlatformInvocation.MyoDllPath32, EntryPoint = "libmyo_set_stream_emg", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void stream_emg_32(IntPtr myo, StreamEmgType type, IntPtr error);
+
+        [DllImport(PlatformInvocation.MyoDllPath64, EntryPoint = "libmyo_set_stream_emg", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void stream_emg_64(IntPtr myo, StreamEmgType type, IntPtr error);
+
+        [DllImport(PlatformInvocation.MyoDllPath32, EntryPoint = "libmyo_event_get_emg", CallingConvention = CallingConvention.Cdecl)]
+        private static extern sbyte event_get_emg_32(IntPtr evt, int sensor);
+
+        [DllImport(PlatformInvocation.MyoDllPath64, EntryPoint = "libmyo_event_get_emg", CallingConvention = CallingConvention.Cdecl)]
+        private static extern sbyte event_get_emg_64(IntPtr evt, int sensor);
         #endregion  
     }
 }
