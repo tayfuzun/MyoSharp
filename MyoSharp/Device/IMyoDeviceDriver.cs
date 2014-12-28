@@ -27,8 +27,12 @@ namespace MyoSharp.Device
         void Vibrate(VibrationType type);
 
         /// <summary>
-        /// TODO: RSSI?
+        /// Requests the received signal strength indication (RSSI) from the device.
         /// </summary>
+        /// <remarks>
+        /// For more information on RSSI, see:
+        /// http://en.wikipedia.org/wiki/Received_signal_strength_indication
+        /// </remarks>
         void RequestRssi();
 
         /// <summary>
@@ -43,10 +47,18 @@ namespace MyoSharp.Device
         void Unlock(UnlockType type);
 
         /// <summary>
-        /// TODO: RSSI?
+        /// Gets the received signal strength indication (RSSI) from the 
+        /// device for the specified event.
         /// </summary>
         /// <param name="evt">The event handle.</param>
-        /// <returns>TODO: RSSI?</returns>
+        /// <returns>
+        /// Returns the received signal strength indication (RSSI) from the 
+        /// device for the specified event.
+        /// </returns>
+        /// <remarks>
+        /// For more information on RSSI, see:
+        /// http://en.wikipedia.org/wiki/Received_signal_strength_indication
+        /// </remarks>
         sbyte GetEventRssi(IntPtr evt);
 
         /// <summary>

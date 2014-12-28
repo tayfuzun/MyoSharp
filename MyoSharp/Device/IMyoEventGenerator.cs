@@ -51,8 +51,13 @@ namespace MyoSharp.Device
         event EventHandler<GyroscopeDataEventArgs> GyroscopeDataAcquired;
 
         /// <summary>
-        /// TODO: RSSI?
+        /// The event that is triggered when received signal strength 
+        /// indication information has been acquired from the Myo.
         /// </summary>
+        /// <remarks>
+        /// For more information on RSSI, see:
+        /// http://en.wikipedia.org/wiki/Received_signal_strength_indication
+        /// </remarks>
         event EventHandler<RssiEventArgs> Rssi;
 
         /// <summary>

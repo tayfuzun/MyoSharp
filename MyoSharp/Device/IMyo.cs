@@ -2,9 +2,15 @@
 
 namespace MyoSharp.Device
 {
+    /// <summary>
+    /// An interface that defines functionality for a Myo device.
+    /// </summary>
     public interface IMyo : IMyoEventGenerator, IMyoDeviceState, IDisposable
     {
         #region Properties
+        /// <summary>
+        /// Gets the handle for the Myo device.
+        /// </summary>
         IntPtr Handle { get; }
         #endregion
 
@@ -16,8 +22,12 @@ namespace MyoSharp.Device
         void Vibrate(VibrationType type);
 
         /// <summary>
-        /// Requests RSSI from the Myo.
+        /// Requests the received signal strength indication (RSSI) from the device.
         /// </summary>
+        /// <remarks>
+        /// For more information on RSSI, see:
+        /// http://en.wikipedia.org/wiki/Received_signal_strength_indication
+        /// </remarks>
         void RequestRssi();
 
         /// <summary>
