@@ -119,12 +119,13 @@ namespace MyoSharp.Discovery
         /// Called when a device has paired.
         /// </summary>
         /// <param name="myoHandle">The Myo handle.</param>
-        protected virtual void OnPaired(IntPtr myoHandle)
+        /// <param name="eventTimeUtc">The event time in UTC.</param>
+        protected virtual void OnPaired(IntPtr myoHandle, DateTime eventTimeUtc)
         {
             var handler = Paired;
             if (handler != null)
             {
-                var args = new PairedEventArgs(myoHandle, DateTime.Now);
+                var args = new PairedEventArgs(myoHandle, eventTimeUtc);
                 handler.Invoke(this, args);
             }
         }
@@ -135,7 +136,7 @@ namespace MyoSharp.Discovery
         {
             if (e.EventType == MyoEventType.Paired)
             {
-                OnPaired(e.MyoHandle);
+                OnPaired(e.MyoHandle, e.Timestamp);
             }
         }
         #endregion
