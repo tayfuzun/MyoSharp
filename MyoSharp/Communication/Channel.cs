@@ -46,6 +46,9 @@ namespace MyoSharp.Communication
                 throw new ArgumentNullException("channelDriver", "The channel driver cannot be null.");
             }
 
+            // TODO: replace with code contracts
+            AssertApplicationIdentifier(applicationIdentifier);
+
             _channelDriver = channelDriver;
 
             _handle = channelDriver.InitializeMyoHub(applicationIdentifier);
@@ -126,6 +129,9 @@ namespace MyoSharp.Communication
                 throw new ArgumentNullException("channelDriver", "The channel driver cannot be null.");
             }
 
+            // TODO: replace with code contracts
+            // AssertApplicationIdentifier(applicationIdentifier);
+
             return Create(channelDriver, applicationIdentifier, false);
         }
 
@@ -157,6 +163,9 @@ namespace MyoSharp.Communication
             {
                 throw new ArgumentNullException("channelDriver", "The channel driver cannot be null.");
             }
+
+            // TODO: replace with code contracts
+            // AssertApplicationIdentifier(applicationIdentifier);
 
             return new Channel(channelDriver, applicationIdentifier, autostart);
         }
@@ -200,6 +209,26 @@ namespace MyoSharp.Communication
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        private static void AssertApplicationIdentifier(string applicationIdentifier)
+        {
+            if (applicationIdentifier == string.Empty)
+            {
+                return;
+            }
+
+            if (applicationIdentifier == null)
+            {
+                throw new ArgumentNullException("applicationIdentifier", "The application identifier cannot be null.");
+            }
+
+            if (applicationIdentifier.Length > 255)
+            {
+                throw new ArgumentException("The application identifier cannot be longer than 255 characters.", "applicationIdentifier");
+            }
+
+            // TODO: add a regex for validating before the Myo has to deal with it
         }
 
         /// <summary>
