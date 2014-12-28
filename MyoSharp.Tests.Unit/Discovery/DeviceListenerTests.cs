@@ -69,8 +69,8 @@ namespace MyoSharp.Tests.Unit.Discovery
             deviceListener.Paired += (_, __) => gotPairedEvent = true;
 
             var routeEventArgs = new RouteMyoEventArgs(
-                IntPtr.Zero, 
-                IntPtr.Zero, 
+                new IntPtr(123),
+                new IntPtr(123), 
                 MyoEventType.Emg, 
                 DateTime.UtcNow);
 
@@ -98,7 +98,7 @@ namespace MyoSharp.Tests.Unit.Discovery
             var timestamp = DateTime.UtcNow;
             var routeEventArgs = new RouteMyoEventArgs(
                  myoHandle,
-                 IntPtr.Zero,
+                 new IntPtr(123),
                  MyoEventType.Paired,
                  timestamp);
 

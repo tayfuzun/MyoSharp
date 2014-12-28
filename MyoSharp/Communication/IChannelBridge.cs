@@ -24,13 +24,13 @@ namespace MyoSharp.Communication
 
         MyoResult InitHub64(out IntPtr hub, string applicationIdentifier, out IntPtr error);
 
-        MyoResult ShutdownHub32(IntPtr hub, IntPtr error);
+        MyoResult ShutdownHub32(IntPtr hub, out IntPtr error);
 
-        MyoResult ShutdownHub64(IntPtr hub, IntPtr error);
+        MyoResult ShutdownHub64(IntPtr hub, out IntPtr error);
 
-        MyoResult Run32(IntPtr hub, uint durationMs, MyoRunHandler handler, IntPtr userData, IntPtr error);
+        MyoResult Run32(IntPtr hub, uint durationMs, MyoRunHandler handler, IntPtr userData, out IntPtr error);
 
-        MyoResult Run64(IntPtr hub, uint durationMs, MyoRunHandler handler, IntPtr userData, IntPtr error);
+        MyoResult Run64(IntPtr hub, uint durationMs, MyoRunHandler handler, IntPtr userData, out IntPtr error);
 
         string LibmyoErrorCstring32(IntPtr errorHandle);
 

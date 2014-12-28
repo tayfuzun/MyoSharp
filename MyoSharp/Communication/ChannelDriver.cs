@@ -64,13 +64,23 @@ namespace MyoSharp.Communication
                 return;
             }
 
-            if (PlatformInvocation.Running32Bit)
+            var errorHandle = IntPtr.Zero;
+            try
             {
-                _channelBridge.ShutdownHub32(hubPointer, IntPtr.Zero);
+                var result = PlatformInvocation.Running32Bit
+                    ? _channelBridge.ShutdownHub32(hubPointer, out errorHandle)
+                    : _channelBridge.ShutdownHub64(hubPointer, out errorHandle);
+
+                if (result == MyoResult.Success)
+                {
+                    return;
+                }
+
+                throw CreateMyoException(result, errorHandle);
             }
-            else
+            finally
             {
-                _channelBridge.ShutdownHub64(hubPointer, IntPtr.Zero);
+                FreeMyoError(errorHandle);
             }
         }
 
@@ -90,13 +100,7 @@ namespace MyoSharp.Communication
                     return hubPointer;
                 }
 
-                var errorMessage = GetErrorString(errorHandle);
-                if (result == MyoResult.ErrorInvalidArgument)
-                {
-                    throw new ArgumentException(errorMessage);
-                }
-
-                throw new Exception(errorMessage);
+                throw CreateMyoException(result, errorHandle);
             }
             finally
             {
@@ -107,32 +111,47 @@ namespace MyoSharp.Communication
         /// <inheritdoc />
         public DateTime GetEventTimestamp(IntPtr evt)
         {
-            var timestampSeconds = PlatformInvocation.Running32Bit
+            var microseconds = PlatformInvocation.Running32Bit
                 ? _channelBridge.EventGetTimestamp32(evt)
                 : _channelBridge.EventGetTimestamp64(evt);
-            return TIMESTAMP_EPOCH.AddMilliseconds(timestampSeconds / 1000d);
+            return TIMESTAMP_EPOCH.AddMilliseconds(microseconds / 1000d);
         }
 
         /// <inheritdoc />
         public void Run(IntPtr hubHandle, MyoRunHandler handler, IntPtr userData)
         {
-            if (PlatformInvocation.Running32Bit)
+            if (handler == null)
             {
-                _channelBridge.Run32(
-                    hubHandle,
-                    1000 / 20,
-                    handler,
-                    userData,
-                    IntPtr.Zero);
+                throw new ArgumentNullException("handler", "The handler cannot be null.");
             }
-            else
+
+            var errorHandle = IntPtr.Zero;
+            try
             {
-                _channelBridge.Run64(
-                     hubHandle,
-                     1000 / 20,
-                     handler,
-                     userData,
-                     IntPtr.Zero);
+                var result = PlatformInvocation.Running32Bit
+                    ? _channelBridge.Run32(
+                        hubHandle,
+                        1000 / 20,
+                        handler,
+                        userData,
+                        out errorHandle)
+                    : _channelBridge.Run64(
+                         hubHandle,
+                         1000 / 20,
+                         handler,
+                         userData,
+                         out errorHandle);
+
+                if (result == MyoResult.Success)
+                {
+                    return;
+                }
+
+                throw CreateMyoException(result, errorHandle);
+            }
+            finally
+            {
+                FreeMyoError(errorHandle);
             }
         }
 
@@ -171,6 +190,17 @@ namespace MyoSharp.Communication
             {
                 _channelBridge.LibmyoFreeErrorDetails64(errorHandle);
             }
+        }
+
+        private Exception CreateMyoException(MyoResult result, IntPtr errorHandle)
+        {
+            var errorMessage = GetErrorString(errorHandle);
+            if (result == MyoResult.ErrorInvalidArgument)
+            {
+                return new ArgumentException(errorMessage);
+            }
+
+            return new InvalidOperationException(errorMessage);
         }
         #endregion
     }

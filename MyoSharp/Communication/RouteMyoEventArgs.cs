@@ -19,12 +19,25 @@ namespace MyoSharp.Communication
         /// <param name="evt">The event handle.</param>
         /// <param name="eventType">The type of the event.</param>
         /// <param name="timestamp">The timestamp of the event.</param>
+        /// <exception cref="ArgumentException">
+        /// The exception that is thrown when <paramref name="myoHandle"/> or <paramref name="evt"/> are <see cref="IntPtr.Zero"/>.
+        /// </exception>
         public RouteMyoEventArgs(
             IntPtr myoHandle, 
             IntPtr evt, 
             MyoEventType eventType, 
             DateTime timestamp)
         {
+            if (myoHandle == IntPtr.Zero)
+            {
+                throw new ArgumentException("The handle to the Myo must be set.", "myoHandle");
+            }
+
+            if (evt == IntPtr.Zero)
+            {
+                throw new ArgumentException("The handle to the event must be set.", "evt");
+            }
+
             this.MyoHandle = myoHandle;
             this.Event = evt;
             this.EventType = eventType;

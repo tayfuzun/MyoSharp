@@ -79,27 +79,27 @@ namespace MyoSharp.Communication
         }
 
         /// <inheritdoc />
-        public MyoResult ShutdownHub32(IntPtr hub, IntPtr error)
+        public MyoResult ShutdownHub32(IntPtr hub, out IntPtr error)
         {
-            return shutdown_hub_32(hub, error);
+            return shutdown_hub_32(hub, out error);
         }
 
         /// <inheritdoc />
-        public MyoResult ShutdownHub64(IntPtr hub, IntPtr error)
+        public MyoResult ShutdownHub64(IntPtr hub, out IntPtr error)
         {
-            return shutdown_hub_64(hub, error);
+            return shutdown_hub_64(hub, out error);
         }
 
         /// <inheritdoc />
-        public MyoResult Run32(IntPtr hub, uint durationMs, MyoRunHandler handler, IntPtr userData, IntPtr error)
+        public MyoResult Run32(IntPtr hub, uint durationMs, MyoRunHandler handler, IntPtr userData, out IntPtr error)
         {
-            return run_32(hub, durationMs, handler, userData, error);
+            return run_32(hub, durationMs, handler, userData, out error);
         }
 
         /// <inheritdoc />
-        public MyoResult Run64(IntPtr hub, uint durationMs, MyoRunHandler handler, IntPtr userData, IntPtr error)
+        public MyoResult Run64(IntPtr hub, uint durationMs, MyoRunHandler handler, IntPtr userData, out IntPtr error)
         {
-            return run_64(hub, durationMs, handler, userData, error);
+            return run_64(hub, durationMs, handler, userData, out error);
         }
 
         /// <inheritdoc />
@@ -153,16 +153,16 @@ namespace MyoSharp.Communication
         private static extern MyoResult init_hub_64(out IntPtr hub, string applicationIdentifier, out IntPtr error);
 
         [DllImport(PlatformInvocation.MyoDllPath32, EntryPoint = "libmyo_shutdown_hub", CallingConvention = CallingConvention.Cdecl)]
-        private static extern MyoResult shutdown_hub_32(IntPtr hub, IntPtr error);
+        private static extern MyoResult shutdown_hub_32(IntPtr hub, out IntPtr error);
 
         [DllImport(PlatformInvocation.MyoDllPath64, EntryPoint = "libmyo_shutdown_hub", CallingConvention = CallingConvention.Cdecl)]
-        private static extern MyoResult shutdown_hub_64(IntPtr hub, IntPtr error);
+        private static extern MyoResult shutdown_hub_64(IntPtr hub, out IntPtr error);
 
         [DllImport(PlatformInvocation.MyoDllPath32, EntryPoint = "libmyo_run", CallingConvention = CallingConvention.Cdecl)]
-        private static extern MyoResult run_32(IntPtr hub, uint durationMs, MyoRunHandler handler, IntPtr userData, IntPtr error);
+        private static extern MyoResult run_32(IntPtr hub, uint durationMs, MyoRunHandler handler, IntPtr userData, out IntPtr error);
 
         [DllImport(PlatformInvocation.MyoDllPath64, EntryPoint = "libmyo_run", CallingConvention = CallingConvention.Cdecl)]
-        private static extern MyoResult run_64(IntPtr hub, uint durationMs, MyoRunHandler handler, IntPtr userData, IntPtr error);
+        private static extern MyoResult run_64(IntPtr hub, uint durationMs, MyoRunHandler handler, IntPtr userData, out IntPtr error);
 
         [DllImport(PlatformInvocation.MyoDllPath32, EntryPoint = "libmyo_error_cstring", CallingConvention = CallingConvention.Cdecl)]
         private static extern string libmyo_error_cstring_32(IntPtr errorHandle);
