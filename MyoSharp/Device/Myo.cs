@@ -61,59 +61,69 @@ namespace MyoSharp.Device
         #endregion
 
         #region Properties
+        /// <inheritdoc />
         public IntPtr Handle
         {
             get { return _myoDeviceDriver.Handle; }
         }
 
+        /// <inheritdoc />
         public bool IsConnected
         {
             get;
             private set;
         }
 
+        /// <inheritdoc />
         public bool IsUnlocked
         {
             get;
             private set;
         }
 
+        /// <inheritdoc />
         public Arm Arm
         {
             get;
             private set;
         }
 
+        /// <inheritdoc />
         public Pose Pose
         {
             get;
             private set;
         }
 
+        /// <inheritdoc />
         public QuaternionF Orientation
         {
             get;
             private set;
         }
 
+        /// <inheritdoc />
         public Vector3F Accelerometer
         {
             get;
             private set;
         }
 
+        /// <inheritdoc />
         public Vector3F Gyroscope
         {
             get;
             private set;
         }
 
+        /// <inheritdoc />
         public XDirection XDirectionOnArm
         {
             get;
             private set;
         }
 
+        /// <inheritdoc />
         public IEmgData EmgData
         {
             get; private set;

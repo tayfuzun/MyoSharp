@@ -7,6 +7,7 @@ using Moq;
 using MyoSharp.Device;
 using MyoSharp.Communication;
 using MyoSharp.Poses;
+using MyoSharp.Math;
 
 namespace MyoSharp.Tests.Unit.Communication
 {
@@ -763,6 +764,489 @@ namespace MyoSharp.Tests.Unit.Communication
             Assert.Equal(XDirection.Unknown, myo.XDirectionOnArm);
 
             myoDeviceDriver.VerifyGet(x => x.Handle, Times.Once);
+        }
+
+        [Fact]
+        public void ChannelEventReceived_Orientation_TriggersOrientationDataAcquiredEvent()
+        {
+            // Setup
+            var routeEventArgs = new RouteMyoEventArgs(
+                new IntPtr(123),
+                new IntPtr(789),
+                MyoEventType.Orientation,
+                DateTime.UtcNow);
+
+            var orientation = new QuaternionF(10, 20, 30, 40);
+
+            var channelListener = new Mock<IChannelListener>(MockBehavior.Strict);
+
+            var myoDeviceDriver = new Mock<IMyoDeviceDriver>(MockBehavior.Strict);
+            myoDeviceDriver
+                .SetupGet(x => x.Handle)
+                .Returns(new IntPtr(123));
+            myoDeviceDriver
+                .Setup(x => x.GetEventOrientation(routeEventArgs.Event))
+                .Returns(orientation);
+            myoDeviceDriver
+                .Setup(x => x.GetEventAccelerometer(routeEventArgs.Event))
+                .Returns(new Vector3F());
+            myoDeviceDriver
+                .Setup(x => x.GetGyroscope(routeEventArgs.Event))
+                .Returns(new Vector3F());
+
+            var myo = Myo.Create(
+                channelListener.Object,
+                myoDeviceDriver.Object);
+
+            OrientationDataEventArgs actualEventArgs = null;
+            object actualSender = null;
+            myo.OrientationDataAcquired += (sender, args) =>
+            {
+                actualSender = sender;
+                actualEventArgs = args;
+            };
+
+            // Execute
+            channelListener.Raise(
+                x => x.EventReceived += null,
+                routeEventArgs);
+
+            // Assert
+            Assert.Equal(myo, actualSender);
+            Assert.Equal(myo, actualEventArgs.Myo);
+            Assert.Equal(routeEventArgs.Timestamp, actualEventArgs.Timestamp);
+            Assert.Equal(orientation, actualEventArgs.Orientation);
+            Assert.InRange(actualEventArgs.Roll, 2.03404385580104d, 2.03404385580106d);
+            Assert.Equal(double.NaN, actualEventArgs.Pitch);
+            Assert.InRange(actualEventArgs.Yaw, 2.31898255934001d, 2.31898255934003d);
+
+            myoDeviceDriver.VerifyGet(x => x.Handle, Times.Once);
+            myoDeviceDriver.Verify(x => x.GetEventOrientation(routeEventArgs.Event), Times.Once);
+            myoDeviceDriver.Verify(x => x.GetEventAccelerometer(routeEventArgs.Event), Times.Once);
+            myoDeviceDriver.Verify(x => x.GetGyroscope(routeEventArgs.Event), Times.Once);
+        }
+
+        [Fact]
+        public void ChannelEventReceived_Orientation_TriggersAccelerationDataAcquiredEvent()
+        {
+            // Setup
+            var routeEventArgs = new RouteMyoEventArgs(
+                new IntPtr(123),
+                new IntPtr(789),
+                MyoEventType.Orientation,
+                DateTime.UtcNow);
+
+            var acceleration = new Vector3F(10, 20, 30);
+
+            var channelListener = new Mock<IChannelListener>(MockBehavior.Strict);
+
+            var myoDeviceDriver = new Mock<IMyoDeviceDriver>(MockBehavior.Strict);
+            myoDeviceDriver
+                .SetupGet(x => x.Handle)
+                .Returns(new IntPtr(123));
+            myoDeviceDriver
+                .Setup(x => x.GetEventOrientation(routeEventArgs.Event))
+                .Returns(new QuaternionF());
+            myoDeviceDriver
+                .Setup(x => x.GetEventAccelerometer(routeEventArgs.Event))
+                .Returns(acceleration);
+            myoDeviceDriver
+                .Setup(x => x.GetGyroscope(routeEventArgs.Event))
+                .Returns(new Vector3F());
+
+            var myo = Myo.Create(
+                channelListener.Object,
+                myoDeviceDriver.Object);
+
+            AccelerometerDataEventArgs actualEventArgs = null;
+            object actualSender = null;
+            myo.AccelerometerDataAcquired += (sender, args) =>
+            {
+                actualSender = sender;
+                actualEventArgs = args;
+            };
+
+            // Execute
+            channelListener.Raise(
+                x => x.EventReceived += null,
+                routeEventArgs);
+
+            // Assert
+            Assert.Equal(myo, actualSender);
+            Assert.Equal(myo, actualEventArgs.Myo);
+            Assert.Equal(routeEventArgs.Timestamp, actualEventArgs.Timestamp);
+            Assert.Equal(acceleration, actualEventArgs.Accelerometer);;
+
+            myoDeviceDriver.VerifyGet(x => x.Handle, Times.Once);
+            myoDeviceDriver.Verify(x => x.GetEventOrientation(routeEventArgs.Event), Times.Once);
+            myoDeviceDriver.Verify(x => x.GetEventAccelerometer(routeEventArgs.Event), Times.Once);
+            myoDeviceDriver.Verify(x => x.GetGyroscope(routeEventArgs.Event), Times.Once);
+        }
+
+        [Fact]
+        public void ChannelEventReceived_Orientation_TriggersGyroscopeDataAcquiredEvent()
+        {
+            // Setup
+            var routeEventArgs = new RouteMyoEventArgs(
+                new IntPtr(123),
+                new IntPtr(789),
+                MyoEventType.Orientation,
+                DateTime.UtcNow);
+
+            var gyroscope = new Vector3F(10, 20, 30);
+
+            var channelListener = new Mock<IChannelListener>(MockBehavior.Strict);
+
+            var myoDeviceDriver = new Mock<IMyoDeviceDriver>(MockBehavior.Strict);
+            myoDeviceDriver
+                .SetupGet(x => x.Handle)
+                .Returns(new IntPtr(123));
+            myoDeviceDriver
+                .Setup(x => x.GetEventOrientation(routeEventArgs.Event))
+                .Returns(new QuaternionF());
+            myoDeviceDriver
+                .Setup(x => x.GetEventAccelerometer(routeEventArgs.Event))
+                .Returns(new Vector3F());
+            myoDeviceDriver
+                .Setup(x => x.GetGyroscope(routeEventArgs.Event))
+                .Returns(gyroscope);
+
+            var myo = Myo.Create(
+                channelListener.Object,
+                myoDeviceDriver.Object);
+
+            GyroscopeDataEventArgs actualEventArgs = null;
+            object actualSender = null;
+            myo.GyroscopeDataAcquired += (sender, args) =>
+            {
+                actualSender = sender;
+                actualEventArgs = args;
+            };
+
+            // Execute
+            channelListener.Raise(
+                x => x.EventReceived += null,
+                routeEventArgs);
+
+            // Assert
+            Assert.Equal(myo, actualSender);
+            Assert.Equal(myo, actualEventArgs.Myo);
+            Assert.Equal(routeEventArgs.Timestamp, actualEventArgs.Timestamp);
+            Assert.Equal(gyroscope, actualEventArgs.Gyroscope); ;
+
+            myoDeviceDriver.VerifyGet(x => x.Handle, Times.Once);
+            myoDeviceDriver.Verify(x => x.GetEventOrientation(routeEventArgs.Event), Times.Once);
+            myoDeviceDriver.Verify(x => x.GetEventAccelerometer(routeEventArgs.Event), Times.Once);
+            myoDeviceDriver.Verify(x => x.GetGyroscope(routeEventArgs.Event), Times.Once);
+        }
+
+        [Fact]
+        public void ChannelEventReceived_Orientation_OrientationIsSet()
+        {
+            // Setup
+            var routeEventArgs = new RouteMyoEventArgs(
+                new IntPtr(123),
+                new IntPtr(789),
+                MyoEventType.Orientation,
+                DateTime.UtcNow);
+
+            var orientation = new QuaternionF(10, 20, 30, 40);
+
+            var channelListener = new Mock<IChannelListener>(MockBehavior.Strict);
+
+            var myoDeviceDriver = new Mock<IMyoDeviceDriver>(MockBehavior.Strict);
+            myoDeviceDriver
+                .SetupGet(x => x.Handle)
+                .Returns(new IntPtr(123));
+            myoDeviceDriver
+                .Setup(x => x.GetEventOrientation(routeEventArgs.Event))
+                .Returns(orientation);
+            myoDeviceDriver
+                .Setup(x => x.GetEventAccelerometer(routeEventArgs.Event))
+                .Returns(new Vector3F());
+            myoDeviceDriver
+                .Setup(x => x.GetGyroscope(routeEventArgs.Event))
+                .Returns(new Vector3F());
+
+            var myo = Myo.Create(
+                channelListener.Object,
+                myoDeviceDriver.Object);
+
+            // Execute
+            channelListener.Raise(
+                x => x.EventReceived += null,
+                routeEventArgs);
+
+            // Assert
+            Assert.Equal(orientation, myo.Orientation);
+
+            myoDeviceDriver.VerifyGet(x => x.Handle, Times.Once);
+            myoDeviceDriver.Verify(x => x.GetEventOrientation(routeEventArgs.Event), Times.Once);
+            myoDeviceDriver.Verify(x => x.GetEventAccelerometer(routeEventArgs.Event), Times.Once);
+            myoDeviceDriver.Verify(x => x.GetGyroscope(routeEventArgs.Event), Times.Once);
+        }
+
+        [Fact]
+        public void ChannelEventReceived_Orientation_AccelerometerIsSet()
+        {
+            // Setup
+            var routeEventArgs = new RouteMyoEventArgs(
+                new IntPtr(123),
+                new IntPtr(789),
+                MyoEventType.Orientation,
+                DateTime.UtcNow);
+
+            var acceleration = new Vector3F(10, 20, 30);
+
+            var channelListener = new Mock<IChannelListener>(MockBehavior.Strict);
+
+            var myoDeviceDriver = new Mock<IMyoDeviceDriver>(MockBehavior.Strict);
+            myoDeviceDriver
+                .SetupGet(x => x.Handle)
+                .Returns(new IntPtr(123));
+            myoDeviceDriver
+                .Setup(x => x.GetEventOrientation(routeEventArgs.Event))
+                .Returns(new QuaternionF());
+            myoDeviceDriver
+                .Setup(x => x.GetEventAccelerometer(routeEventArgs.Event))
+                .Returns(acceleration);
+            myoDeviceDriver
+                .Setup(x => x.GetGyroscope(routeEventArgs.Event))
+                .Returns(new Vector3F());
+
+            var myo = Myo.Create(
+                channelListener.Object,
+                myoDeviceDriver.Object);
+            
+            // Execute
+            channelListener.Raise(
+                x => x.EventReceived += null,
+                routeEventArgs);
+
+            // Assert
+            Assert.Equal(acceleration, myo.Accelerometer);
+
+            myoDeviceDriver.VerifyGet(x => x.Handle, Times.Once);
+            myoDeviceDriver.Verify(x => x.GetEventOrientation(routeEventArgs.Event), Times.Once);
+            myoDeviceDriver.Verify(x => x.GetEventAccelerometer(routeEventArgs.Event), Times.Once);
+            myoDeviceDriver.Verify(x => x.GetGyroscope(routeEventArgs.Event), Times.Once);
+        }
+
+        [Fact]
+        public void ChannelEventReceived_Orientation_GyroscopeIsSet()
+        {
+            // Setup
+            var routeEventArgs = new RouteMyoEventArgs(
+                new IntPtr(123),
+                new IntPtr(789),
+                MyoEventType.Orientation,
+                DateTime.UtcNow);
+
+            var gyroscope = new Vector3F(10, 20, 30);
+
+            var channelListener = new Mock<IChannelListener>(MockBehavior.Strict);
+
+            var myoDeviceDriver = new Mock<IMyoDeviceDriver>(MockBehavior.Strict);
+            myoDeviceDriver
+                .SetupGet(x => x.Handle)
+                .Returns(new IntPtr(123));
+            myoDeviceDriver
+                .Setup(x => x.GetEventOrientation(routeEventArgs.Event))
+                .Returns(new QuaternionF());
+            myoDeviceDriver
+                .Setup(x => x.GetEventAccelerometer(routeEventArgs.Event))
+                .Returns(new Vector3F());
+            myoDeviceDriver
+                .Setup(x => x.GetGyroscope(routeEventArgs.Event))
+                .Returns(gyroscope);
+
+            var myo = Myo.Create(
+                channelListener.Object,
+                myoDeviceDriver.Object);
+
+            // Execute
+            channelListener.Raise(
+                x => x.EventReceived += null,
+                routeEventArgs);
+
+            // Assert
+            Assert.Equal(gyroscope, myo.Gyroscope);
+
+            myoDeviceDriver.VerifyGet(x => x.Handle, Times.Once);
+            myoDeviceDriver.Verify(x => x.GetEventOrientation(routeEventArgs.Event), Times.Once);
+            myoDeviceDriver.Verify(x => x.GetEventAccelerometer(routeEventArgs.Event), Times.Once);
+            myoDeviceDriver.Verify(x => x.GetGyroscope(routeEventArgs.Event), Times.Once);
+        }
+
+        [Fact]
+        public void ChannelEventReceived_Rssi_TriggersRssiEvent()
+        {
+            // Setup
+            var routeEventArgs = new RouteMyoEventArgs(
+                new IntPtr(123),
+                new IntPtr(789),
+                MyoEventType.Rssi,
+                DateTime.UtcNow);
+            
+            var channelListener = new Mock<IChannelListener>(MockBehavior.Strict);
+
+            var myoDeviceDriver = new Mock<IMyoDeviceDriver>(MockBehavior.Strict);
+            myoDeviceDriver
+                .SetupGet(x => x.Handle)
+                .Returns(new IntPtr(123));
+            myoDeviceDriver
+                .Setup(x => x.GetEventRssi(routeEventArgs.Event))
+                .Returns(123);
+
+            var myo = Myo.Create(
+                channelListener.Object,
+                myoDeviceDriver.Object);
+
+            RssiEventArgs actualEventArgs = null;
+            object actualSender = null;
+            myo.Rssi += (sender, args) =>
+            {
+                actualSender = sender;
+                actualEventArgs = args;
+            };
+
+            // Execute
+            channelListener.Raise(
+                x => x.EventReceived += null,
+                routeEventArgs);
+
+            // Assert
+            Assert.Equal(myo, actualSender);
+            Assert.Equal(myo, actualEventArgs.Myo);
+            Assert.Equal(routeEventArgs.Timestamp, actualEventArgs.Timestamp);
+            Assert.Equal(123, actualEventArgs.Rssi);
+
+            myoDeviceDriver.VerifyGet(x => x.Handle, Times.Once);
+            myoDeviceDriver.Verify(x => x.GetEventRssi(routeEventArgs.Event), Times.Once);
+        }
+
+        [Fact]
+        public void ChannelEventReceived_Emg_TriggersEmgDataAcquiredEvent()
+        {
+            // Setup
+            var routeEventArgs = new RouteMyoEventArgs(
+                new IntPtr(123),
+                new IntPtr(789),
+                MyoEventType.Emg,
+                DateTime.UtcNow);
+
+            var gyroscope = new Vector3F(10, 20, 30);
+
+            var channelListener = new Mock<IChannelListener>(MockBehavior.Strict);
+
+            var myoDeviceDriver = new Mock<IMyoDeviceDriver>(MockBehavior.Strict);
+            myoDeviceDriver
+                .SetupGet(x => x.Handle)
+                .Returns(new IntPtr(123));
+
+            for (int i = 0; i < 8; i++)
+            {
+                myoDeviceDriver
+                    .Setup(x => x.GetEventEmg(routeEventArgs.Event, i))
+                    .Returns((sbyte)(i * 10));
+            }
+
+            var myo = Myo.Create(
+                channelListener.Object,
+                myoDeviceDriver.Object);
+
+            EmgDataEventArgs actualEventArgs = null;
+            object actualSender = null;
+            myo.EmgDataAcquired += (sender, args) =>
+            {
+                actualSender = sender;
+                actualEventArgs = args;
+            };
+
+            // Execute
+            channelListener.Raise(
+                x => x.EventReceived += null,
+                routeEventArgs);
+
+            // Assert
+            Assert.Equal(myo, actualSender);
+            Assert.Equal(myo, actualEventArgs.Myo);
+            Assert.Equal(routeEventArgs.Timestamp, actualEventArgs.Timestamp);
+            Assert.NotNull(actualEventArgs.EmgData);
+            Assert.Equal(0, actualEventArgs.EmgData.GetDataForSensor(0));
+            Assert.Equal(10, actualEventArgs.EmgData.GetDataForSensor(1));
+            Assert.Equal(20, actualEventArgs.EmgData.GetDataForSensor(2));
+            Assert.Equal(30, actualEventArgs.EmgData.GetDataForSensor(3));
+            Assert.Equal(40, actualEventArgs.EmgData.GetDataForSensor(4));
+            Assert.Equal(50, actualEventArgs.EmgData.GetDataForSensor(5));
+            Assert.Equal(60, actualEventArgs.EmgData.GetDataForSensor(6));
+            Assert.Equal(70, actualEventArgs.EmgData.GetDataForSensor(7));
+
+            myoDeviceDriver.VerifyGet(x => x.Handle, Times.Once);
+            myoDeviceDriver.Verify(x => x.GetEventEmg(routeEventArgs.Event, 0), Times.Once);
+            myoDeviceDriver.Verify(x => x.GetEventEmg(routeEventArgs.Event, 1), Times.Once);
+            myoDeviceDriver.Verify(x => x.GetEventEmg(routeEventArgs.Event, 2), Times.Once);
+            myoDeviceDriver.Verify(x => x.GetEventEmg(routeEventArgs.Event, 3), Times.Once);
+            myoDeviceDriver.Verify(x => x.GetEventEmg(routeEventArgs.Event, 4), Times.Once);
+            myoDeviceDriver.Verify(x => x.GetEventEmg(routeEventArgs.Event, 5), Times.Once);
+            myoDeviceDriver.Verify(x => x.GetEventEmg(routeEventArgs.Event, 6), Times.Once);
+            myoDeviceDriver.Verify(x => x.GetEventEmg(routeEventArgs.Event, 7), Times.Once);
+        }
+
+        [Fact]
+        public void ChannelEventReceived_Emg_EmgDataIsSet()
+        {
+            // Setup
+            var routeEventArgs = new RouteMyoEventArgs(
+                new IntPtr(123),
+                new IntPtr(789),
+                MyoEventType.Emg,
+                DateTime.UtcNow);
+
+            var gyroscope = new Vector3F(10, 20, 30);
+
+            var channelListener = new Mock<IChannelListener>(MockBehavior.Strict);
+
+            var myoDeviceDriver = new Mock<IMyoDeviceDriver>(MockBehavior.Strict);
+            myoDeviceDriver
+                .SetupGet(x => x.Handle)
+                .Returns(new IntPtr(123));
+
+            for (int i = 0; i < 8; i++)
+            {
+                myoDeviceDriver
+                    .Setup(x => x.GetEventEmg(routeEventArgs.Event, i))
+                    .Returns((sbyte)(i * 10));
+            }
+
+            var myo = Myo.Create(
+                channelListener.Object,
+                myoDeviceDriver.Object);
+            
+            // Execute
+            channelListener.Raise(
+                x => x.EventReceived += null,
+                routeEventArgs);
+
+            // Assert
+            Assert.Equal(0, myo.EmgData.GetDataForSensor(0));
+            Assert.Equal(10, myo.EmgData.GetDataForSensor(1));
+            Assert.Equal(20, myo.EmgData.GetDataForSensor(2));
+            Assert.Equal(30, myo.EmgData.GetDataForSensor(3));
+            Assert.Equal(40, myo.EmgData.GetDataForSensor(4));
+            Assert.Equal(50, myo.EmgData.GetDataForSensor(5));
+            Assert.Equal(60, myo.EmgData.GetDataForSensor(6));
+            Assert.Equal(70, myo.EmgData.GetDataForSensor(7));
+
+            myoDeviceDriver.VerifyGet(x => x.Handle, Times.Once);
+            myoDeviceDriver.Verify(x => x.GetEventEmg(routeEventArgs.Event, 0), Times.Once);
+            myoDeviceDriver.Verify(x => x.GetEventEmg(routeEventArgs.Event, 1), Times.Once);
+            myoDeviceDriver.Verify(x => x.GetEventEmg(routeEventArgs.Event, 2), Times.Once);
+            myoDeviceDriver.Verify(x => x.GetEventEmg(routeEventArgs.Event, 3), Times.Once);
+            myoDeviceDriver.Verify(x => x.GetEventEmg(routeEventArgs.Event, 4), Times.Once);
+            myoDeviceDriver.Verify(x => x.GetEventEmg(routeEventArgs.Event, 5), Times.Once);
+            myoDeviceDriver.Verify(x => x.GetEventEmg(routeEventArgs.Event, 6), Times.Once);
+            myoDeviceDriver.Verify(x => x.GetEventEmg(routeEventArgs.Event, 7), Times.Once);
         }
         #endregion
     }
