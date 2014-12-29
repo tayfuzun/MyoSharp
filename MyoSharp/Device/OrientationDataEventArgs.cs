@@ -17,17 +17,28 @@ namespace MyoSharp.Device
         /// </summary>
         /// <param name="myo">The Myo that raised the event. Cannot be <c>null</c>.</param>
         /// <param name="timestamp">The timestamp of the event.</param>
-        /// <param name="orientation">The orientation.</param>
+        /// <param name="orientationData">The orientation.</param>
         /// <param name="roll">The roll.</param>
         /// <param name="pitch">The pitch.</param>
         /// <param name="yaw">The yaw.</param>
         /// <exception cref="System.ArgumentNullException">
         /// The exception that is thrown when <paramref name="myo"/> is <c>null</c>.
         /// </exception>
-        public OrientationDataEventArgs(IMyo myo, DateTime timestamp, QuaternionF orientation, double roll, double pitch, double yaw)
+        public OrientationDataEventArgs(IMyo myo, DateTime timestamp, QuaternionF orientationData, double roll, double pitch, double yaw)
             : base(myo, timestamp)
         {
-            this.Orientation = orientation;
+            // TODO: replace with contracts
+            if (myo == null)
+            {
+                throw new ArgumentNullException("myo", "The Myo cannot be null.");
+            }
+
+            if (orientationData == null)
+            {
+                throw new ArgumentNullException("orientationData", "The orientation data cannot be null.");
+            }
+
+            this.Orientation = orientationData;
             this.Roll = roll;
             this.Pitch = pitch;
             this.Yaw = yaw;

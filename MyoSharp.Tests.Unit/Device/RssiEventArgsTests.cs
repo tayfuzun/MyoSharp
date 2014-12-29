@@ -5,11 +5,10 @@ using Xunit;
 using Moq;
 
 using MyoSharp.Device;
-using MyoSharp.Math;
 
 namespace MyoSharp.Tests.Unit.Communication
 {
-    public class AccelerometerDataEventArgsTests
+    public class RssiEventArgsTests
     {
         #region Methods
         [Fact]
@@ -18,31 +17,14 @@ namespace MyoSharp.Tests.Unit.Communication
             // Setup
 
             // Execute
-            Assert.ThrowsDelegate method = () => new AccelerometerDataEventArgs(
+            Assert.ThrowsDelegate method = () => new RssiEventArgs(
                 null,
                 DateTime.UtcNow,
-                new Vector3F());
+                0);
 
             // Assert
             var exception = Assert.Throws<ArgumentNullException>(method);
             Assert.Equal("myo", exception.ParamName);
-        }
-
-        [Fact]
-        public void Constructor_NullAccelerometerData_ThrowsArgumentNullException()
-        {
-            // Setup
-            var myo = new Mock<IMyo>();
-
-            // Execute
-            Assert.ThrowsDelegate method = () => new AccelerometerDataEventArgs(
-                myo.Object,
-                DateTime.UtcNow,
-                null);
-
-            // Assert
-            var exception = Assert.Throws<ArgumentNullException>(method);
-            Assert.Equal("accelerometerData", exception.ParamName);
         }
 
         [Fact]
@@ -52,10 +34,10 @@ namespace MyoSharp.Tests.Unit.Communication
             var myo = new Mock<IMyo>();
 
             // Execute
-            Assert.ThrowsDelegate method = () => new AccelerometerDataEventArgs(
+            Assert.ThrowsDelegate method = () => new RssiEventArgs(
                 myo.Object,
                 DateTime.UtcNow,
-                new Vector3F());
+                0);
 
             // Assert
             Assert.DoesNotThrow(method);
@@ -66,11 +48,11 @@ namespace MyoSharp.Tests.Unit.Communication
         {
             // Setup
             var myo = new Mock<IMyo>();
-            
-            var args = new AccelerometerDataEventArgs(
+
+            var args = new RssiEventArgs(
                 myo.Object,
                 DateTime.UtcNow,
-                new Vector3F());
+                0);
 
             // Execute
             var result = args.Myo;
@@ -84,11 +66,11 @@ namespace MyoSharp.Tests.Unit.Communication
         {
             // Setup
             var timestamp = DateTime.UtcNow;
-            
-            var args = new AccelerometerDataEventArgs(
+
+            var args = new RssiEventArgs(
                 new Mock<IMyo>().Object,
                 timestamp,
-                new Vector3F());
+                0);
 
             // Execute
             var result = args.Timestamp;
@@ -98,21 +80,21 @@ namespace MyoSharp.Tests.Unit.Communication
         }
 
         [Fact]
-        public void GetAccelerometer_ValidState_EqualsConstructorParameter()
+        public void GetRssi_ValidState_EqualsConstructorParameter()
         {
             // Setup
-            var accelerometerData = new Vector3F(1, 2, 3);
-            
-            var args = new AccelerometerDataEventArgs(
+            sbyte rssi = 123;
+
+            var args = new RssiEventArgs(
                 new Mock<IMyo>().Object,
                 DateTime.UtcNow,
-                accelerometerData);
+                rssi);
 
             // Execute
-            var result = args.Accelerometer;
+            var result = args.Rssi;
 
             // Assert
-            Assert.Equal(accelerometerData, result);
+            Assert.Equal(rssi, result);
         }
         #endregion
     }

@@ -50,6 +50,11 @@
     <Compile Include="Communication\RouteMyoEventArgsTests.cs" />
     <Compile Include="Device\AccelerometerDataEventArgsTests.cs" />
     <Compile Include="Device\ArmRecognizedEventArgsTests.cs" />
+    <Compile Include="Device\OrientationDataEventArgsTests.cs" />
+    <Compile Include="Device\PoseEventArgsTests.cs" />
+    <Compile Include="Device\RssiEventArgsTests.cs" />
+    <Compile Include="Device\MyoEventArgsTests.cs" />
+    <Compile Include="Device\GyroscopeDataEventArgsTests.cs" />
     <Compile Include="Device\EmgDataEventArgsTests.cs" />
     <Compile Include="Discovery\DeviceListenerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

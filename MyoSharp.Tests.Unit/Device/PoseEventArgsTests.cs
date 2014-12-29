@@ -5,11 +5,11 @@ using Xunit;
 using Moq;
 
 using MyoSharp.Device;
-using MyoSharp.Math;
+using MyoSharp.Poses;
 
 namespace MyoSharp.Tests.Unit.Communication
 {
-    public class AccelerometerDataEventArgsTests
+    public class PoseEventArgsTests
     {
         #region Methods
         [Fact]
@@ -18,31 +18,14 @@ namespace MyoSharp.Tests.Unit.Communication
             // Setup
 
             // Execute
-            Assert.ThrowsDelegate method = () => new AccelerometerDataEventArgs(
+            Assert.ThrowsDelegate method = () => new PoseEventArgs(
                 null,
                 DateTime.UtcNow,
-                new Vector3F());
+                Pose.Unknown);
 
             // Assert
             var exception = Assert.Throws<ArgumentNullException>(method);
             Assert.Equal("myo", exception.ParamName);
-        }
-
-        [Fact]
-        public void Constructor_NullAccelerometerData_ThrowsArgumentNullException()
-        {
-            // Setup
-            var myo = new Mock<IMyo>();
-
-            // Execute
-            Assert.ThrowsDelegate method = () => new AccelerometerDataEventArgs(
-                myo.Object,
-                DateTime.UtcNow,
-                null);
-
-            // Assert
-            var exception = Assert.Throws<ArgumentNullException>(method);
-            Assert.Equal("accelerometerData", exception.ParamName);
         }
 
         [Fact]
@@ -52,10 +35,10 @@ namespace MyoSharp.Tests.Unit.Communication
             var myo = new Mock<IMyo>();
 
             // Execute
-            Assert.ThrowsDelegate method = () => new AccelerometerDataEventArgs(
+            Assert.ThrowsDelegate method = () => new PoseEventArgs(
                 myo.Object,
                 DateTime.UtcNow,
-                new Vector3F());
+                Pose.Unknown);
 
             // Assert
             Assert.DoesNotThrow(method);
@@ -66,11 +49,11 @@ namespace MyoSharp.Tests.Unit.Communication
         {
             // Setup
             var myo = new Mock<IMyo>();
-            
-            var args = new AccelerometerDataEventArgs(
+
+            var args = new PoseEventArgs(
                 myo.Object,
                 DateTime.UtcNow,
-                new Vector3F());
+                Pose.Unknown);
 
             // Execute
             var result = args.Myo;
@@ -84,11 +67,11 @@ namespace MyoSharp.Tests.Unit.Communication
         {
             // Setup
             var timestamp = DateTime.UtcNow;
-            
-            var args = new AccelerometerDataEventArgs(
+
+            var args = new PoseEventArgs(
                 new Mock<IMyo>().Object,
                 timestamp,
-                new Vector3F());
+                Pose.Unknown);
 
             // Execute
             var result = args.Timestamp;
@@ -98,21 +81,21 @@ namespace MyoSharp.Tests.Unit.Communication
         }
 
         [Fact]
-        public void GetAccelerometer_ValidState_EqualsConstructorParameter()
+        public void GetPose_ValidState_EqualsConstructorParameter()
         {
             // Setup
-            var accelerometerData = new Vector3F(1, 2, 3);
-            
-            var args = new AccelerometerDataEventArgs(
+            var pose = Pose.Fist;
+
+            var args = new PoseEventArgs(
                 new Mock<IMyo>().Object,
                 DateTime.UtcNow,
-                accelerometerData);
+                pose);
 
             // Execute
-            var result = args.Accelerometer;
+            var result = args.Pose;
 
             // Assert
-            Assert.Equal(accelerometerData, result);
+            Assert.Equal(pose, result);
         }
         #endregion
     }

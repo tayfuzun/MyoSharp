@@ -1,15 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading;
 
 using Xunit;
 
 using Moq;
 
+using MyoSharp.Communication;
 using MyoSharp.Device;
 using MyoSharp.Math;
 
 namespace MyoSharp.Tests.Unit.Communication
 {
-    public class AccelerometerDataEventArgsTests
+    public class GyroscopeDataEventArgsTests
     {
         #region Methods
         [Fact]
@@ -18,7 +23,7 @@ namespace MyoSharp.Tests.Unit.Communication
             // Setup
 
             // Execute
-            Assert.ThrowsDelegate method = () => new AccelerometerDataEventArgs(
+            Assert.ThrowsDelegate method = () => new GyroscopeDataEventArgs(
                 null,
                 DateTime.UtcNow,
                 new Vector3F());
@@ -29,20 +34,20 @@ namespace MyoSharp.Tests.Unit.Communication
         }
 
         [Fact]
-        public void Constructor_NullAccelerometerData_ThrowsArgumentNullException()
+        public void Constructor_NullGyroscopeData_ThrowsArgumentNullException()
         {
             // Setup
             var myo = new Mock<IMyo>();
 
             // Execute
-            Assert.ThrowsDelegate method = () => new AccelerometerDataEventArgs(
+            Assert.ThrowsDelegate method = () => new GyroscopeDataEventArgs(
                 myo.Object,
                 DateTime.UtcNow,
                 null);
 
             // Assert
             var exception = Assert.Throws<ArgumentNullException>(method);
-            Assert.Equal("accelerometerData", exception.ParamName);
+            Assert.Equal("gyroscopeData", exception.ParamName);
         }
 
         [Fact]
@@ -52,7 +57,7 @@ namespace MyoSharp.Tests.Unit.Communication
             var myo = new Mock<IMyo>();
 
             // Execute
-            Assert.ThrowsDelegate method = () => new AccelerometerDataEventArgs(
+            Assert.ThrowsDelegate method = () => new GyroscopeDataEventArgs(
                 myo.Object,
                 DateTime.UtcNow,
                 new Vector3F());
@@ -67,7 +72,7 @@ namespace MyoSharp.Tests.Unit.Communication
             // Setup
             var myo = new Mock<IMyo>();
             
-            var args = new AccelerometerDataEventArgs(
+            var args = new GyroscopeDataEventArgs(
                 myo.Object,
                 DateTime.UtcNow,
                 new Vector3F());
@@ -85,7 +90,7 @@ namespace MyoSharp.Tests.Unit.Communication
             // Setup
             var timestamp = DateTime.UtcNow;
             
-            var args = new AccelerometerDataEventArgs(
+            var args = new GyroscopeDataEventArgs(
                 new Mock<IMyo>().Object,
                 timestamp,
                 new Vector3F());
@@ -98,21 +103,21 @@ namespace MyoSharp.Tests.Unit.Communication
         }
 
         [Fact]
-        public void GetAccelerometer_ValidState_EqualsConstructorParameter()
+        public void GetGyroscope_ValidState_EqualsConstructorParameter()
         {
             // Setup
-            var accelerometerData = new Vector3F(1, 2, 3);
+            var gyroscopeData = new Vector3F(1, 2, 3);
             
-            var args = new AccelerometerDataEventArgs(
+            var args = new GyroscopeDataEventArgs(
                 new Mock<IMyo>().Object,
                 DateTime.UtcNow,
-                accelerometerData);
+                gyroscopeData);
 
             // Execute
-            var result = args.Accelerometer;
+            var result = args.Gyroscope;
 
             // Assert
-            Assert.Equal(accelerometerData, result);
+            Assert.Equal(gyroscopeData, result);
         }
         #endregion
     }
