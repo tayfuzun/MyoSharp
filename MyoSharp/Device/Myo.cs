@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.Contracts;
 
 using MyoSharp.Math;
 using MyoSharp.Poses;
@@ -30,15 +31,8 @@ namespace MyoSharp.Device
         /// </exception>
         protected Myo(IChannelListener channelListener, IMyoDeviceDriver myoDeviceDriver)
         {
-            if (channelListener == null)
-            {
-                throw new ArgumentNullException("channelListener", "The channel listener cannot be null.");
-            }
-
-            if (myoDeviceDriver == null)
-            {
-                throw new ArgumentNullException("myoDeviceDriver", "The device driver cannot be null.");
-            }
+            Contract.Requires<ArgumentNullException>(channelListener != null, "channelListener");
+            Contract.Requires<ArgumentNullException>(myoDeviceDriver != null, "myoDeviceDriver");
 
             _channelListener = channelListener;
             _channelListener.EventReceived += Channel_EventReceived;
@@ -180,15 +174,9 @@ namespace MyoSharp.Device
         /// <exception cref="System.ArgumentNullException">The exception that is thrown when <paramref name="channelListener"/> or <paramref name="myoDeviceDriver"/> is <c>null</c>.</exception>
         public static IMyo Create(IChannelListener channelListener, IMyoDeviceDriver myoDeviceDriver)
         {
-            if (channelListener == null)
-            {
-                throw new ArgumentNullException("channelListener", "The channel listener cannot be null.");
-            }
-
-            if (myoDeviceDriver == null)
-            {
-                throw new ArgumentNullException("myoDeviceDriver", "The device driver cannot be null.");
-            }
+            Contract.Requires<ArgumentNullException>(channelListener != null, "channelListener");
+            Contract.Requires<ArgumentNullException>(myoDeviceDriver != null, "myoDeviceDriver");
+            Contract.Ensures(Contract.Result<IMyo>() != null);
 
             return new Myo(channelListener, myoDeviceDriver);
         }
@@ -240,6 +228,8 @@ namespace MyoSharp.Device
         /// <param name="evt">The pointer to the event.</param>
         protected virtual void HandleEvent(MyoEventType type, DateTime timestamp, IntPtr evt)
         {
+            Contract.Requires<ArgumentException>(evt != IntPtr.Zero, "The event handle must be set.");
+
             switch (type)
             {
                 case MyoEventType.Connected:
@@ -291,6 +281,8 @@ namespace MyoSharp.Device
         /// <param name="timestamp">The timestamp of the event.</param>
         protected virtual void OnEmgData(IntPtr evt, DateTime timestamp)
         {
+            Contract.Requires<ArgumentException>(evt != IntPtr.Zero, "The event handle must be set.");
+
             const int NUMBER_OF_SENSORS = 8;
             var rawEmgData = new int[NUMBER_OF_SENSORS];
             for (int i = 0; i < rawEmgData.Length; i++)
@@ -319,6 +311,8 @@ namespace MyoSharp.Device
         /// <param name="timestamp">The timestamp of the event.</param>
         protected virtual void OnRssi(IntPtr evt, DateTime timestamp)
         {
+            Contract.Requires<ArgumentException>(evt != IntPtr.Zero, "The event handle must be set.");
+
             var handler = Rssi;
             if (handler != null)
             {
@@ -338,6 +332,8 @@ namespace MyoSharp.Device
         /// <param name="timestamp">The timestamp of the event.</param>
         protected virtual void OnPoseChanged(IntPtr evt, DateTime timestamp)
         {
+            Contract.Requires<ArgumentException>(evt != IntPtr.Zero, "The event handle must be set.");
+
             var pose = _myoDeviceDriver.GetEventPose(evt);
             this.Pose = pose;
 
@@ -356,6 +352,8 @@ namespace MyoSharp.Device
         /// <param name="timestamp">The timestamp of the event.</param>
         protected virtual void OnOrientationChanged(IntPtr evt, DateTime timestamp)
         {
+            Contract.Requires<ArgumentException>(evt != IntPtr.Zero, "The event handle must be set.");
+
             OnAcquiredOrientationData(evt, timestamp);
             OnAcquiredAccelerometerData(evt, timestamp);
             OnAcquiredGyroscopeData(evt, timestamp);
@@ -368,6 +366,8 @@ namespace MyoSharp.Device
         /// <param name="timestamp">The timestamp of the event.</param>
         protected virtual void OnAcquiredGyroscopeData(IntPtr evt, DateTime timestamp)
         {
+            Contract.Requires<ArgumentException>(evt != IntPtr.Zero, "The event handle must be set.");
+
             var gyroscope = _myoDeviceDriver.GetGyroscope(evt);
             this.Gyroscope = gyroscope;
 
@@ -389,6 +389,8 @@ namespace MyoSharp.Device
         /// <param name="timestamp">The timestamp of the event.</param>
         protected virtual void OnAcquiredAccelerometerData(IntPtr evt, DateTime timestamp)
         {
+            Contract.Requires<ArgumentException>(evt != IntPtr.Zero, "The event handle must be set.");
+
             var accelerometer = _myoDeviceDriver.GetEventAccelerometer(evt);
             this.Accelerometer = accelerometer;
 
@@ -410,6 +412,8 @@ namespace MyoSharp.Device
         /// <param name="timestamp">The timestamp of the event.</param>
         protected virtual void OnAcquiredOrientationData(IntPtr evt, DateTime timestamp)
         {
+            Contract.Requires<ArgumentException>(evt != IntPtr.Zero, "The event handle must be set.");
+
             var orientation = _myoDeviceDriver.GetEventOrientation(evt);
             this.Orientation = orientation;
 
@@ -454,6 +458,8 @@ namespace MyoSharp.Device
         /// <param name="timestamp">The timestamp of the event.</param>
         protected virtual void OnArmRecognized(IntPtr evt, DateTime timestamp)
         {
+            Contract.Requires<ArgumentException>(evt != IntPtr.Zero, "The event handle must be set.");
+
             var arm = _myoDeviceDriver.GetArm(evt);
             this.Arm = arm;
 
@@ -520,10 +526,7 @@ namespace MyoSharp.Device
                 // free managed objects
                 if (disposing)
                 {
-                    if (_channelListener != null)
-                    {
-                        _channelListener.EventReceived -= Channel_EventReceived;
-                    }
+                    _channelListener.EventReceived -= Channel_EventReceived;
                 }
             }
             finally
@@ -566,17 +569,30 @@ namespace MyoSharp.Device
 
         protected static double CalculateRoll(QuaternionF orientation)
         {
+            Contract.Requires<ArgumentNullException>(orientation != null, "orientation");
+
             return System.Math.Atan2(2.0f * (orientation.W * orientation.X + orientation.Y * orientation.Z), 1.0f - 2.0f * (orientation.X * orientation.X + orientation.Y * orientation.Y));
         }
 
         protected static double CalculatePitch(QuaternionF orientation)
         {
+            Contract.Requires<ArgumentNullException>(orientation != null, "orientation");
+
             return System.Math.Asin(2.0f * (orientation.W * orientation.Y - orientation.Z * orientation.X));
         }
 
         protected static double CalculateYaw(QuaternionF orientation)
         {
+            Contract.Requires<ArgumentNullException>(orientation != null, "orientation");
+
             return System.Math.Atan2(2.0f * (orientation.W * orientation.Z + orientation.X * orientation.Y), 1.0f - 2.0f * (orientation.Y * orientation.Y + orientation.Z * orientation.Z));
+        }
+
+        [ContractInvariantMethod]
+        private void ObjectInvariant()
+        {
+            Contract.Invariant(_channelListener != null);
+            Contract.Invariant(_myoDeviceDriver != null);
         }
         #endregion
 

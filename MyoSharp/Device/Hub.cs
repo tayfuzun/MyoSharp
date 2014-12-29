@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 
 using MyoSharp.Communication;
 using MyoSharp.Discovery;
@@ -15,6 +16,7 @@ namespace MyoSharp.Device
         private readonly Dictionary<IntPtr, IMyo> _myos;
         private readonly IDeviceListener _deviceListener;
         private readonly ReadOnlyMyoCollection _readonlyMyos;
+
         private bool _disposed;
         #endregion
 
@@ -27,6 +29,7 @@ namespace MyoSharp.Device
         protected Hub(IChannelListener channelListener)
             : this(DeviceListener.Create(channelListener))
         {
+            Contract.Requires<ArgumentNullException>(channelListener != null, "channelListener");
         }
 
         /// <summary>
@@ -36,10 +39,7 @@ namespace MyoSharp.Device
         /// <exception cref="System.ArgumentNullException">Thrown when the device listener is null.</exception>
         protected Hub(IDeviceListener deviceListener)
         {
-            if (deviceListener == null)
-            {
-                throw new ArgumentNullException("deviceListener", "The device listener cannot be null.");
-            }
+            Contract.Requires<ArgumentNullException>(deviceListener != null, "deviceListener");
 
             _myos = new Dictionary<IntPtr, IMyo>();
             _readonlyMyos = new ReadOnlyMyoCollection(_myos);
@@ -88,6 +88,9 @@ namespace MyoSharp.Device
         /// <exception cref="System.ArgumentNullException">Thrown when the channel listener is null.</exception>
         public static IHub Create(IChannelListener channelListener)
         {
+            Contract.Requires<ArgumentNullException>(channelListener != null, "channelListener");
+            Contract.Ensures(Contract.Result<IHub>() != null);
+
             return new Hub(DeviceListener.Create(channelListener));
         }
 
@@ -99,6 +102,9 @@ namespace MyoSharp.Device
         /// <exception cref="System.ArgumentNullException">Thrown when the device listener is null.</exception>
         public static IHub Create(IDeviceListener deviceListener)
         {
+            Contract.Requires<ArgumentNullException>(deviceListener != null, "deviceListener");
+            Contract.Ensures(Contract.Result<IHub>() != null);
+
             return new Hub(deviceListener);
         }
 
@@ -121,6 +127,10 @@ namespace MyoSharp.Device
         /// </returns>
         protected virtual IMyo CreateMyo(IChannelListener channelListener, IMyoDeviceDriver myoDeviceDriver)
         {
+            Contract.Requires<ArgumentNullException>(channelListener != null, "channelListener");
+            Contract.Requires<ArgumentNullException>(myoDeviceDriver != null, "myoDeviceDriver");
+            Contract.Ensures(Contract.Result<IMyo>() != null);
+
             return Myo.Create(channelListener, myoDeviceDriver);
         }
 
@@ -132,6 +142,10 @@ namespace MyoSharp.Device
         /// <returns>Returns a new <see cref="IMyoDeviceDriver"/> instance.</returns>
         protected virtual IMyoDeviceDriver CreateMyoDeviceDriver(IntPtr myoHandle, IMyoDeviceBridge myoDeviceBridge)
         {
+            Contract.Requires<ArgumentException>(myoHandle != IntPtr.Zero, "The handle to the Myo must be set.");
+            Contract.Requires<ArgumentNullException>(myoDeviceBridge != null, "myoDeviceBridge");
+            Contract.Ensures(Contract.Result<IMyoDeviceDriver>() != null);
+
             return MyoDeviceDriver.Create(myoHandle, myoDeviceBridge);
         }
 
@@ -141,6 +155,8 @@ namespace MyoSharp.Device
         /// <returns>Returns a new <see cref="IMyoDeviceBridge"/> instance.</returns>
         protected virtual IMyoDeviceBridge CreateMyoDeviceBridge()
         {
+            Contract.Ensures(Contract.Result<IMyoDeviceBridge>() != null);
+
             return MyoDeviceBridge.Create();
         }
 
@@ -185,6 +201,8 @@ namespace MyoSharp.Device
         /// <param name="myo">The Myo to hook onto.</param>
         protected virtual void HookMyoEvents(IMyoEventGenerator myo)
         {
+            Contract.Requires<ArgumentNullException>(myo != null, "myo");
+
             myo.Connected += Myo_Connected;
             myo.Disconnected += Myo_Disconnected;
         }
@@ -195,6 +213,8 @@ namespace MyoSharp.Device
         /// <param name="myo">The myo to hook onto.</param>
         protected virtual void UnhookMyoEvents(IMyoEventGenerator myo)
         {
+            Contract.Requires<ArgumentNullException>(myo != null, "myo");
+
             myo.Connected -= Myo_Connected;
             myo.Disconnected -= Myo_Disconnected;
         }
@@ -205,6 +225,8 @@ namespace MyoSharp.Device
         /// <param name="e">The <see cref="MyoEventArgs"/> instance containing the event data.</param>
         protected virtual void OnMyoConnected(MyoEventArgs e)
         {
+            Contract.Requires<ArgumentNullException>(e != null, "e");
+
             var handler = MyoConnected;
             if (handler != null)
             {
@@ -218,6 +240,8 @@ namespace MyoSharp.Device
         /// <param name="e">The <see cref="MyoEventArgs"/> instance containing the event data.</param>
         protected virtual void OnMyoDisconnected(MyoEventArgs e)
         {
+            Contract.Requires<ArgumentNullException>(e != null, "e");
+
             var handler = MyoDisconnected;
             if (handler != null)
             {
@@ -229,6 +253,8 @@ namespace MyoSharp.Device
         #region Event Handlers
         private void DeviceListener_Paired(object sender, PairedEventArgs e)
         {
+            Contract.Requires<ArgumentNullException>(sender != null, "sender");
+
             var myoDeviceBridge = CreateMyoDeviceBridge();
 
             var myoDeviceDriver = CreateMyoDeviceDriver(
@@ -244,6 +270,8 @@ namespace MyoSharp.Device
 
         private void Myo_Disconnected(object sender, MyoEventArgs e)
         {
+            Contract.Requires<ArgumentNullException>(sender != null, "sender");
+
             OnMyoDisconnected(e);
             UnhookMyoEvents(e.Myo);
             _myos.Remove(e.Myo.Handle);
@@ -252,8 +280,18 @@ namespace MyoSharp.Device
 
         private void Myo_Connected(object sender, MyoEventArgs e)
         {
+            Contract.Requires<ArgumentNullException>(sender != null, "sender");
+
             _myos[e.Myo.Handle] = e.Myo;
             OnMyoConnected(e);
+        }
+
+        [ContractInvariantMethod]
+        private void ObjectInvariant()
+        {
+            Contract.Invariant(_myos != null);
+            Contract.Invariant(_readonlyMyos != null);
+            Contract.Invariant(_deviceListener != null);
         }
         #endregion
 
@@ -267,6 +305,8 @@ namespace MyoSharp.Device
             #region Constructors
             internal ReadOnlyMyoCollection(Dictionary<IntPtr, IMyo> myos)
             {
+                Contract.Requires<ArgumentNullException>(myos != null);
+
                 _myos = myos;
             }
             #endregion
@@ -287,6 +327,12 @@ namespace MyoSharp.Device
             System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
             {
                 return _myos.Values.GetEnumerator();
+            }
+
+            [ContractInvariantMethod]
+            private void ObjectInvariant()
+            {
+                Contract.Invariant(_myos != null);
             }
             #endregion
         }

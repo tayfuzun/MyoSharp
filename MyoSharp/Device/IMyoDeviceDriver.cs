@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Text;
 
 using MyoSharp.Math;
@@ -10,6 +11,7 @@ namespace MyoSharp.Device
     /// <summary>
     /// An interface that defines functionality for interacting with a Myo device.
     /// </summary>
+    [ContractClass(typeof(IMyoDeviceDriverContract))]
     public interface IMyoDeviceDriver
     {
         #region Properties
@@ -148,6 +150,127 @@ namespace MyoSharp.Device
         /// <param name="sensor">The sensor to get EMG data on.</param>
         /// <returns>Returns the EMG data for the specified sensor and event.</returns>
         sbyte GetEventEmg(IntPtr evt, int sensor);
+        #endregion
+    }
+
+    [ContractClassFor(typeof(IMyoDeviceDriver))]
+    public abstract class IMyoDeviceDriverContract : IMyoDeviceDriver
+    {
+        #region Properties
+        public IntPtr Handle
+        {
+            get { throw new NotImplementedException(); }
+        }
+        #endregion
+
+        #region Methods
+        public void Vibrate(VibrationType type)
+        {
+        }
+
+        public void RequestRssi()
+        {
+        }
+
+        public void Lock()
+        {
+        }
+
+        public void Unlock(UnlockType type)
+        {
+        }
+
+        public sbyte GetEventRssi(IntPtr evt)
+        {
+            Contract.Requires<ArgumentException>(evt != IntPtr.Zero, "The event handle must be set.");
+
+            return default(sbyte);
+        }
+
+        public Vector3F GetEventAccelerometer(IntPtr evt)
+        {
+            Contract.Requires<ArgumentException>(evt != IntPtr.Zero, "The event handle must be set.");
+            Contract.Ensures(Contract.Result<Vector3F>() != null);
+
+            return default(Vector3F);
+        }
+
+        public float GetEventAccelerometer(IntPtr evt, uint index)
+        {
+            Contract.Requires<ArgumentException>(evt != IntPtr.Zero, "The event handle must be set.");
+
+            return default(float);
+        }
+
+        public XDirection GetEventDirectionX(IntPtr evt)
+        {
+            Contract.Requires<ArgumentException>(evt != IntPtr.Zero, "The event handle must be set.");
+
+            return default(XDirection);
+        }
+
+        public QuaternionF GetEventOrientation(IntPtr evt)
+        {
+            Contract.Requires<ArgumentException>(evt != IntPtr.Zero, "The event handle must be set.");
+            Contract.Ensures(Contract.Result<QuaternionF>() != null);
+
+            return default(QuaternionF);
+        }
+
+        public float GetEventOrientation(IntPtr evt, OrientationIndex index)
+        {
+            Contract.Requires<ArgumentException>(evt != IntPtr.Zero, "The event handle must be set.");
+
+            return default(float);
+        }
+
+        public float GetFirmwareVersion(IntPtr evt, VersionComponent component)
+        {
+            Contract.Requires<ArgumentException>(evt != IntPtr.Zero, "The event handle must be set.");
+
+            return default(float);
+        }
+
+        public Arm GetArm(IntPtr evt)
+        {
+            Contract.Requires<ArgumentException>(evt != IntPtr.Zero, "The event handle must be set.");
+
+            return default(Arm);
+        }
+
+        public Vector3F GetGyroscope(IntPtr evt)
+        {
+            Contract.Requires<ArgumentException>(evt != IntPtr.Zero, "The event handle must be set.");
+            Contract.Ensures(Contract.Result<Vector3F>() != null);
+
+            return default(Vector3F);
+        }
+
+        public float GetGyroscope(IntPtr evt, uint index)
+        {
+            Contract.Requires<ArgumentException>(evt != IntPtr.Zero, "The event handle must be set.");
+
+            return default(float);
+        }
+
+        public Pose GetEventPose(IntPtr evt)
+        {
+            Contract.Requires<ArgumentException>(evt != IntPtr.Zero, "The event handle must be set.");
+
+            return default(Pose);
+        }
+
+        public void SetEmgStreaming(bool enabled)
+        {
+        }
+
+        public sbyte GetEventEmg(IntPtr evt, int sensor)
+        {
+            Contract.Requires<ArgumentException>(evt != IntPtr.Zero, "The event handle must be set.");
+            Contract.Requires<ArgumentOutOfRangeException>(sensor >= 0, "The sensor index must be greater than or equal to zero.");
+
+            return default(sbyte);
+        }
         #endregion
     }
 }

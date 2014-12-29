@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Text;
 
 using MyoSharp.Device;
 
 namespace MyoSharp.Poses
 {
+    /// <summary>
+    /// A class that will monitor a Myo for a specified sequence of poses.
+    /// </summary>
     public class PoseSequence : IPoseSequence
     {
         #region Fields
@@ -17,17 +21,15 @@ namespace MyoSharp.Poses
         #endregion
 
         #region Constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PoseSequence"/> class.
+        /// </summary>
+        /// <param name="myo">The Myo.</param>
+        /// <param name="sequence">The sequence of poses to watch for. Cannot be <c>null</c>.</param>
         protected PoseSequence(IMyoEventGenerator myo, IEnumerable<Pose> sequence)
         {
-            if (myo == null)
-            {
-                throw new ArgumentNullException("myo", "The Myo cannot be null.");
-            }
-
-            if (sequence == null)
-            {
-                throw new ArgumentNullException("sequence", "The sequence cannot be null.");
-            }
+            Contract.Requires<ArgumentNullException>(myo != null);
+            Contract.Requires<ArgumentNullException>(sequence != null);
 
             _sequence = new List<Pose>();
             _sequence.AddRange(sequence);
@@ -42,9 +44,16 @@ namespace MyoSharp.Poses
             _myo.PoseChanged += Myo_PoseChanged;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PoseSequence"/> class.
+        /// </summary>
+        /// <param name="myo">The Myo.</param>
+        /// <param name="sequence">The sequence of poses to watch for. Cannot be <c>null</c>.</param>
         protected PoseSequence(IMyoEventGenerator myo, params Pose[] sequence)
             : this(myo, (IEnumerable<Pose>)sequence)
         {
+            Contract.Requires<ArgumentNullException>(myo != null);
+            Contract.Requires<ArgumentNullException>(sequence != null);
         }
 
         /// <summary>
@@ -63,11 +72,19 @@ namespace MyoSharp.Poses
         #region Methods
         public static IPoseSequence Create(IMyoEventGenerator myo, params Pose[] sequence)
         {
+            Contract.Requires<ArgumentNullException>(myo != null);
+            Contract.Requires<ArgumentNullException>(sequence != null);
+            Contract.Ensures(Contract.Result<IPoseSequence>() != null);
+
             return new PoseSequence(myo, sequence);
         }
 
         public static IPoseSequence Create(IMyoEventGenerator myo, IEnumerable<Pose> sequence)
         {
+            Contract.Requires<ArgumentNullException>(myo != null);
+            Contract.Requires<ArgumentNullException>(sequence != null);
+            Contract.Ensures(Contract.Result<IPoseSequence>() != null);
+
             return new PoseSequence(myo, sequence);
         }
 
@@ -91,10 +108,7 @@ namespace MyoSharp.Poses
             {
                 if (disposing)
                 {
-                    if (_myo != null)
-                    {
-                        _myo.PoseChanged -= Myo_PoseChanged;
-                    }
+                    _myo.PoseChanged -= Myo_PoseChanged;
                 }
             }
             finally
@@ -105,6 +119,10 @@ namespace MyoSharp.Poses
 
         protected virtual void OnPoseSequenceCompleted(IMyo myo, DateTime timestamp, IList<Pose> poses)
         {
+            Contract.Requires<ArgumentNullException>(myo != null, "myo");
+            Contract.Requires<ArgumentNullException>(poses != null, "poses");
+            Contract.Requires<ArgumentException>(poses.Count > 0, "The sequence must contain at least one pose.");
+
             var handler = PoseSequenceCompleted;
             if (handler != null)
             {
@@ -114,6 +132,15 @@ namespace MyoSharp.Poses
                     poses);
                 handler.Invoke(this, args);
             }
+        }
+
+        [ContractInvariantMethod]
+        private void ObjectInvariant()
+        {
+            Contract.Invariant(_sequence != null);
+            Contract.Invariant(_sequence.Count >= 2);
+            Contract.Invariant(_currentSequence != null);
+            Contract.Invariant(_myo != null);
         }
         #endregion
 

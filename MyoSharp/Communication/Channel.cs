@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.Contracts;
 using System.Runtime.InteropServices;
 using System.Threading;
 
@@ -41,10 +42,7 @@ namespace MyoSharp.Communication
         /// </exception>
         private Channel(IChannelDriver channelDriver, string applicationIdentifier, bool autostart)
         {
-            if (channelDriver == null)
-            {
-                throw new ArgumentNullException("channelDriver", "The channel driver cannot be null.");
-            }
+            Contract.Requires<ArgumentNullException>(channelDriver != null, "channelDriver");
 
             // TODO: replace with code contracts
             AssertApplicationIdentifier(applicationIdentifier);
@@ -93,10 +91,8 @@ namespace MyoSharp.Communication
         /// <exception cref="System.InvalidOperationException">Thrown when there is a failure to connect to the Bluetooth hub.</exception>
         public static IChannel Create(IChannelDriver channelDriver)
         {
-            if (channelDriver == null)
-            {
-                throw new ArgumentNullException("channelDriver", "The channel driver cannot be null.");
-            }
+            Contract.Requires<ArgumentNullException>(channelDriver != null, "channelDriver");
+            Contract.Ensures(Contract.Result<IChannel>() != null);
 
             return Create(channelDriver, string.Empty);
         }
@@ -124,10 +120,8 @@ namespace MyoSharp.Communication
         /// <exception cref="System.InvalidOperationException">Thrown when there is a failure to connect to the Bluetooth hub.</exception>
         public static IChannel Create(IChannelDriver channelDriver, string applicationIdentifier)
         {
-            if (channelDriver == null)
-            {
-                throw new ArgumentNullException("channelDriver", "The channel driver cannot be null.");
-            }
+            Contract.Requires<ArgumentNullException>(channelDriver != null, "channelDriver");
+            Contract.Ensures(Contract.Result<IChannel>() != null);
 
             // TODO: replace with code contracts
             // AssertApplicationIdentifier(applicationIdentifier);
@@ -159,10 +153,8 @@ namespace MyoSharp.Communication
         /// <exception cref="System.InvalidOperationException">Thrown when there is a failure to connect to the Bluetooth hub.</exception>
         public static IChannel Create(IChannelDriver channelDriver, string applicationIdentifier, bool autostart)
         {
-            if (channelDriver == null)
-            {
-                throw new ArgumentNullException("channelDriver", "The channel driver cannot be null.");
-            }
+            Contract.Requires<ArgumentNullException>(channelDriver != null, "channelDriver");
+            Contract.Ensures(Contract.Result<IChannel>() != null);
 
             // TODO: replace with code contracts
             // AssertApplicationIdentifier(applicationIdentifier);
@@ -256,10 +248,7 @@ namespace MyoSharp.Communication
                 ////}
 
                 // free unmanaged objects
-                if (_channelDriver != null)
-                {
-                    _channelDriver.ShutdownMyoHub(_handle);
-                }
+                _channelDriver.ShutdownMyoHub(_handle);
             }
             finally
             {
@@ -280,6 +269,9 @@ namespace MyoSharp.Communication
             MyoEventType eventType, 
             DateTime timestamp)
         {
+            Contract.Requires<ArgumentException>(myoHandle != IntPtr.Zero, "The handle to the Myo must be set.");
+            Contract.Requires<ArgumentException>(evt != IntPtr.Zero, "The handle to the event must be set.");
+
             var handler = EventReceived;
             if (handler != null)
             {
@@ -294,10 +286,13 @@ namespace MyoSharp.Communication
         
         private MyoRunHandlerResult HandleEvent(IntPtr userData, IntPtr evt)
         {
+            Contract.Requires<ArgumentException>(userData != IntPtr.Zero, "The handle to the user data must be set.");
+            Contract.Requires<ArgumentException>(evt != IntPtr.Zero, "The handle to the event must be set.");
+
             // check if the event is for us
             if (((GCHandle)userData).Target != this)
             {
-                return  MyoRunHandlerResult.Continue;
+                return MyoRunHandlerResult.Continue;
             }
 
             var type = _channelDriver.GetEventType(evt);
@@ -316,11 +311,21 @@ namespace MyoSharp.Communication
         {
             while (!_killEventThread)
             {
+                var userData = (IntPtr)GCHandle.Alloc(this);
+                Contract.Assume(userData != IntPtr.Zero);
+
                 _channelDriver.Run(
                     _handle, 
                     HandleEvent, 
-                    (IntPtr)GCHandle.Alloc(this));
+                    userData);
             }
+        }
+
+        [ContractInvariantMethod]
+        private void ObjectInvariant()
+        {
+            Contract.Invariant(_handle != IntPtr.Zero);
+            Contract.Invariant(_channelDriver != null);
         }
         #endregion
     }

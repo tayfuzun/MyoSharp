@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Text;
 
 namespace MyoSharp.Device
@@ -24,11 +25,7 @@ namespace MyoSharp.Device
         public ArmRecognizedEventArgs(IMyo myo, DateTime timestamp, Arm arm, XDirection directionX)
             : base(myo, timestamp)
         {
-            // TODO: replace with contracts
-            if (myo == null)
-            {
-                throw new ArgumentNullException("myo", "The Myo cannot be null.");
-            }
+            Contract.Requires<ArgumentNullException>(myo != null, "myo");
 
             this.Arm = arm;
             this.XDirection = directionX;

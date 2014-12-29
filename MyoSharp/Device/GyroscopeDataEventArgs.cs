@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Text;
-
 using MyoSharp.Math;
 
 namespace MyoSharp.Device
@@ -24,17 +24,9 @@ namespace MyoSharp.Device
         public GyroscopeDataEventArgs(IMyo myo, DateTime timestamp, Vector3F gyroscopeData)
             : base(myo, timestamp)
         {
-            // TODO: replace with contracts
-            if (myo == null)
-            {
-                throw new ArgumentNullException("myo", "The Myo cannot be null.");
-            }
-
-            if (gyroscopeData == null)
-            {
-                throw new ArgumentNullException("gyroscopeData", "The gyroscope data cannot be null.");
-            }
-
+            Contract.Requires<ArgumentNullException>(myo != null, "myo");
+            Contract.Requires<ArgumentNullException>(gyroscopeData != null, "gyroscopeData");
+            
             this.Gyroscope = gyroscopeData;
         }
         #endregion

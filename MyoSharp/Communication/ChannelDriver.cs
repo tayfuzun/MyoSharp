@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.Contracts;
 
 using MyoSharp.Internal;
 using MyoSharp.Device;
@@ -28,10 +29,7 @@ namespace MyoSharp.Communication
         /// </exception>
         private ChannelDriver(IChannelBridge channelBridge)
         {
-            if (channelBridge == null)
-            {
-                throw new ArgumentNullException("channelBridge", "The channel bridge cannot be null.");
-            }
+            Contract.Requires<ArgumentNullException>(channelBridge != null, "channelBridge");
 
             _channelBridge = channelBridge;
         }
@@ -48,10 +46,8 @@ namespace MyoSharp.Communication
         /// </exception>
         public static IChannelDriver Create(IChannelBridge channelBridge)
         {
-            if (channelBridge == null)
-            {
-                throw new ArgumentNullException("channelBridge", "The channel bridge cannot be null.");
-            }
+            Contract.Requires<ArgumentNullException>(channelBridge != null, "channelBridge");
+            Contract.Ensures(Contract.Result<IChannelDriver>() != null);
 
             return new ChannelDriver(channelBridge);
         }
@@ -120,11 +116,6 @@ namespace MyoSharp.Communication
         /// <inheritdoc />
         public void Run(IntPtr hubHandle, MyoRunHandler handler, IntPtr userData)
         {
-            if (handler == null)
-            {
-                throw new ArgumentNullException("handler", "The handler cannot be null.");
-            }
-
             var errorHandle = IntPtr.Zero;
             try
             {
@@ -201,6 +192,12 @@ namespace MyoSharp.Communication
             }
 
             return new InvalidOperationException(errorMessage);
+        }
+
+        [ContractInvariantMethod]
+        private void ObjectInvariant()
+        {
+            Contract.Invariant(_channelBridge != null);
         }
         #endregion
     }

@@ -2,6 +2,7 @@
 
 using MyoSharp.Device;
 using MyoSharp.Communication;
+using System.Diagnostics.Contracts;
 
 namespace MyoSharp.Discovery
 {
@@ -24,10 +25,7 @@ namespace MyoSharp.Discovery
         /// <exception cref="System.ArgumentNullException">Thrown when <paramref name="channelListener"/> is <c>null</c>.</exception>
         protected DeviceListener(IChannelListener channelListener)
         {
-            if (channelListener == null)
-            {
-                throw new ArgumentNullException("channelListener", "The channel listener cannot be null.");
-            }
+            Contract.Requires<ArgumentNullException>(channelListener != null, "channelListener");
 
             _channelListener = channelListener;
             _channelListener.EventReceived += Channel_EventReceived;
@@ -67,10 +65,8 @@ namespace MyoSharp.Discovery
         /// <exception cref="System.ArgumentNullException">Thrown when <paramref name="channelListener"/> is <c>null</c>.</exception>
         public static IDeviceListener Create(IChannelListener channelListener)
         {
-            if (channelListener == null)
-            {
-                throw new ArgumentNullException("channelListener", "The channel listener cannot be null.");
-            }
+            Contract.Requires<ArgumentNullException>(channelListener != null, "channelListener");
+            Contract.Ensures(Contract.Result<IDeviceListener>() != null);
 
             return new DeviceListener(channelListener);
         }
@@ -103,10 +99,7 @@ namespace MyoSharp.Discovery
                 // free managed objects
                 if (disposing)
                 {
-                    if (_channelListener != null)
-                    {
-                        _channelListener.EventReceived -= Channel_EventReceived;
-                    }
+                    _channelListener.EventReceived -= Channel_EventReceived;
                 }
             }
             finally
@@ -122,6 +115,8 @@ namespace MyoSharp.Discovery
         /// <param name="eventTimeUtc">The event time in UTC.</param>
         protected virtual void OnPaired(IntPtr myoHandle, DateTime eventTimeUtc)
         {
+            Contract.Requires<ArgumentException>(myoHandle != IntPtr.Zero, "The handle to the Myo must be set.");
+
             var handler = Paired;
             if (handler != null)
             {
@@ -129,11 +124,19 @@ namespace MyoSharp.Discovery
                 handler.Invoke(this, args);
             }
         }
+
+        [ContractInvariantMethod]
+        private void ObjectInvariant()
+        {
+            Contract.Invariant(_channelListener != null);
+        }
         #endregion
 
         #region Event Handlers
         private void Channel_EventReceived(object sender, RouteMyoEventArgs e)
         {
+            Contract.Requires<ArgumentNullException>(sender != null, "sender");
+
             if (e.EventType == MyoEventType.Paired)
             {
                 OnPaired(e.MyoHandle, e.Timestamp);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Text;
 
 using MyoSharp.Internal;
@@ -25,15 +26,8 @@ namespace MyoSharp.Device
         /// <exception cref="System.ArgumentNullException">The exception that is thrown when the device bridge is <c>null</c>.</exception>
         private MyoDeviceDriver(IntPtr handle, IMyoDeviceBridge myoDeviceBridge)
         {
-            if (handle == IntPtr.Zero)
-            {
-                throw new ArgumentException("The handle must be set.", "handle");
-            }
-
-            if (myoDeviceBridge == null)
-            {
-                throw new ArgumentNullException("myoDeviceBridge", "The device bridge cannot be null.");
-            }
+            Contract.Requires<ArgumentException>(handle != IntPtr.Zero, "The handle must be set.");
+            Contract.Requires<ArgumentNullException>(myoDeviceBridge != null, "myoDeviceBridge");
 
             _handle = handle;
             _myoDeviceBridge = myoDeviceBridge;
@@ -58,15 +52,9 @@ namespace MyoSharp.Device
         /// <exception cref="System.ArgumentNullException">The exception that is thrown when the device bridge is <c>null</c>.</exception>
         public static IMyoDeviceDriver Create(IntPtr handle, IMyoDeviceBridge myoDeviceBridge)
         {
-            if (handle == IntPtr.Zero)
-            {
-                throw new ArgumentException("The handle must be set.", "handle");
-            }
-
-            if (myoDeviceBridge == null)
-            {
-                throw new ArgumentNullException("myoDeviceBridge", "The device bridge cannot be null.");
-            }
+            Contract.Requires<ArgumentException>(handle != IntPtr.Zero, "The handle must be set.");
+            Contract.Requires<ArgumentNullException>(myoDeviceBridge != null, "myoDeviceBridge");
+            Contract.Ensures(Contract.Result<IMyoDeviceDriver>() != null);
 
             return new MyoDeviceDriver(handle, myoDeviceBridge);
         }
@@ -241,6 +229,13 @@ namespace MyoSharp.Device
             return PlatformInvocation.Running32Bit
                 ? _myoDeviceBridge.EventGetEmg32(evt, sensor)
                 : _myoDeviceBridge.EventGetEmg64(evt, sensor);
+        }
+
+        [ContractInvariantMethod]
+        private void ObjectInvariant()
+        {
+            Contract.Invariant(_handle != IntPtr.Zero);
+            Contract.Invariant(_myoDeviceBridge != null);
         }
         #endregion
     }

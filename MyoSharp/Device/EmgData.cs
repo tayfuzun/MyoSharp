@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Text;
 
 namespace MyoSharp.Device
@@ -23,10 +24,7 @@ namespace MyoSharp.Device
         /// </exception>
         private EmgData(int[] emgData)
         {
-            if (emgData == null)
-            {
-                throw new ArgumentNullException("emgData", "The EMG data cannot be null.");
-            }
+            Contract.Requires<ArgumentNullException>(emgData != null, "emgData");
 
             _emgData = emgData;
         }
@@ -43,10 +41,8 @@ namespace MyoSharp.Device
         /// </exception>
         public static IEmgData Create(int[] emgData)
         {
-            if (emgData == null)
-            {
-                throw new ArgumentNullException("emgData", "The EMG data cannot be null.");
-            }
+            Contract.Requires<ArgumentNullException>(emgData != null, "emgData");
+            Contract.Ensures(Contract.Result<IEmgData>() != null);
             
             return new EmgData(emgData);
         }
@@ -54,14 +50,15 @@ namespace MyoSharp.Device
         /// <inheritdoc />
         public int GetDataForSensor(int sensor)
         {
-            if (sensor < 0)
-            {
-                throw new ArgumentOutOfRangeException("sensor", "The sensor value must be greater than or equal to zero.");
-            }
-
             return sensor >= _emgData.Length
                 ? 0
                 : _emgData[sensor];
+        }
+
+        [ContractInvariantMethod]
+        private void ObjectInvariant()
+        {
+            Contract.Invariant(_emgData != null);
         }
         #endregion
     }

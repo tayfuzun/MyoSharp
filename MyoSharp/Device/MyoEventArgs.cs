@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Text;
 
 namespace MyoSharp.Device
@@ -9,6 +10,11 @@ namespace MyoSharp.Device
     /// </summary>
     public class MyoEventArgs : EventArgs
     {
+        #region Fields
+        private readonly IMyo _myo;
+        private readonly DateTime _timestamp;
+        #endregion
+
         #region Constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="MyoEventArgs" /> class.
@@ -20,13 +26,10 @@ namespace MyoSharp.Device
         /// </exception>
         public MyoEventArgs(IMyo myo, DateTime timestamp)
         {
-            if (myo == null)
-            {
-                throw new ArgumentNullException("myo", "The Myo cannot be null.");
-            }
+            Contract.Requires<ArgumentNullException>(myo != null, "myo");
 
-            this.Myo = myo;
-            this.Timestamp = timestamp;
+            _myo = myo;
+            _timestamp = timestamp;
         }
         #endregion
 
@@ -34,12 +37,31 @@ namespace MyoSharp.Device
         /// <summary>
         /// Gets the Myo that raised the event.
         /// </summary>
-        public IMyo Myo { get; private set; }
+        public IMyo Myo
+        {
+            get
+            {
+                Contract.Ensures(Contract.Result<IMyo>() != null);
+
+                return _myo;
+            }
+        }
 
         /// <summary>
         /// Gets the timestamp of the event.
         /// </summary>
-        public DateTime Timestamp { get; private set; }
+        public DateTime Timestamp
+        {
+            get { return _timestamp; }
+        }
+        #endregion
+
+        #region Methods
+        [ContractInvariantMethod]
+        private void ObjectInvariant()
+        {
+            Contract.Invariant(_myo != null);
+        }
         #endregion
     }
 }

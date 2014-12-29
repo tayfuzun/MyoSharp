@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -22,6 +23,8 @@ namespace MyoSharp.Device
         #region Methods
         public static IMyoDeviceBridge Create()
         {
+            Contract.Ensures(Contract.Result<IMyoDeviceBridge>() != null);
+
             return new MyoDeviceBridge();
         }
 

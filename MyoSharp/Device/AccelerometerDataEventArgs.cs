@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Text;
 
 using MyoSharp.Math;
@@ -24,17 +25,9 @@ namespace MyoSharp.Device
         public AccelerometerDataEventArgs(IMyo myo, DateTime timestamp, Vector3F accelerometerData)
             : base(myo, timestamp)
         {
-            // TODO: replace with contracts
-            if (myo == null)
-            {
-                throw new ArgumentNullException("myo", "The Myo cannot be null.");
-            }
-
-            if (accelerometerData == null)
-            {
-                throw new ArgumentNullException("accelerometerData", "The accelerometer data cannot be null.");
-            }
-
+            Contract.Requires<ArgumentNullException>(myo != null, "myo");
+            Contract.Requires<ArgumentNullException>(accelerometerData != null, "accelerometerData");
+            
             this.Accelerometer = accelerometerData;
         }
         #endregion

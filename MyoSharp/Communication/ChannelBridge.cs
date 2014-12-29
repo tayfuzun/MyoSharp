@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.Contracts;
 using System.Runtime.InteropServices;
 
 using MyoSharp.Internal;
@@ -27,6 +28,8 @@ namespace MyoSharp.Communication
         /// <returns>Returns a new <see cref="IChannelBridge"/> instance.</returns>
         public static IChannelBridge Create()
         {
+            Contract.Ensures(Contract.Result<IChannelBridge>() != null);
+
             return new ChannelBridge();
         }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Text;
 
 using SysMath = System.Math;
@@ -43,11 +44,18 @@ namespace MyoSharp.Math
         #region Methods
         public static QuaternionF operator -(QuaternionF quat)
         {
+            Contract.Requires<ArgumentNullException>(quat != null, "quat");
+            Contract.Ensures(Contract.Result<QuaternionF>() != null);
+
             return new QuaternionF(-quat._x, -quat._y, -quat._z, -quat._w);
         }
 
         public static QuaternionF operator +(QuaternionF quat1, QuaternionF quat2)
         {
+            Contract.Requires<ArgumentNullException>(quat1 != null, "quat1");
+            Contract.Requires<ArgumentNullException>(quat2 != null, "quat2");
+            Contract.Ensures(Contract.Result<QuaternionF>() != null);
+
             return new QuaternionF(
                 quat1._x + quat2._x,
                 quat1._y + quat2._y,
@@ -57,11 +65,18 @@ namespace MyoSharp.Math
 
         public static QuaternionF operator -(QuaternionF quat1, QuaternionF quat2)
         {
+            Contract.Requires<ArgumentNullException>(quat1 != null, "quat1");
+            Contract.Requires<ArgumentNullException>(quat2 != null, "quat2");
+            Contract.Ensures(Contract.Result<QuaternionF>() != null);
+
             return quat1 + (-quat2);
         }
 
         public static QuaternionF operator *(QuaternionF quat, float scalar)
         {
+            Contract.Requires<ArgumentNullException>(quat != null, "quat");
+            Contract.Ensures(Contract.Result<QuaternionF>() != null);
+
             return new QuaternionF(
                 quat._x * scalar,
                 quat._y * scalar,
@@ -71,11 +86,17 @@ namespace MyoSharp.Math
 
         public static QuaternionF operator *(float scalar, QuaternionF quat)
         {
+            Contract.Requires<ArgumentNullException>(quat != null, "quat");
+            Contract.Ensures(Contract.Result<QuaternionF>() != null);
+
             return quat * scalar;
         }
 
         public static QuaternionF operator /(QuaternionF quat, float scalar)
         {
+            Contract.Requires<ArgumentNullException>(quat != null, "quat");
+            Contract.Ensures(Contract.Result<QuaternionF>() != null);
+
             return new QuaternionF(
                 quat._x / scalar,
                 quat._y / scalar,
@@ -85,6 +106,10 @@ namespace MyoSharp.Math
 
         public static QuaternionF operator *(QuaternionF quat1, QuaternionF quat2)
         {
+            Contract.Requires<ArgumentNullException>(quat1 != null, "quat1");
+            Contract.Requires<ArgumentNullException>(quat2 != null, "quat2");
+            Contract.Ensures(Contract.Result<QuaternionF>() != null);
+
             return new QuaternionF(
                 quat1._w * quat2._x + quat1._x * quat2._w + quat1._y * quat2._z - quat1._z * quat2._y,
                 quat1._w * quat2._y - quat1._x * quat2._z + quat1._y * quat2._w + quat1._z * quat2._x,
@@ -94,6 +119,10 @@ namespace MyoSharp.Math
 
         public static Vector3F operator *(QuaternionF quat, Vector3F vec)
         {
+            Contract.Requires<ArgumentNullException>(quat != null, "quat");
+            Contract.Requires<ArgumentNullException>(vec != null, "vec");
+            Contract.Ensures(Contract.Result<Vector3F>() != null);
+
             var qvec = new QuaternionF(vec.X, vec.Y, vec.Z, 0);
             var result = quat * qvec * quat.Conjugate();
             return new Vector3F(result.X, result.Y, result.Z);
@@ -101,16 +130,23 @@ namespace MyoSharp.Math
 
         public static QuaternionF Normalize(QuaternionF quat)
         {
+            Contract.Requires<ArgumentNullException>(quat != null, "quat");
+            Contract.Ensures(Contract.Result<QuaternionF>() != null);
+
             return (quat / quat.Magnitude());
         }
 
         public QuaternionF Conjugate()
         {
+            Contract.Ensures(Contract.Result<QuaternionF>() != null);
+
             return new QuaternionF(-_x, -_y, -_z, _w);
         }
 
         public static float Roll(QuaternionF quat)
         {
+            Contract.Requires<ArgumentNullException>(quat != null, "quat");
+
             return (float)SysMath.Atan2(
                 2.0f * (quat._w * quat._x + quat._y * quat._z),
                 1.0f - 2.0f * (quat._x * quat._x + quat._y * quat._y));
@@ -118,11 +154,15 @@ namespace MyoSharp.Math
 
         public static float Pitch(QuaternionF quat)
         {
+            Contract.Requires<ArgumentNullException>(quat != null, "quat");
+
             return (float)SysMath.Asin(2.0f * (quat._w * quat._y - quat._z * quat._x));
         }
 
         public static float Yaw(QuaternionF quat)
         {
+            Contract.Requires<ArgumentNullException>(quat != null, "quat");
+
             return (float)SysMath.Atan2(
                 2.0f * (quat._w * quat._z + quat._x * quat._y),
                 1.0f - 2.0f * (quat._y * quat._y + quat._z * quat._z));

@@ -234,7 +234,7 @@ namespace MyoSharp.Tests.Unit.Communication
         public void InitializeMyoHub_HubErrorInvalidArgument_ThrowsArgumentException()
         {
             // Setup
-            IntPtr errorHandle;
+            IntPtr errorHandle = new IntPtr(789);
             IntPtr myoHandle = new IntPtr(123);
             var applicationIdentifier = "com.myosharp.tests";
 
@@ -245,6 +245,12 @@ namespace MyoSharp.Tests.Unit.Communication
             bridge
                 .Setup(x => x.InitHub64(out myoHandle, applicationIdentifier, out errorHandle))
                 .Returns(MyoResult.ErrorInvalidArgument);
+            bridge
+                .Setup(x => x.LibmyoErrorCstring32(errorHandle))
+                .Returns("Oh no!");
+            bridge
+                .Setup(x => x.LibmyoErrorCstring64(errorHandle))
+                .Returns("Oh no!");
 
             var driver = ChannelDriver.Create(bridge.Object);
 
@@ -256,13 +262,15 @@ namespace MyoSharp.Tests.Unit.Communication
 
             bridge.Verify(x => x.InitHub32(out myoHandle, applicationIdentifier, out errorHandle), PlatformInvocation.Running32Bit ? Times.Once() : Times.Never());
             bridge.Verify(x => x.InitHub64(out myoHandle, applicationIdentifier, out errorHandle), PlatformInvocation.Running32Bit ? Times.Never() : Times.Once());
+            bridge.Verify(x => x.LibmyoErrorCstring32(errorHandle), PlatformInvocation.Running32Bit ? Times.Once() : Times.Never());
+            bridge.Verify(x => x.LibmyoErrorCstring64(errorHandle), PlatformInvocation.Running32Bit ? Times.Never() : Times.Once());
         }
 
         [Fact]
         public void InitializeMyoHub_HubError_ThrowsInvalidOperationException()
         {
             // Setup
-            IntPtr errorHandle;
+            IntPtr errorHandle = new IntPtr(789);
             IntPtr myoHandle = new IntPtr(123);
             var applicationIdentifier = "com.myosharp.tests";
 
@@ -273,6 +281,12 @@ namespace MyoSharp.Tests.Unit.Communication
             bridge
                 .Setup(x => x.InitHub64(out myoHandle, applicationIdentifier, out errorHandle))
                 .Returns(MyoResult.Error);
+            bridge
+                .Setup(x => x.LibmyoErrorCstring32(errorHandle))
+                .Returns("Oh no!");
+            bridge
+                .Setup(x => x.LibmyoErrorCstring64(errorHandle))
+                .Returns("Oh no!");
 
             var driver = ChannelDriver.Create(bridge.Object);
 
@@ -284,6 +298,8 @@ namespace MyoSharp.Tests.Unit.Communication
 
             bridge.Verify(x => x.InitHub32(out myoHandle, applicationIdentifier, out errorHandle), PlatformInvocation.Running32Bit ? Times.Once() : Times.Never());
             bridge.Verify(x => x.InitHub64(out myoHandle, applicationIdentifier, out errorHandle), PlatformInvocation.Running32Bit ? Times.Never() : Times.Once());
+            bridge.Verify(x => x.LibmyoErrorCstring32(errorHandle), PlatformInvocation.Running32Bit ? Times.Once() : Times.Never());
+            bridge.Verify(x => x.LibmyoErrorCstring64(errorHandle), PlatformInvocation.Running32Bit ? Times.Never() : Times.Once());
         }
         
 
@@ -316,7 +332,7 @@ namespace MyoSharp.Tests.Unit.Communication
         public void ShutdownMyoHub_HubErrorInvalidArgument_ThrowsArgumentException()
         {
             // Setup
-            IntPtr errorHandle;
+            IntPtr errorHandle = new IntPtr(789);
             IntPtr myoHandle = new IntPtr(123);
 
             var bridge = new Mock<IChannelBridge>();
@@ -326,6 +342,12 @@ namespace MyoSharp.Tests.Unit.Communication
             bridge
                 .Setup(x => x.ShutdownHub64(myoHandle, out errorHandle))
                 .Returns(MyoResult.ErrorInvalidArgument);
+            bridge
+                .Setup(x => x.LibmyoErrorCstring32(errorHandle))
+                .Returns("Oh no!");
+            bridge
+                .Setup(x => x.LibmyoErrorCstring64(errorHandle))
+                .Returns("Oh no!");
 
             var driver = ChannelDriver.Create(bridge.Object);
 
@@ -338,13 +360,15 @@ namespace MyoSharp.Tests.Unit.Communication
 
             bridge.Verify(x => x.ShutdownHub32(myoHandle, out errorHandle), PlatformInvocation.Running32Bit ? Times.Once() : Times.Never());
             bridge.Verify(x => x.ShutdownHub64(myoHandle, out errorHandle), PlatformInvocation.Running32Bit ? Times.Never() : Times.Once());
+            bridge.Verify(x => x.LibmyoErrorCstring32(errorHandle), PlatformInvocation.Running32Bit ? Times.Once() : Times.Never());
+            bridge.Verify(x => x.LibmyoErrorCstring64(errorHandle), PlatformInvocation.Running32Bit ? Times.Never() : Times.Once());
         }
 
         [Fact]
         public void ShutdownMyoHub_HubError_ThrowsInvalidOperationException()
         {
             // Setup
-            IntPtr errorHandle;
+            IntPtr errorHandle = new IntPtr(789);
             IntPtr myoHandle = new IntPtr(123);
 
             var bridge = new Mock<IChannelBridge>();
@@ -354,6 +378,12 @@ namespace MyoSharp.Tests.Unit.Communication
             bridge
                 .Setup(x => x.ShutdownHub64(myoHandle, out errorHandle))
                 .Returns(MyoResult.Error);
+            bridge
+                .Setup(x => x.LibmyoErrorCstring32(errorHandle))
+                .Returns("Oh no!");
+            bridge
+                .Setup(x => x.LibmyoErrorCstring64(errorHandle))
+                .Returns("Oh no!");
 
             var driver = ChannelDriver.Create(bridge.Object);
 
@@ -365,6 +395,8 @@ namespace MyoSharp.Tests.Unit.Communication
 
             bridge.Verify(x => x.ShutdownHub32(myoHandle, out errorHandle), PlatformInvocation.Running32Bit ? Times.Once() : Times.Never());
             bridge.Verify(x => x.ShutdownHub64(myoHandle, out errorHandle), PlatformInvocation.Running32Bit ? Times.Never() : Times.Once());
+            bridge.Verify(x => x.LibmyoErrorCstring32(errorHandle), PlatformInvocation.Running32Bit ? Times.Once() : Times.Never());
+            bridge.Verify(x => x.LibmyoErrorCstring64(errorHandle), PlatformInvocation.Running32Bit ? Times.Never() : Times.Once());
         }
         #endregion
     }

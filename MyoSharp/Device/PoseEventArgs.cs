@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Text;
 
 using MyoSharp.Poses;
@@ -24,11 +25,7 @@ namespace MyoSharp.Device
         public PoseEventArgs(IMyo myo, DateTime timestamp, Pose pose)
             : base(myo, timestamp)
         {
-            // TODO: replace with contracts
-            if (myo == null)
-            {
-                throw new ArgumentNullException("myo", "The Myo cannot be null.");
-            }
+            Contract.Requires<ArgumentNullException>(myo != null, "myo");
 
             this.Pose = pose;
         }
