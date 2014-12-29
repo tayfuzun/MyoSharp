@@ -427,6 +427,7 @@ namespace MyoSharp.Device
         protected virtual void OnArmLost(DateTime timestamp)
         {
             this.Arm = Arm.Unknown;
+            this.XDirectionOnArm = XDirection.Unknown;
 
             var handler = ArmLost;
             if (handler != null)

@@ -94,7 +94,7 @@ namespace MyoSharp.Tests.Unit.Communication
             
             var args = new EmgDataEventArgs(
                 new Mock<IMyo>().Object,
-                DateTime.UtcNow,
+                timestamp,
                 new Mock<IEmgData>().Object);
 
             // Execute

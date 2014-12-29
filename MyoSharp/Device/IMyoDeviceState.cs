@@ -34,6 +34,11 @@ namespace MyoSharp.Device
         Pose Pose { get; }
 
         /// <summary>
+        /// Gets the X-direction of the Myo on the arm.
+        /// </summary>
+        XDirection XDirectionOnArm { get; }
+
+        /// <summary>
         /// Gets the last known orientation data from the Myo.
         /// </summary>
         QuaternionF Orientation { get; }
