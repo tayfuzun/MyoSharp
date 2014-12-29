@@ -48,6 +48,9 @@
     <Compile Include="Communication\ChannelTests.cs" />
     <Compile Include="Communication\ChannelDriverTests.cs" />
     <Compile Include="Communication\RouteMyoEventArgsTests.cs" />
+    <Compile Include="Device\AccelerometerDataEventArgsTests.cs" />
+    <Compile Include="Device\ArmRecognizedEventArgsTests.cs" />
+    <Compile Include="Device\EmgDataEventArgsTests.cs" />
     <Compile Include="Discovery\DeviceListenerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

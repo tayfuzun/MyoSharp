@@ -13,9 +13,12 @@ namespace MyoSharp.Device
         /// <summary>
         /// Initializes a new instance of the <see cref="EmgDataEventArgs"/> class.
         /// </summary>
-        /// <param name="myo">The Myo that raised this event.</param>
+        /// <param name="myo">The Myo that raised this event. Cannot be <c>null</c>.</param>
         /// <param name="timestamp">The timestamp of the event.</param>
         /// <param name="emgData">The EMG data that corresponds to this event. Cannot be <c>null</c>.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// The exception that is thrown when <paramref name="myo"/> or <paramref name="emgData"/> is null.
+        /// </exception>
         public EmgDataEventArgs(IMyo myo, DateTime timestamp, IEmgData emgData)
             : base(myo, timestamp)
         {
