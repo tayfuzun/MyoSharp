@@ -60,7 +60,7 @@ namespace MyoSharp.Tests.Unit.Communication
 
             // Assert
             var exception = Assert.Throws<ArgumentException>(method);
-            Assert.Equal("applicationIdentifier", exception.ParamName);
+            Assert.Equal("The application identifier cannot be longer than 255 characters.", exception.ParamName);
 
             driver.Verify(x => x.InitializeMyoHub(It.IsAny<string>()), Times.Never);
         }

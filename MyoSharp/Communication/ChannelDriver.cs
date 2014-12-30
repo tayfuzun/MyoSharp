@@ -72,6 +72,7 @@ namespace MyoSharp.Communication
                     return;
                 }
 
+                Contract.Assume(errorHandle != IntPtr.Zero);
                 throw CreateMyoException(result, errorHandle);
             }
             finally
@@ -93,9 +94,11 @@ namespace MyoSharp.Communication
 
                 if (result == MyoResult.Success)
                 {
+                    Contract.Assume(hubPointer != IntPtr.Zero);
                     return hubPointer;
                 }
 
+                Contract.Assume(errorHandle != IntPtr.Zero);
                 throw CreateMyoException(result, errorHandle);
             }
             finally
@@ -138,6 +141,7 @@ namespace MyoSharp.Communication
                     return;
                 }
 
+                Contract.Assume(errorHandle != IntPtr.Zero);
                 throw CreateMyoException(result, errorHandle);
             }
             finally
@@ -185,6 +189,9 @@ namespace MyoSharp.Communication
 
         private Exception CreateMyoException(MyoResult result, IntPtr errorHandle)
         {
+            Contract.Requires<ArgumentException>(errorHandle != IntPtr.Zero, "The pointer to the error must be set.");
+            Contract.Requires<ArgumentException>(result != MyoResult.Success, "The result code must not be MyoResult.Success.");
+
             var errorMessage = GetErrorString(errorHandle);
             if (result == MyoResult.ErrorInvalidArgument)
             {

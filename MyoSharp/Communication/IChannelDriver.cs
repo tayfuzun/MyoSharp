@@ -84,6 +84,7 @@ namespace MyoSharp.Communication
 
         public string GetErrorString(IntPtr errorHandle)
         {
+            Contract.Requires<ArgumentException>(errorHandle != IntPtr.Zero, "The pointer to the error must be set.");
             Contract.Ensures(Contract.Result<string>() != null);
 
             return default(string);

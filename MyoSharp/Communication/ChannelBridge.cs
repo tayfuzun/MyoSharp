@@ -60,13 +60,27 @@ namespace MyoSharp.Communication
         /// <inheritdoc />
         public IntPtr EventGetMyo32(IntPtr evt)
         {
-            return event_get_myo_32(evt);
+            var result = event_get_myo_32(evt);
+
+            if (result == IntPtr.Zero)
+            {
+                throw new InvalidOperationException("Could not get the Myo handle for the event handle '" + evt + "'.");
+            }
+
+            return result;
         }
 
         /// <inheritdoc />
         public IntPtr EventGetMyo64(IntPtr evt)
         {
-            return event_get_myo_64(evt);
+            var result = event_get_myo_64(evt);
+
+            if (result == IntPtr.Zero)
+            {
+                throw new InvalidOperationException("Could not get the Myo handle for the event handle '" + evt + "'.");
+            }
+
+            return result;
         }
 
         /// <inheritdoc />
@@ -108,13 +122,15 @@ namespace MyoSharp.Communication
         /// <inheritdoc />
         public string LibmyoErrorCstring32(IntPtr errorHandle)
         {
-            return libmyo_error_cstring_32(errorHandle);
+            var result = libmyo_error_cstring_32(errorHandle);
+            return result ?? string.Empty;
         }
 
         /// <inheritdoc />
         public string LibmyoErrorCstring64(IntPtr errorHandle)
         {
-            return libmyo_error_cstring_64(errorHandle);
+            var result = libmyo_error_cstring_64(errorHandle);
+            return result ?? string.Empty;
         }
 
         /// <inheritdoc />

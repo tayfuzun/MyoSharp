@@ -35,7 +35,10 @@ namespace MyoSharp.Communication
         /// can be an empty string. The application identifier cannot be longer than 255 characters.</param>
         /// <param name="autostart">If set to <c>true</c>, the channel will be automatically started.</param>
         /// <exception cref="System.ArgumentNullException">
-        /// The exception that is thrown when <paramref name="channelDriver"/> is <c>null</c>.
+        /// The exception that is thrown when <paramref name="channelDriver"/> or <paramref name="applicationIdentifier"/> is <c>null</c>.
+        /// </exception>
+        /// <exception cref="System.ArgumentException">
+        /// The exception that is thrown when <paramref name="applicationIdentifier"/> is invalid.
         /// </exception>
         /// <exception cref="System.InvalidOperationException">
         /// The exception that is thrown when the hub fails to initialize.
@@ -43,9 +46,8 @@ namespace MyoSharp.Communication
         private Channel(IChannelDriver channelDriver, string applicationIdentifier, bool autostart)
         {
             Contract.Requires<ArgumentNullException>(channelDriver != null, "channelDriver");
-
-            // TODO: replace with code contracts
-            AssertApplicationIdentifier(applicationIdentifier);
+            Contract.Requires<ArgumentNullException>(applicationIdentifier != null, "applicationIdentifier");
+            Contract.Requires<ArgumentException>(applicationIdentifier.Length <= 255, "The application identifier cannot be longer than 255 characters.");
 
             _channelDriver = channelDriver;
 
@@ -115,16 +117,15 @@ namespace MyoSharp.Communication
         /// The exception that is thrown when the <paramref name="applicationIdentifier"/> is invalid.
         /// </exception>
         /// <exception cref="System.ArgumentNullException">
-        /// The exception that is thrown when <paramref name="channelDriver"/> is <c>null</c>.
+        /// The exception that is thrown when <paramref name="channelDriver"/> or <paramref name="applicationIdentifier"/> is <c>null</c>.
         /// </exception>
         /// <exception cref="System.InvalidOperationException">Thrown when there is a failure to connect to the Bluetooth hub.</exception>
         public static IChannel Create(IChannelDriver channelDriver, string applicationIdentifier)
         {
             Contract.Requires<ArgumentNullException>(channelDriver != null, "channelDriver");
+            Contract.Requires<ArgumentNullException>(applicationIdentifier != null, "applicationIdentifier");
+            Contract.Requires<ArgumentException>(applicationIdentifier.Length <= 255, "The application identifier cannot be longer than 255 characters.");
             Contract.Ensures(Contract.Result<IChannel>() != null);
-
-            // TODO: replace with code contracts
-            // AssertApplicationIdentifier(applicationIdentifier);
 
             return Create(channelDriver, applicationIdentifier, false);
         }
@@ -148,16 +149,15 @@ namespace MyoSharp.Communication
         /// The exception that is thrown when the <paramref name="applicationIdentifier"/> is invalid.
         /// </exception>
         /// <exception cref="System.ArgumentNullException">
-        /// The exception that is thrown when <paramref name="channelDriver"/> is <c>null</c>.
+        /// The exception that is thrown when <paramref name="channelDriver"/> or <paramref name="applicationIdentifier"/> is <c>null</c>.
         /// </exception>
         /// <exception cref="System.InvalidOperationException">Thrown when there is a failure to connect to the Bluetooth hub.</exception>
         public static IChannel Create(IChannelDriver channelDriver, string applicationIdentifier, bool autostart)
         {
             Contract.Requires<ArgumentNullException>(channelDriver != null, "channelDriver");
+            Contract.Requires<ArgumentNullException>(applicationIdentifier != null, "applicationIdentifier");
+            Contract.Requires<ArgumentException>(applicationIdentifier.Length <= 255, "The application identifier cannot be longer than 255 characters.");
             Contract.Ensures(Contract.Result<IChannel>() != null);
-
-            // TODO: replace with code contracts
-            // AssertApplicationIdentifier(applicationIdentifier);
 
             return new Channel(channelDriver, applicationIdentifier, autostart);
         }
@@ -202,27 +202,7 @@ namespace MyoSharp.Communication
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-
-        private static void AssertApplicationIdentifier(string applicationIdentifier)
-        {
-            if (applicationIdentifier == string.Empty)
-            {
-                return;
-            }
-
-            if (applicationIdentifier == null)
-            {
-                throw new ArgumentNullException("applicationIdentifier", "The application identifier cannot be null.");
-            }
-
-            if (applicationIdentifier.Length > 255)
-            {
-                throw new ArgumentException("The application identifier cannot be longer than 255 characters.", "applicationIdentifier");
-            }
-
-            // TODO: add a regex for validating before the Myo has to deal with it
-        }
-
+        
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
