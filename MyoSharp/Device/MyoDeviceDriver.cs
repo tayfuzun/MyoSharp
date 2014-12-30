@@ -62,52 +62,56 @@ namespace MyoSharp.Device
         /// <inheritdoc />
         public void Vibrate(VibrationType type)
         {
+            IntPtr errorHandle;
             if (PlatformInvocation.Running32Bit)
             {
-                _myoDeviceBridge.Vibrate32(_handle, type, IntPtr.Zero);
+                _myoDeviceBridge.Vibrate32(_handle, type, out errorHandle);
             }
             else
             {
-                _myoDeviceBridge.Vibrate64(_handle, type, IntPtr.Zero);
+                _myoDeviceBridge.Vibrate64(_handle, type, out errorHandle);
             }
         }
 
         /// <inheritdoc />
         public void RequestRssi()
         {
+            IntPtr errorHandle;
             if (PlatformInvocation.Running32Bit)
             {
-                _myoDeviceBridge.RequestRssi32(_handle, IntPtr.Zero);
+                _myoDeviceBridge.RequestRssi32(_handle, out errorHandle);
             }
             else
             {
-                _myoDeviceBridge.RequestRssi64(_handle, IntPtr.Zero);
+                _myoDeviceBridge.RequestRssi64(_handle, out errorHandle);
             }
         }
 
         /// <inheritdoc />
         public void Lock()
         {
+            IntPtr errorHandle;
             if (PlatformInvocation.Running32Bit)
             {
-                _myoDeviceBridge.Lock32(_handle, IntPtr.Zero);
+                _myoDeviceBridge.Lock32(_handle, out errorHandle);
             }
             else
             {
-                _myoDeviceBridge.Lock64(_handle, IntPtr.Zero);
+                _myoDeviceBridge.Lock64(_handle, out errorHandle);
             }
         }
 
         /// <inheritdoc />
         public void Unlock(UnlockType type)
         {
+            IntPtr errorHandle;
             if (PlatformInvocation.Running32Bit)
             {
-                _myoDeviceBridge.Unlock32(_handle, type, IntPtr.Zero);
+                _myoDeviceBridge.Unlock32(_handle, type, out errorHandle);
             }
             else
             {
-                _myoDeviceBridge.Unlock64(_handle, type, IntPtr.Zero);
+                _myoDeviceBridge.Unlock64(_handle, type, out errorHandle);
             }
         }
 
@@ -213,13 +217,14 @@ namespace MyoSharp.Device
                 ? StreamEmgType.Enabled
                 : StreamEmgType.Disabled;
 
+            IntPtr errorHandle;
             if (PlatformInvocation.Running32Bit)
             {
-                _myoDeviceBridge.StreamEmg32(_handle, streamEmgType, IntPtr.Zero);
+                _myoDeviceBridge.StreamEmg32(_handle, streamEmgType, out errorHandle);
             }
             else
             {
-                _myoDeviceBridge.StreamEmg64(_handle, streamEmgType, IntPtr.Zero);
+                _myoDeviceBridge.StreamEmg64(_handle, streamEmgType, out errorHandle);
             }
         }
 
