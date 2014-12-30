@@ -45,7 +45,7 @@ namespace MyoSharp.Communication
     }
 
     [ContractClassFor(typeof(IChannelBridge))]
-    public abstract class IChannelBridgeContract : IChannelBridge
+    internal abstract class IChannelBridgeContract : IChannelBridge
     {
         #region Methods
         public ulong EventGetTimestamp32(IntPtr evt)

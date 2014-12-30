@@ -37,7 +37,7 @@ namespace MyoSharp.Communication
     }
 
     [ContractClassFor(typeof(IChannelDriver))]
-    public abstract class IChannelDriverContract : IChannelDriver
+    internal abstract class IChannelDriverContract : IChannelDriver
     {
         #region Methods
         public void ShutdownMyoHub(IntPtr hubPointer)

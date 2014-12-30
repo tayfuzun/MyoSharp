@@ -28,7 +28,7 @@ namespace MyoSharp.Poses
     }
 
     [ContractClassFor(typeof(IHeldPose))]
-    public abstract class IHeldPoseContract : IHeldPose
+    internal abstract class IHeldPoseContract : IHeldPose
     {
         #region Events
         public abstract event EventHandler<PoseEventArgs> Triggered;

@@ -154,7 +154,7 @@ namespace MyoSharp.Device
     }
 
     [ContractClassFor(typeof(IMyoDeviceDriver))]
-    public abstract class IMyoDeviceDriverContract : IMyoDeviceDriver
+    internal abstract class IMyoDeviceDriverContract : IMyoDeviceDriver
     {
         #region Properties
         public IntPtr Handle

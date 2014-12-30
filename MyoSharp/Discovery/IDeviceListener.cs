@@ -28,7 +28,7 @@ namespace MyoSharp.Discovery
     }
 
     [ContractClassFor(typeof(IDeviceListener))]
-    public abstract class IDeviceListenerContract : IDeviceListener
+    internal abstract class IDeviceListenerContract : IDeviceListener
     {
         #region Events
         public abstract event EventHandler<PairedEventArgs> Paired;

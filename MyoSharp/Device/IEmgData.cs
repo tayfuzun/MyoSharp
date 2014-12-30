@@ -25,7 +25,7 @@ namespace MyoSharp.Device
     }
 
     [ContractClassFor(typeof(IEmgData))]
-    public abstract class IEmgDataContract : IEmgData
+    internal abstract class IEmgDataContract : IEmgData
     {
         #region Methods
         public int GetDataForSensor(int sensor)

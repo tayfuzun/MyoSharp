@@ -32,7 +32,7 @@ namespace MyoSharp.Device
     }
 
     [ContractClassFor(typeof(IHub))]
-    public abstract class IHubContract : IHub
+    internal abstract class IHubContract : IHub
     {
         #region Events
         public abstract event EventHandler<MyoEventArgs> MyoConnected;
