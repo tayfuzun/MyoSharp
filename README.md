@@ -19,6 +19,7 @@ MyoSharp is compatible with .NET 2.0+
 ### Getting Started
 * [`Environment`](#environment)
 * [`Setup`](#setup)
+* [`Visualization in WinForms`](#winformvis)
 * [`Pose Sequences`](#poseseq)
 * [`Holding Poses`](#posehold)
 * [`Roll, Pitch and Yaw Data`](#rpy)
@@ -129,6 +130,11 @@ namespace MyoSharp.ConsoleSample
     }
 }
 ```
+
+<a name='winformvis' />
+### Visualizations in WinForms
+Running the MyoSHarp.EmgVisualization project will pop up a form that allows you to view the EMG data that comes in from the device. It uses a ZedGraph component to do all of the drawing, and has some simple features like toggling sensors and zooming in to regions. It's primitive, but it should give you an idea what the data looks like.
+
 
 <a name='poseseq' />
 ### Detecting Sequences of Poses

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Text;
 
 using MyoSharp.Commands;
 using MyoSharp.Exceptions;
@@ -21,12 +20,13 @@ namespace MyoSharp.Device
 
         #region Constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="MyoDeviceDriver"/> class.
+        /// Initializes a new instance of the <see cref="MyoDeviceDriver" /> class.
         /// </summary>
         /// <param name="handle">The handle to the Myo.</param>
-        /// <param name="myoDeviceBridge">An instance of <see cref="IMyoDeviceBridge"/> for communicating with the device. Cannot be null.</param>
+        /// <param name="myoDeviceBridge">An instance of <see cref="IMyoDeviceBridge" /> for communicating with the device. Cannot be null.</param>
+        /// <param name="myoErrorHandlerDriver">The myo error handler driver. Cannot be null.</param>
         /// <exception cref="System.ArgumentException">The exception that is thrown when the handle is not set.</exception>
-        /// <exception cref="System.ArgumentNullException">The exception that is thrown when the <paramref name="myoDeviceBridge"> or <paramref name="myoErrorHandlerDriver"> is <c>null</c>.</exception>
+        /// <exception cref="System.ArgumentNullException">The exception that is thrown when the <paramref name="myoDeviceBridge" /> or <paramref name="myoErrorHandlerDriver" /> is <c>null</c>.</exception>
         private MyoDeviceDriver(IntPtr handle, IMyoDeviceBridge myoDeviceBridge, IMyoErrorHandlerDriver myoErrorHandlerDriver)
         {
             Contract.Requires<ArgumentException>(handle != IntPtr.Zero, "handle");
@@ -54,7 +54,7 @@ namespace MyoSharp.Device
         /// <param name="handle">The handle to the Myo.</param>
         /// <param name="myoDeviceBridge">An instance of <see cref="IMyoDeviceBridge"/> for communicating with the device. Cannot be null.</param>
         /// <exception cref="System.ArgumentException">The exception that is thrown when the handle is not set.</exception>
-        /// <exception cref="System.ArgumentNullException">The exception that is thrown when the <paramref name="myoDeviceBridge"> is <c>null</c>.</exception>
+        /// <exception cref="System.ArgumentNullException">The exception that is thrown when the <paramref name="myoDeviceBridge"/> is <c>null</c>.</exception>
         [Obsolete("Please switch to the create method that takes in an IMyoErrorHandlerDriver parameter.")]
         public static IMyoDeviceDriver Create(IntPtr handle, IMyoDeviceBridge myoDeviceBridge)
         {
@@ -66,12 +66,14 @@ namespace MyoSharp.Device
         }
 
         /// <summary>
-        /// Creates a new <see cref="IMyoDeviceDriver"/> instance.
+        /// Creates a new <see cref="IMyoDeviceDriver" /> instance.
         /// </summary>
         /// <param name="handle">The handle to the Myo.</param>
-        /// <param name="myoDeviceBridge">An instance of <see cref="IMyoDeviceBridge"/> for communicating with the device. Cannot be null.</param>
+        /// <param name="myoDeviceBridge">An instance of <see cref="IMyoDeviceBridge" /> for communicating with the device. Cannot be null.</param>
+        /// <param name="myoErrorHandlerDriver">The myo error handler driver. Cannot be null.</param>
+        /// <returns></returns>
         /// <exception cref="System.ArgumentException">The exception that is thrown when the handle is not set.</exception>
-        /// <exception cref="System.ArgumentNullException">The exception that is thrown when the <paramref name="myoDeviceBridge"> or <paramref name="myoErrorHandlerDriver"> is <c>null</c>.</exception>
+        /// <exception cref="System.ArgumentNullException">The exception that is thrown when the <paramref name="myoDeviceBridge" /> or <paramref name="myoErrorHandlerDriver" /> is <c>null</c>.</exception>
         public static IMyoDeviceDriver Create(IntPtr handle, IMyoDeviceBridge myoDeviceBridge, IMyoErrorHandlerDriver myoErrorHandlerDriver)
         {
             Contract.Requires<ArgumentException>(handle != IntPtr.Zero, "handle");
