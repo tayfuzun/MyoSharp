@@ -29,7 +29,7 @@ namespace MyoSharp.Poses
         protected HeldPose(IMyoEventGenerator myo, TimeSpan interval, IEnumerable<Pose> targetPoses)
         {
             Contract.Requires<ArgumentNullException>(myo != null, "myo");
-            Contract.Requires<ArgumentOutOfRangeException>(interval <= TimeSpan.Zero, "The interval must be greater than 0 seconds.");
+            Contract.Requires<ArgumentOutOfRangeException>(interval.TotalMilliseconds >= 0, "The interval must be greater than 0 seconds.");
             Contract.Requires<ArgumentNullException>(targetPoses != null, "targetPoses");
 
             _targetPoses = new List<Pose>(targetPoses);
@@ -74,7 +74,11 @@ namespace MyoSharp.Poses
         {
             get
             {
-                return TimeSpan.FromMilliseconds(_timer.Interval);
+                var interval = TimeSpan.FromMilliseconds(_timer.Interval);
+
+                Contract.Assume(interval > TimeSpan.Zero);
+
+                return interval;
             }
             
             set
@@ -90,9 +94,12 @@ namespace MyoSharp.Poses
             Contract.Requires<ArgumentNullException>(myo != null, "myo");
             Contract.Ensures(Contract.Result<IHeldPose>() != null);
 
+            var interval = DEFAULT_INTERVAL;
+            Contract.Assume(interval.TotalMilliseconds >= 0);
+
             return Create(
                 myo, 
-                DEFAULT_INTERVAL, 
+                interval, 
                 targetPose);
         }
 
@@ -113,16 +120,19 @@ namespace MyoSharp.Poses
             Contract.Requires<ArgumentNullException>(targetPoses != null, "targetPoses");
             Contract.Ensures(Contract.Result<IHeldPose>() != null);
 
+            var interval = DEFAULT_INTERVAL;
+            Contract.Assume(interval.TotalMilliseconds >= 0);
+
             return new HeldPose(
                 myo,
-                DEFAULT_INTERVAL,
+                interval,
                 targetPoses);
         }
 
         public static IHeldPose Create(IMyoEventGenerator myo, TimeSpan interval, params Pose[] targetPoses)
         {
             Contract.Requires<ArgumentNullException>(myo != null, "myo");
-            Contract.Requires<ArgumentOutOfRangeException>(interval <= TimeSpan.Zero, "The interval must be greater than 0 seconds.");
+            Contract.Requires<ArgumentOutOfRangeException>(interval.TotalMilliseconds >= 0, "The interval must be greater than 0 seconds.");
             Contract.Requires<ArgumentNullException>(targetPoses != null, "targetPoses");
             Contract.Ensures(Contract.Result<IHeldPose>() != null);
 
@@ -135,7 +145,7 @@ namespace MyoSharp.Poses
         public static IHeldPose Create(IMyoEventGenerator myo, TimeSpan interval, IEnumerable<Pose> targetPoses)
         {
             Contract.Requires<ArgumentNullException>(myo != null, "myo");
-            Contract.Requires<ArgumentOutOfRangeException>(interval <= TimeSpan.Zero, "The interval must be greater than 0 seconds.");
+            Contract.Requires<ArgumentOutOfRangeException>(interval.TotalMilliseconds >= 0, "The interval must be greater than 0 seconds.");
             Contract.Requires<ArgumentNullException>(targetPoses != null, "targetPoses");
             Contract.Ensures(Contract.Result<IHeldPose>() != null);
 
@@ -233,7 +243,11 @@ namespace MyoSharp.Poses
         #region Event Handlers
         private void Timer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            Contract.Requires(_triggeringMyo != null, "The triggering Myo must be set when the timer's event fires.");
+            var triggeringMyo = _triggeringMyo;
+            if (triggeringMyo == null)
+            {
+                return;
+            }
 
             var currentPose = _lastPose;
             if (!_targetPoses.Contains(currentPose))
@@ -242,7 +256,7 @@ namespace MyoSharp.Poses
             }
 
             OnTriggered(
-                _triggeringMyo, 
+                triggeringMyo, 
                 e.SignalTime,
                 currentPose);
         }

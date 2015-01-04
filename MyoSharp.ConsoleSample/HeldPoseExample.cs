@@ -38,6 +38,9 @@ namespace MyoSharp.ConsoleSample
                 {
                     Console.WriteLine("Myo {0} has connected!", e.Myo.Handle);
 
+                    // unlock the Myo so that it doesn't keep locking between our poses
+                    e.Myo.Unlock(UnlockType.Hold);
+
                     // setup for the pose we want to watch for
                     var pose = HeldPose.Create(e.Myo, Pose.Fist, Pose.FingersSpread);
 
