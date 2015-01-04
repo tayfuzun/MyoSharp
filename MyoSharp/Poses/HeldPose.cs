@@ -29,7 +29,7 @@ namespace MyoSharp.Poses
         protected HeldPose(IMyoEventGenerator myo, TimeSpan interval, IEnumerable<Pose> targetPoses)
         {
             Contract.Requires<ArgumentNullException>(myo != null, "myo");
-            Contract.Requires<ArgumentOutOfRangeException>(interval.TotalMilliseconds >= 0, "The interval must be greater than 0 seconds.");
+            Contract.Requires<ArgumentOutOfRangeException>(interval.TotalMilliseconds >= 0, "interval");
             Contract.Requires<ArgumentNullException>(targetPoses != null, "targetPoses");
 
             _targetPoses = new List<Pose>(targetPoses);
@@ -123,7 +123,7 @@ namespace MyoSharp.Poses
             var interval = DEFAULT_INTERVAL;
             Contract.Assume(interval.TotalMilliseconds >= 0);
 
-            return new HeldPose(
+            return Create(
                 myo,
                 interval,
                 targetPoses);
@@ -132,7 +132,7 @@ namespace MyoSharp.Poses
         public static IHeldPose Create(IMyoEventGenerator myo, TimeSpan interval, params Pose[] targetPoses)
         {
             Contract.Requires<ArgumentNullException>(myo != null, "myo");
-            Contract.Requires<ArgumentOutOfRangeException>(interval.TotalMilliseconds >= 0, "The interval must be greater than 0 seconds.");
+            Contract.Requires<ArgumentOutOfRangeException>(interval.TotalMilliseconds >= 0, "interval");
             Contract.Requires<ArgumentNullException>(targetPoses != null, "targetPoses");
             Contract.Ensures(Contract.Result<IHeldPose>() != null);
 
@@ -145,7 +145,7 @@ namespace MyoSharp.Poses
         public static IHeldPose Create(IMyoEventGenerator myo, TimeSpan interval, IEnumerable<Pose> targetPoses)
         {
             Contract.Requires<ArgumentNullException>(myo != null, "myo");
-            Contract.Requires<ArgumentOutOfRangeException>(interval.TotalMilliseconds >= 0, "The interval must be greater than 0 seconds.");
+            Contract.Requires<ArgumentOutOfRangeException>(interval.TotalMilliseconds >= 0, "interval");
             Contract.Requires<ArgumentNullException>(targetPoses != null, "targetPoses");
             Contract.Ensures(Contract.Result<IHeldPose>() != null);
 

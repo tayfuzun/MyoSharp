@@ -9,7 +9,7 @@ using MyoSharp.Communication;
 using MyoSharp.Poses;
 using MyoSharp.Math;
 
-namespace MyoSharp.Tests.Unit.Communication
+namespace MyoSharp.Tests.Unit.Device
 {
     public class MyoTests
     {

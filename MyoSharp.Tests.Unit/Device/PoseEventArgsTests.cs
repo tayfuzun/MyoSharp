@@ -7,7 +7,7 @@ using Moq;
 using MyoSharp.Device;
 using MyoSharp.Poses;
 
-namespace MyoSharp.Tests.Unit.Communication
+namespace MyoSharp.Tests.Unit.Device
 {
     public class PoseEventArgsTests
     {

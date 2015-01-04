@@ -12,7 +12,7 @@ using MyoSharp.Communication;
 using MyoSharp.Device;
 using MyoSharp.Math;
 
-namespace MyoSharp.Tests.Unit.Communication
+namespace MyoSharp.Tests.Unit.Device
 {
     public class GyroscopeDataEventArgsTests
     {

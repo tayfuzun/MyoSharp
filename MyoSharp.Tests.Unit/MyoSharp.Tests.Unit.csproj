@@ -58,6 +58,7 @@
     <Compile Include="Device\GyroscopeDataEventArgsTests.cs" />
     <Compile Include="Device\EmgDataEventArgsTests.cs" />
     <Compile Include="Discovery\DeviceListenerTests.cs" />
+    <Compile Include="Poses\HeldPoseTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
