@@ -29,9 +29,11 @@ MyoSharp is compatible with .NET 2.0+
 ### Sample Usage
 ``` C#
 using System;
+
 using MyoSharp.Communication;
 using MyoSharp.Device;
 using MyoSharp.ConsoleSample.Internal;
+using MyoSharp.Exceptions;
 
 namespace MyoSharp.ConsoleSample
 {
@@ -64,7 +66,9 @@ namespace MyoSharp.ConsoleSample
         private static void Main()
         {
             // create a hub that will manage Myo devices for us
-            using (var channel = Channel.Create(ChannelDriver.Create(ChannelBridge.Create())))
+            using (var channel = Channel.Create(
+                ChannelDriver.Create(ChannelBridge.Create(),
+                MyoErrorHandlerDriver.Create(MyoErrorHandlerBridge.Create()))))
             using (var hub = Hub.Create(channel))
             {
                 // listen for when the Myo connects
@@ -125,6 +129,7 @@ using MyoSharp.Communication;
 using MyoSharp.Device;
 using MyoSharp.ConsoleSample.Internal;
 using MyoSharp.Poses;
+using MyoSharp.Exceptions;
 
 namespace MyoSharp.ConsoleSample
 {
@@ -151,7 +156,9 @@ namespace MyoSharp.ConsoleSample
         private static void Main()
         {
             // create a hub to manage Myos
-            using (var channel = Channel.Create(ChannelDriver.Create(ChannelBridge.Create())))
+            using (var channel = Channel.Create(
+                ChannelDriver.Create(ChannelBridge.Create(),
+                MyoErrorHandlerDriver.Create(MyoErrorHandlerBridge.Create()))))
             using (var hub = Hub.Create(channel))
             {
                 // listen for when a Myo connects
@@ -196,6 +203,7 @@ using MyoSharp.Communication;
 using MyoSharp.Device;
 using MyoSharp.ConsoleSample.Internal;
 using MyoSharp.Poses;
+using MyoSharp.Exceptions;
 
 namespace MyoSharp.ConsoleSample
 {
@@ -222,7 +230,9 @@ namespace MyoSharp.ConsoleSample
         private static void Main()
         {
             // create a hub to manage Myos
-            using (var channel = Channel.Create(ChannelDriver.Create(ChannelBridge.Create())))
+            using (var channel = Channel.Create(
+                ChannelDriver.Create(ChannelBridge.Create(),
+                MyoErrorHandlerDriver.Create(MyoErrorHandlerBridge.Create()))))
             using (var hub = Hub.Create(channel))
             {
                 // listen for when a Myo connects
@@ -270,6 +280,7 @@ using System;
 using MyoSharp.Communication;
 using MyoSharp.Device;
 using MyoSharp.ConsoleSample.Internal;
+using MyoSharp.Exceptions;
 
 namespace MyoSharp.ConsoleSample
 {
@@ -295,7 +306,9 @@ namespace MyoSharp.ConsoleSample
         private static void Main()
         {
             // create a hub that will manage Myo devices for us
-            using (var channel = Channel.Create(ChannelDriver.Create(ChannelBridge.Create())))
+            using (var channel = Channel.Create(
+                ChannelDriver.Create(ChannelBridge.Create(),
+                MyoErrorHandlerDriver.Create(MyoErrorHandlerBridge.Create()))))
             using (var hub = Hub.Create(channel))
             {
                 // listen for when the Myo connects
@@ -350,6 +363,7 @@ using System;
 using MyoSharp.Communication;
 using MyoSharp.Device;
 using MyoSharp.ConsoleSample.Internal;
+using MyoSharp.Exceptions;
 
 namespace MyoSharp.ConsoleSample
 {
@@ -373,7 +387,9 @@ namespace MyoSharp.ConsoleSample
         private static void Main()
         {
             // create a hub that will manage Myo devices for us
-            using (var channel = Channel.Create(ChannelDriver.Create(ChannelBridge.Create())))
+            using (var channel = Channel.Create(
+                ChannelDriver.Create(ChannelBridge.Create(), 
+                MyoErrorHandlerDriver.Create(MyoErrorHandlerBridge.Create()))))
             using (var hub = Hub.Create(channel))
             {
                 // listen for when the Myo connects

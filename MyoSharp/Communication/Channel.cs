@@ -96,7 +96,10 @@ namespace MyoSharp.Communication
             Contract.Requires<ArgumentNullException>(channelDriver != null, "channelDriver");
             Contract.Ensures(Contract.Result<IChannel>() != null);
 
-            return Create(channelDriver, string.Empty);
+            var applicationIdentidier = string.Empty;
+            Contract.Assume(applicationIdentidier.Length == 0);
+
+            return Create(channelDriver, applicationIdentidier);
         }
 
         /// <summary>

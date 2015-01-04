@@ -129,6 +129,10 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\MyoCommandResult.cs" />
+    <Compile Include="Commands\IMyoCommand.cs" />
+    <Compile Include="Commands\IMyoCommandResult.cs" />
+    <Compile Include="Commands\MyoCommandDelegate.cs" />
     <Compile Include="Communication\Channel.cs" />
     <Compile Include="Communication\ChannelBridge.cs" />
     <Compile Include="Communication\ChannelDriver.cs" />
@@ -151,6 +155,7 @@
     <Compile Include="Device\IMyoDeviceState.cs" />
     <Compile Include="Device\IMyoEventGenerator.cs" />
     <Compile Include="Device\IReadOnlyMyoCollection.cs" />
+    <Compile Include="Commands\MyoCommand.cs" />
     <Compile Include="Device\MyoDeviceBridge.cs" />
     <Compile Include="Device\MyoDeviceDriver.cs" />
     <Compile Include="Device\OrientationDataEventArgs.cs" />
@@ -170,6 +175,10 @@
     <Compile Include="Device\Myo.cs" />
     <Compile Include="Discovery\PairedEventArgs.cs" />
     <Compile Include="Communication\MyoResult.cs" />
+    <Compile Include="Exceptions\MyoErrorHandlerBridge.cs" />
+    <Compile Include="Exceptions\IMyoErrorHandlerDriver.cs" />
+    <Compile Include="Exceptions\IMyoErrorHandlerBridge.cs" />
+    <Compile Include="Exceptions\MyoErrorHandlerDriver.cs" />
     <Compile Include="Internal\PlatformInvocation.cs" />
     <Compile Include="Poses\HeldPose.cs" />
     <Compile Include="Poses\IHeldPose.cs" />

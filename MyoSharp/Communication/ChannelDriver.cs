@@ -3,6 +3,8 @@ using System.Diagnostics.Contracts;
 
 using MyoSharp.Internal;
 using MyoSharp.Device;
+using MyoSharp.Commands;
+using MyoSharp.Exceptions;
 
 namespace MyoSharp.Communication
 {
@@ -17,6 +19,7 @@ namespace MyoSharp.Communication
 
         #region Fields
         private readonly IChannelBridge _channelBridge;
+        private readonly IMyoErrorHandlerDriver _myoErrorHandlerDriver;
         #endregion
 
         #region Constructors
@@ -27,11 +30,13 @@ namespace MyoSharp.Communication
         /// <exception cref="System.ArgumentNullException">
         /// The exception that is thrown when <paramref name="channelBridge"/> is null.
         /// </exception>
-        private ChannelDriver(IChannelBridge channelBridge)
+        private ChannelDriver(IChannelBridge channelBridge, IMyoErrorHandlerDriver myoErrorHandlerDriver)
         {
             Contract.Requires<ArgumentNullException>(channelBridge != null, "channelBridge");
+            Contract.Requires<ArgumentNullException>(myoErrorHandlerDriver != null, "myoErrorHandlerDriver");
 
             _channelBridge = channelBridge;
+            _myoErrorHandlerDriver = myoErrorHandlerDriver;
         }
         #endregion
 
@@ -44,12 +49,31 @@ namespace MyoSharp.Communication
         /// <exception cref="System.ArgumentNullException">
         /// The exception that is thrown when <paramref name="channelBridge"/> is null.
         /// </exception>
+        [Obsolete("Please switch to the constructor that takes in an IMyoErrorHandlerDriver parameter.")]
         public static IChannelDriver Create(IChannelBridge channelBridge)
         {
             Contract.Requires<ArgumentNullException>(channelBridge != null, "channelBridge");
             Contract.Ensures(Contract.Result<IChannelDriver>() != null);
 
-            return new ChannelDriver(channelBridge);
+            return Create(channelBridge, MyoErrorHandlerDriver.Create(MyoErrorHandlerBridge.Create()));
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="IChannelDriver"/> instance.
+        /// </summary>
+        /// <param name="channelBridge">The channel bridge. Cannot be <c>null</c>.</param>
+        /// <param name="myoErrorHandlerDriver">The error handler driver. Cannot be <c>null</c>.</param>
+        /// <returns>Returns a new <see cref="IChannelDriver"/> instance.</returns>
+        /// <exception cref="System.ArgumentNullException">
+        /// The exception that is thrown when <paramref name="channelBridge"/> or <paramref name="myoErrorHandlerDriver" is null.
+        /// </exception>
+        public static IChannelDriver Create(IChannelBridge channelBridge, IMyoErrorHandlerDriver myoErrorHandlerDriver)
+        {
+            Contract.Requires<ArgumentNullException>(channelBridge != null, "channelBridge");
+            Contract.Requires<ArgumentNullException>(myoErrorHandlerDriver != null, "myoErrorHandlerDriver");
+            Contract.Ensures(Contract.Result<IChannelDriver>() != null);
+
+            return new ChannelDriver(channelBridge, myoErrorHandlerDriver);
         }
 
         /// <inheritdoc />
@@ -60,51 +84,40 @@ namespace MyoSharp.Communication
                 return;
             }
 
-            var errorHandle = IntPtr.Zero;
-            try
-            {
-                var result = PlatformInvocation.Running32Bit
-                    ? _channelBridge.ShutdownHub32(hubPointer, out errorHandle)
-                    : _channelBridge.ShutdownHub64(hubPointer, out errorHandle);
-
-                if (result == MyoResult.Success)
+            var command = MyoCommand.Create(
+                _myoErrorHandlerDriver,
+                () =>
                 {
-                    return;
-                }
+                    IntPtr errorHandle;
+                    var result = PlatformInvocation.Running32Bit
+                       ? _channelBridge.ShutdownHub32(hubPointer, out errorHandle)
+                       : _channelBridge.ShutdownHub64(hubPointer, out errorHandle);
 
-                Contract.Assume(errorHandle != IntPtr.Zero);
-                throw CreateMyoException(result, errorHandle);
-            }
-            finally
-            {
-                FreeMyoError(errorHandle);
-            }
+                    return MyoCommandResult.Create(result, errorHandle);
+                });
+            command.Execute();
         }
 
         /// <inheritdoc />
         public IntPtr InitializeMyoHub(string applicationIdentifier)
         {
-            var errorHandle = IntPtr.Zero;
-            try
-            {
-                IntPtr hubPointer;
-                var result = PlatformInvocation.Running32Bit
-                    ? _channelBridge.InitHub32(out hubPointer, applicationIdentifier, out errorHandle)
-                    : _channelBridge.InitHub64(out hubPointer, applicationIdentifier, out errorHandle);
+            var hubPointer = IntPtr.Zero;
 
-                if (result == MyoResult.Success)
+            var command = MyoCommand.Create(
+                _myoErrorHandlerDriver,
+                () =>
                 {
-                    Contract.Assume(hubPointer != IntPtr.Zero);
-                    return hubPointer;
-                }
+                    IntPtr errorHandle;
+                    var result = PlatformInvocation.Running32Bit
+                        ? _channelBridge.InitHub32(out hubPointer, applicationIdentifier, out errorHandle)
+                        : _channelBridge.InitHub64(out hubPointer, applicationIdentifier, out errorHandle);
 
-                Contract.Assume(errorHandle != IntPtr.Zero);
-                throw CreateMyoException(result, errorHandle);
-            }
-            finally
-            {
-                FreeMyoError(errorHandle);
-            }
+                    return MyoCommandResult.Create(result, errorHandle);
+                });
+            command.Execute();
+
+            Contract.Assume(hubPointer != IntPtr.Zero);
+            return hubPointer;
         }
 
         /// <inheritdoc />
@@ -119,35 +132,28 @@ namespace MyoSharp.Communication
         /// <inheritdoc />
         public void Run(IntPtr hubHandle, MyoRunHandler handler, IntPtr userData)
         {
-            var errorHandle = IntPtr.Zero;
-            try
-            {
-                var result = PlatformInvocation.Running32Bit
-                    ? _channelBridge.Run32(
-                        hubHandle,
-                        1000 / 20,
-                        handler,
-                        userData,
-                        out errorHandle)
-                    : _channelBridge.Run64(
-                         hubHandle,
-                         1000 / 20,
-                         handler,
-                         userData,
-                         out errorHandle);
-
-                if (result == MyoResult.Success)
+            var command = MyoCommand.Create(
+                _myoErrorHandlerDriver,
+                () =>
                 {
-                    return;
-                }
+                    IntPtr errorHandle;
+                    var result = PlatformInvocation.Running32Bit
+                           ? _channelBridge.Run32(
+                               hubHandle,
+                               1000 / 20,
+                               handler,
+                               userData,
+                               out errorHandle)
+                           : _channelBridge.Run64(
+                                hubHandle,
+                                1000 / 20,
+                                handler,
+                                userData,
+                                out errorHandle);
 
-                Contract.Assume(errorHandle != IntPtr.Zero);
-                throw CreateMyoException(result, errorHandle);
-            }
-            finally
-            {
-                FreeMyoError(errorHandle);
-            }
+                    return MyoCommandResult.Create(result, errorHandle);
+                });
+            command.Execute();
         }
 
         /// <inheritdoc />
@@ -165,46 +171,12 @@ namespace MyoSharp.Communication
                 ? _channelBridge.EventGetMyo32(evt)
                 : _channelBridge.EventGetMyo64(evt);
         }
-
-        /// <inheritdoc />
-        public string GetErrorString(IntPtr errorHandle)
-        {
-            return PlatformInvocation.Running32Bit
-                ? _channelBridge.LibmyoErrorCstring32(errorHandle)
-                : _channelBridge.LibmyoErrorCstring64(errorHandle);
-        }
-
-        /// <inheritdoc />
-        public void FreeMyoError(IntPtr errorHandle)
-        {
-            if (PlatformInvocation.Running32Bit)
-            {
-                _channelBridge.LibmyoFreeErrorDetails32(errorHandle);
-            }
-            else
-            {
-                _channelBridge.LibmyoFreeErrorDetails64(errorHandle);
-            }
-        }
-
-        private Exception CreateMyoException(MyoResult result, IntPtr errorHandle)
-        {
-            Contract.Requires<ArgumentException>(errorHandle != IntPtr.Zero, "The pointer to the error must be set.");
-            Contract.Requires<ArgumentException>(result != MyoResult.Success, "The result code must not be MyoResult.Success.");
-
-            var errorMessage = GetErrorString(errorHandle);
-            if (result == MyoResult.ErrorInvalidArgument)
-            {
-                return new ArgumentException(errorMessage);
-            }
-
-            return new InvalidOperationException(errorMessage);
-        }
-
+        
         [ContractInvariantMethod]
         private void ObjectInvariant()
         {
             Contract.Invariant(_channelBridge != null);
+            Contract.Invariant(_myoErrorHandlerDriver != null);
         }
         #endregion
     }

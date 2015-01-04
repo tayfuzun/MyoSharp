@@ -29,10 +29,6 @@ namespace MyoSharp.Communication
         MyoEventType GetEventType(IntPtr evt);
 
         IntPtr GetMyoForEvent(IntPtr evt);
-
-        string GetErrorString(IntPtr errorHandle);
-
-        void FreeMyoError(IntPtr errorHandle);
         #endregion
     }
 
@@ -80,18 +76,6 @@ namespace MyoSharp.Communication
             Contract.Ensures(Contract.Result<IntPtr>() != IntPtr.Zero);
 
             return default(IntPtr);
-        }
-
-        public string GetErrorString(IntPtr errorHandle)
-        {
-            Contract.Requires<ArgumentException>(errorHandle != IntPtr.Zero, "The pointer to the error must be set.");
-            Contract.Ensures(Contract.Result<string>() != null);
-
-            return default(string);
-        }
-
-        public void FreeMyoError(IntPtr errorHandle)
-        {
         }
         #endregion
     }

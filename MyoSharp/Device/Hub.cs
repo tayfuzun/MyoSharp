@@ -180,6 +180,8 @@ namespace MyoSharp.Device
                 {
                     foreach (var myo in _myos.Values)
                     {
+                        Contract.Assume(myo != null);
+
                         UnhookMyoEvents(myo);
                         myo.Dispose();
                     }

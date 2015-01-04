@@ -11,6 +11,7 @@ using Moq;
 using MyoSharp.Communication;
 using MyoSharp.Device;
 using MyoSharp.Internal;
+using MyoSharp.Exceptions;
 
 namespace MyoSharp.Tests.Unit.Communication
 {
@@ -21,9 +22,10 @@ namespace MyoSharp.Tests.Unit.Communication
         public void Create_NullChannelBridge_ThrowsNullArgumentException()
         {
             // Setup
+            var errorHandlerDriver = new Mock<IMyoErrorHandlerDriver>(MockBehavior.Strict);
 
             // Execute
-            Assert.ThrowsDelegate method = () => ChannelDriver.Create(null);
+            Assert.ThrowsDelegate method = () => ChannelDriver.Create(null, errorHandlerDriver.Object);
 
             // Assert
             var exception = Assert.Throws<ArgumentNullException>(method);
@@ -31,67 +33,40 @@ namespace MyoSharp.Tests.Unit.Communication
         }
 
         [Fact]
+        public void Create_NullMyoErrorHandlerDriver_ThrowsNullArgumentException()
+        {
+            // Setup
+            var bridge = new Mock<IChannelBridge>(MockBehavior.Strict);
+
+            // Execute
+            Assert.ThrowsDelegate method = () => ChannelDriver.Create(bridge.Object, null);
+
+            // Assert
+            var exception = Assert.Throws<ArgumentNullException>(method);
+            Assert.Equal("myoErrorHandlerDriver", exception.ParamName);
+        }
+
+        [Fact]
         public void Create_ValidParameters_NewInstance()
         {
             // Setup
-            var bridge = new Mock<IChannelBridge>();            
+            var bridge = new Mock<IChannelBridge>(MockBehavior.Strict);
+            var errorHandlerDriver = new Mock<IMyoErrorHandlerDriver>(MockBehavior.Strict);
 
             // Execute
-            var result = ChannelDriver.Create(bridge.Object);
+            var result = ChannelDriver.Create(bridge.Object, errorHandlerDriver.Object);
 
             // Assert
             Assert.NotNull(result);
         }
-
-        [Fact]
-        public void FreeMyoError_ValidParameters_ExpectedBridgeCalls()
-        {
-            // Setup
-            var errorHandle = new IntPtr(123);
-            var bridge = new Mock<IChannelBridge>();
-            var driver = ChannelDriver.Create(bridge.Object);
-
-            // Execute
-            driver.FreeMyoError(errorHandle);
-
-            // Assert
-            bridge.Verify(x => x.LibmyoFreeErrorDetails32(errorHandle), PlatformInvocation.Running32Bit ? Times.Once() : Times.Never());
-            bridge.Verify(x => x.LibmyoFreeErrorDetails64(errorHandle), PlatformInvocation.Running32Bit ? Times.Never() : Times.Once());
-        }
-
-        [Fact]
-        public void GetErrorString_ValidParameters_ExpectedBridgeCalls()
-        {
-            // Setup
-            var errorHandle = new IntPtr(123);
-            var errorString = "The error";
-            var bridge = new Mock<IChannelBridge>();
-            bridge
-                .Setup(x => x.LibmyoErrorCstring32(errorHandle))
-                .Returns(errorString);
-            bridge
-                .Setup(x => x.LibmyoErrorCstring64(errorHandle))
-                .Returns(errorString);
-
-            var driver = ChannelDriver.Create(bridge.Object);
-
-            // Execute
-            var result = driver.GetErrorString(errorHandle);
-
-            // Assert
-            Assert.Equal(errorString, result);
-
-            bridge.Verify(x => x.LibmyoErrorCstring32(errorHandle), PlatformInvocation.Running32Bit ? Times.Once() : Times.Never());
-            bridge.Verify(x => x.LibmyoErrorCstring64(errorHandle), PlatformInvocation.Running32Bit ? Times.Never() : Times.Once());
-        }
-
+        
         [Fact]
         public void GetMyoForEvent_ValidParameters_ExpectedBridgeCalls()
         {
             // Setup
             var eventHandle = new IntPtr(123);
             var myoHandle = new IntPtr(789);
-            var bridge = new Mock<IChannelBridge>();
+            var bridge = new Mock<IChannelBridge>(MockBehavior.Strict);
             bridge
                 .Setup(x => x.EventGetMyo32(eventHandle))
                 .Returns(myoHandle);
@@ -99,7 +74,9 @@ namespace MyoSharp.Tests.Unit.Communication
                 .Setup(x => x.EventGetMyo64(eventHandle))
                 .Returns(myoHandle);
 
-            var driver = ChannelDriver.Create(bridge.Object);
+            var errorHandlerDriver = new Mock<IMyoErrorHandlerDriver>(MockBehavior.Strict);
+
+            var driver = ChannelDriver.Create(bridge.Object, errorHandlerDriver.Object);
 
             // Execute
             var result = driver.GetMyoForEvent(eventHandle);
@@ -117,7 +94,7 @@ namespace MyoSharp.Tests.Unit.Communication
             // Setup
             var eventHandle = new IntPtr(123);
             var eventType = MyoEventType.Paired;
-            var bridge = new Mock<IChannelBridge>();
+            var bridge = new Mock<IChannelBridge>(MockBehavior.Strict);
             bridge
                 .Setup(x => x.EventGetType32(eventHandle))
                 .Returns(eventType);
@@ -125,7 +102,9 @@ namespace MyoSharp.Tests.Unit.Communication
                 .Setup(x => x.EventGetType64(eventHandle))
                 .Returns(eventType);
 
-            var driver = ChannelDriver.Create(bridge.Object);
+            var errorHandlerDriver = new Mock<IMyoErrorHandlerDriver>(MockBehavior.Strict);
+
+            var driver = ChannelDriver.Create(bridge.Object, errorHandlerDriver.Object);
 
             // Execute
             var result = driver.GetEventType(eventHandle);
@@ -143,8 +122,11 @@ namespace MyoSharp.Tests.Unit.Communication
             // Setup
             var myoHandle = new IntPtr(123);
             var userData = new IntPtr(789);
-            var bridge = new Mock<IChannelBridge>();
-            var driver = ChannelDriver.Create(bridge.Object);
+            var bridge = new Mock<IChannelBridge>(MockBehavior.Strict);
+
+            var errorHandlerDriver = new Mock<IMyoErrorHandlerDriver>(MockBehavior.Strict);
+
+            var driver = ChannelDriver.Create(bridge.Object, errorHandlerDriver.Object);
 
             // Execute
             Assert.ThrowsDelegate method = () => driver.Run(myoHandle, null, userData);
@@ -165,7 +147,12 @@ namespace MyoSharp.Tests.Unit.Communication
             var myoHandle = new IntPtr(123);
             var userData = new IntPtr(789);
             var bridge = new Mock<IChannelBridge>();
-            var driver = ChannelDriver.Create(bridge.Object);
+
+            var errorHandlerDriver = new Mock<IMyoErrorHandlerDriver>(MockBehavior.Strict);
+            errorHandlerDriver
+                .Setup(x => x.FreeMyoError(IntPtr.Zero));
+
+            var driver = ChannelDriver.Create(bridge.Object, errorHandlerDriver.Object);
             MyoRunHandler handler = (_, __) => MyoRunHandlerResult.Continue;
 
             // Execute
@@ -175,6 +162,8 @@ namespace MyoSharp.Tests.Unit.Communication
             IntPtr errorHandle;
             bridge.Verify(x => x.Run32(myoHandle, 50, handler, userData, out errorHandle), PlatformInvocation.Running32Bit ? Times.Once() : Times.Never());
             bridge.Verify(x => x.Run64(myoHandle, 50, handler, userData, out errorHandle), PlatformInvocation.Running32Bit ? Times.Never() : Times.Once());
+
+            errorHandlerDriver.Verify(x => x.FreeMyoError(IntPtr.Zero), Times.Once());
         }
 
         [Fact]
@@ -182,7 +171,7 @@ namespace MyoSharp.Tests.Unit.Communication
         {
             // Setup
             var eventHandle = new IntPtr(123);
-            var bridge = new Mock<IChannelBridge>();
+            var bridge = new Mock<IChannelBridge>(MockBehavior.Strict);
             bridge
                 .Setup(x => x.EventGetTimestamp32(eventHandle))
                 .Returns(10000);
@@ -190,7 +179,9 @@ namespace MyoSharp.Tests.Unit.Communication
                 .Setup(x => x.EventGetTimestamp64(eventHandle))
                 .Returns(10000);
 
-            var driver = ChannelDriver.Create(bridge.Object);
+            var errorHandlerDriver = new Mock<IMyoErrorHandlerDriver>(MockBehavior.Strict);
+
+            var driver = ChannelDriver.Create(bridge.Object, errorHandlerDriver.Object);
             
             // Execute
             var result = driver.GetEventTimestamp(eventHandle);
@@ -206,11 +197,11 @@ namespace MyoSharp.Tests.Unit.Communication
         public void InitializeMyoHub_ValidParameters_ExpectedBridgeCalls()
         {
             // Setup
-            IntPtr errorHandle;
+            IntPtr errorHandle = IntPtr.Zero;
             IntPtr myoHandle = new IntPtr(123);
             var applicationIdentifier = "com.myosharp.tests";
 
-            var bridge = new Mock<IChannelBridge>();
+            var bridge = new Mock<IChannelBridge>(MockBehavior.Strict);
             bridge
                 .Setup(x => x.InitHub32(out myoHandle, applicationIdentifier, out errorHandle))
                 .Returns(MyoResult.Success);
@@ -218,7 +209,11 @@ namespace MyoSharp.Tests.Unit.Communication
                 .Setup(x => x.InitHub64(out myoHandle, applicationIdentifier, out errorHandle))
                 .Returns(MyoResult.Success);
 
-            var driver = ChannelDriver.Create(bridge.Object);
+            var errorHandlerDriver = new Mock<IMyoErrorHandlerDriver>(MockBehavior.Strict);
+            errorHandlerDriver
+                .Setup(x => x.FreeMyoError(errorHandle));
+
+            var driver = ChannelDriver.Create(bridge.Object, errorHandlerDriver.Object);
             
             // Execute
             var result = driver.InitializeMyoHub(applicationIdentifier);
@@ -228,6 +223,9 @@ namespace MyoSharp.Tests.Unit.Communication
 
             bridge.Verify(x => x.InitHub32(out myoHandle, applicationIdentifier, out errorHandle), PlatformInvocation.Running32Bit ? Times.Once() : Times.Never());
             bridge.Verify(x => x.InitHub64(out myoHandle, applicationIdentifier, out errorHandle), PlatformInvocation.Running32Bit ? Times.Never() : Times.Once());
+
+            errorHandlerDriver.Verify(x => x.GetErrorString(errorHandle), Times.Never());
+            errorHandlerDriver.Verify(x => x.FreeMyoError(errorHandle), Times.Once());
         }
 
         [Fact]
@@ -238,21 +236,22 @@ namespace MyoSharp.Tests.Unit.Communication
             IntPtr myoHandle = new IntPtr(123);
             var applicationIdentifier = "com.myosharp.tests";
 
-            var bridge = new Mock<IChannelBridge>();
+            var bridge = new Mock<IChannelBridge>(MockBehavior.Strict);
             bridge
                 .Setup(x => x.InitHub32(out myoHandle, applicationIdentifier, out errorHandle))
                 .Returns(MyoResult.ErrorInvalidArgument);
             bridge
                 .Setup(x => x.InitHub64(out myoHandle, applicationIdentifier, out errorHandle))
                 .Returns(MyoResult.ErrorInvalidArgument);
-            bridge
-                .Setup(x => x.LibmyoErrorCstring32(errorHandle))
-                .Returns("Oh no!");
-            bridge
-                .Setup(x => x.LibmyoErrorCstring64(errorHandle))
-                .Returns("Oh no!");
 
-            var driver = ChannelDriver.Create(bridge.Object);
+            var errorHandlerDriver = new Mock<IMyoErrorHandlerDriver>(MockBehavior.Strict);
+            errorHandlerDriver
+                .Setup(x => x.GetErrorString(errorHandle))
+                .Returns("The error message.");
+            errorHandlerDriver
+                .Setup(x => x.FreeMyoError(errorHandle));
+
+            var driver = ChannelDriver.Create(bridge.Object, errorHandlerDriver.Object);
 
             // Execute
             Assert.ThrowsDelegate method = () => driver.InitializeMyoHub(applicationIdentifier);
@@ -262,8 +261,9 @@ namespace MyoSharp.Tests.Unit.Communication
 
             bridge.Verify(x => x.InitHub32(out myoHandle, applicationIdentifier, out errorHandle), PlatformInvocation.Running32Bit ? Times.Once() : Times.Never());
             bridge.Verify(x => x.InitHub64(out myoHandle, applicationIdentifier, out errorHandle), PlatformInvocation.Running32Bit ? Times.Never() : Times.Once());
-            bridge.Verify(x => x.LibmyoErrorCstring32(errorHandle), PlatformInvocation.Running32Bit ? Times.Once() : Times.Never());
-            bridge.Verify(x => x.LibmyoErrorCstring64(errorHandle), PlatformInvocation.Running32Bit ? Times.Never() : Times.Once());
+
+            errorHandlerDriver.Verify(x => x.GetErrorString(errorHandle), Times.Once());
+            errorHandlerDriver.Verify(x => x.FreeMyoError(errorHandle), Times.Once());
         }
 
         [Fact]
@@ -274,21 +274,22 @@ namespace MyoSharp.Tests.Unit.Communication
             IntPtr myoHandle = new IntPtr(123);
             var applicationIdentifier = "com.myosharp.tests";
 
-            var bridge = new Mock<IChannelBridge>();
+            var bridge = new Mock<IChannelBridge>(MockBehavior.Strict);
             bridge
                 .Setup(x => x.InitHub32(out myoHandle, applicationIdentifier, out errorHandle))
                 .Returns(MyoResult.Error);
             bridge
                 .Setup(x => x.InitHub64(out myoHandle, applicationIdentifier, out errorHandle))
                 .Returns(MyoResult.Error);
-            bridge
-                .Setup(x => x.LibmyoErrorCstring32(errorHandle))
-                .Returns("Oh no!");
-            bridge
-                .Setup(x => x.LibmyoErrorCstring64(errorHandle))
-                .Returns("Oh no!");
 
-            var driver = ChannelDriver.Create(bridge.Object);
+            var errorHandlerDriver = new Mock<IMyoErrorHandlerDriver>(MockBehavior.Strict);
+            errorHandlerDriver
+                .Setup(x => x.GetErrorString(errorHandle))
+                .Returns("The error message.");
+            errorHandlerDriver
+                .Setup(x => x.FreeMyoError(errorHandle));
+
+            var driver = ChannelDriver.Create(bridge.Object, errorHandlerDriver.Object);
 
             // Execute
             Assert.ThrowsDelegate method = () => driver.InitializeMyoHub(applicationIdentifier);
@@ -298,10 +299,10 @@ namespace MyoSharp.Tests.Unit.Communication
 
             bridge.Verify(x => x.InitHub32(out myoHandle, applicationIdentifier, out errorHandle), PlatformInvocation.Running32Bit ? Times.Once() : Times.Never());
             bridge.Verify(x => x.InitHub64(out myoHandle, applicationIdentifier, out errorHandle), PlatformInvocation.Running32Bit ? Times.Never() : Times.Once());
-            bridge.Verify(x => x.LibmyoErrorCstring32(errorHandle), PlatformInvocation.Running32Bit ? Times.Once() : Times.Never());
-            bridge.Verify(x => x.LibmyoErrorCstring64(errorHandle), PlatformInvocation.Running32Bit ? Times.Never() : Times.Once());
-        }
-        
+
+            errorHandlerDriver.Verify(x => x.GetErrorString(errorHandle), Times.Once());
+            errorHandlerDriver.Verify(x => x.FreeMyoError(errorHandle), Times.Once());
+        }        
 
         [Fact]
         public void ShutdownMyoHub_ValidParameters_ExpectedBridgeCalls()
@@ -310,7 +311,7 @@ namespace MyoSharp.Tests.Unit.Communication
             IntPtr errorHandle;
             IntPtr myoHandle = new IntPtr(123);
 
-            var bridge = new Mock<IChannelBridge>();
+            var bridge = new Mock<IChannelBridge>(MockBehavior.Strict);
             bridge
                 .Setup(x => x.ShutdownHub32(myoHandle, out errorHandle))
                 .Returns(MyoResult.Success);
@@ -318,7 +319,11 @@ namespace MyoSharp.Tests.Unit.Communication
                 .Setup(x => x.ShutdownHub64(myoHandle, out errorHandle))
                 .Returns(MyoResult.Success);
 
-            var driver = ChannelDriver.Create(bridge.Object);
+            var errorHandlerDriver = new Mock<IMyoErrorHandlerDriver>(MockBehavior.Strict);
+            errorHandlerDriver
+                .Setup(x => x.FreeMyoError(IntPtr.Zero));
+
+            var driver = ChannelDriver.Create(bridge.Object, errorHandlerDriver.Object);
 
             // Execute
             driver.ShutdownMyoHub(myoHandle);
@@ -326,6 +331,8 @@ namespace MyoSharp.Tests.Unit.Communication
             // Assert
             bridge.Verify(x => x.ShutdownHub32(myoHandle, out errorHandle), PlatformInvocation.Running32Bit ? Times.Once() : Times.Never());
             bridge.Verify(x => x.ShutdownHub64(myoHandle, out errorHandle), PlatformInvocation.Running32Bit ? Times.Never() : Times.Once());
+
+            errorHandlerDriver.Verify(x => x.FreeMyoError(IntPtr.Zero), Times.Once());
         }
 
         [Fact]
@@ -335,22 +342,22 @@ namespace MyoSharp.Tests.Unit.Communication
             IntPtr errorHandle = new IntPtr(789);
             IntPtr myoHandle = new IntPtr(123);
 
-            var bridge = new Mock<IChannelBridge>();
+            var bridge = new Mock<IChannelBridge>(MockBehavior.Strict);
             bridge
                 .Setup(x => x.ShutdownHub32(myoHandle, out errorHandle))
                 .Returns(MyoResult.ErrorInvalidArgument);
             bridge
                 .Setup(x => x.ShutdownHub64(myoHandle, out errorHandle))
                 .Returns(MyoResult.ErrorInvalidArgument);
-            bridge
-                .Setup(x => x.LibmyoErrorCstring32(errorHandle))
-                .Returns("Oh no!");
-            bridge
-                .Setup(x => x.LibmyoErrorCstring64(errorHandle))
-                .Returns("Oh no!");
 
-            var driver = ChannelDriver.Create(bridge.Object);
+            var errorHandlerDriver = new Mock<IMyoErrorHandlerDriver>(MockBehavior.Strict);
+            errorHandlerDriver
+                .Setup(x => x.GetErrorString(errorHandle))
+                .Returns("The error message.");
+            errorHandlerDriver
+                .Setup(x => x.FreeMyoError(errorHandle));
 
+            var driver = ChannelDriver.Create(bridge.Object, errorHandlerDriver.Object);
 
             // Execute
             Assert.ThrowsDelegate method = () => driver.ShutdownMyoHub(myoHandle);
@@ -360,8 +367,9 @@ namespace MyoSharp.Tests.Unit.Communication
 
             bridge.Verify(x => x.ShutdownHub32(myoHandle, out errorHandle), PlatformInvocation.Running32Bit ? Times.Once() : Times.Never());
             bridge.Verify(x => x.ShutdownHub64(myoHandle, out errorHandle), PlatformInvocation.Running32Bit ? Times.Never() : Times.Once());
-            bridge.Verify(x => x.LibmyoErrorCstring32(errorHandle), PlatformInvocation.Running32Bit ? Times.Once() : Times.Never());
-            bridge.Verify(x => x.LibmyoErrorCstring64(errorHandle), PlatformInvocation.Running32Bit ? Times.Never() : Times.Once());
+
+            errorHandlerDriver.Verify(x => x.GetErrorString(errorHandle), Times.Once());
+            errorHandlerDriver.Verify(x => x.FreeMyoError(errorHandle), Times.Once());
         }
 
         [Fact]
@@ -371,21 +379,22 @@ namespace MyoSharp.Tests.Unit.Communication
             IntPtr errorHandle = new IntPtr(789);
             IntPtr myoHandle = new IntPtr(123);
 
-            var bridge = new Mock<IChannelBridge>();
+            var bridge = new Mock<IChannelBridge>(MockBehavior.Strict);
             bridge
                 .Setup(x => x.ShutdownHub32(myoHandle, out errorHandle))
                 .Returns(MyoResult.Error);
             bridge
                 .Setup(x => x.ShutdownHub64(myoHandle, out errorHandle))
                 .Returns(MyoResult.Error);
-            bridge
-                .Setup(x => x.LibmyoErrorCstring32(errorHandle))
-                .Returns("Oh no!");
-            bridge
-                .Setup(x => x.LibmyoErrorCstring64(errorHandle))
-                .Returns("Oh no!");
 
-            var driver = ChannelDriver.Create(bridge.Object);
+            var errorHandlerDriver = new Mock<IMyoErrorHandlerDriver>(MockBehavior.Strict);
+            errorHandlerDriver
+                .Setup(x => x.GetErrorString(errorHandle))
+                .Returns("The error message.");
+            errorHandlerDriver
+                .Setup(x => x.FreeMyoError(errorHandle));
+
+            var driver = ChannelDriver.Create(bridge.Object, errorHandlerDriver.Object);
 
             // Execute
             Assert.ThrowsDelegate method = () => driver.ShutdownMyoHub(myoHandle);
@@ -395,8 +404,9 @@ namespace MyoSharp.Tests.Unit.Communication
 
             bridge.Verify(x => x.ShutdownHub32(myoHandle, out errorHandle), PlatformInvocation.Running32Bit ? Times.Once() : Times.Never());
             bridge.Verify(x => x.ShutdownHub64(myoHandle, out errorHandle), PlatformInvocation.Running32Bit ? Times.Never() : Times.Once());
-            bridge.Verify(x => x.LibmyoErrorCstring32(errorHandle), PlatformInvocation.Running32Bit ? Times.Once() : Times.Never());
-            bridge.Verify(x => x.LibmyoErrorCstring64(errorHandle), PlatformInvocation.Running32Bit ? Times.Never() : Times.Once());
+
+            errorHandlerDriver.Verify(x => x.GetErrorString(errorHandle), Times.Once());
+            errorHandlerDriver.Verify(x => x.FreeMyoError(errorHandle), Times.Once());
         }
         #endregion
     }

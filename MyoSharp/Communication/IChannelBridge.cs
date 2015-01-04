@@ -33,14 +33,6 @@ namespace MyoSharp.Communication
         MyoResult Run32(IntPtr hub, uint durationMs, MyoRunHandler handler, IntPtr userData, out IntPtr error);
 
         MyoResult Run64(IntPtr hub, uint durationMs, MyoRunHandler handler, IntPtr userData, out IntPtr error);
-
-        string LibmyoErrorCstring32(IntPtr errorHandle);
-
-        string LibmyoErrorCstring64(IntPtr errorHandle);
-
-        void LibmyoFreeErrorDetails32(IntPtr errorHandle);
-
-        void LibmyoFreeErrorDetails64(IntPtr errorHandle);
         #endregion
     }
 
@@ -144,30 +136,6 @@ namespace MyoSharp.Communication
 
             error = default(IntPtr);
             return default(MyoResult);
-        }
-
-        public string LibmyoErrorCstring32(IntPtr errorHandle)
-        {
-            Contract.Requires<ArgumentException>(errorHandle != IntPtr.Zero, "The pointer to the error must be set.");
-            Contract.Ensures(Contract.Result<string>() != null);
-
-            return default(string);
-        }
-
-        public string LibmyoErrorCstring64(IntPtr errorHandle)
-        {
-            Contract.Requires<ArgumentException>(errorHandle != IntPtr.Zero, "The pointer to the error must be set.");
-            Contract.Ensures(Contract.Result<string>() != null);
-
-            return default(string);
-        }
-
-        public void LibmyoFreeErrorDetails32(IntPtr errorHandle)
-        {
-        }
-
-        public void LibmyoFreeErrorDetails64(IntPtr errorHandle)
-        {
         }
         #endregion
     }
