@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Text;
 
+using MyoSharp.Commands;
+using MyoSharp.Exceptions;
 using MyoSharp.Internal;
 using MyoSharp.Math;
 using MyoSharp.Poses;
@@ -14,6 +16,7 @@ namespace MyoSharp.Device
         #region Fields
         private readonly IntPtr _handle;
         private readonly IMyoDeviceBridge _myoDeviceBridge;
+        private readonly IMyoErrorHandlerDriver _myoErrorHandlerDriver;
         #endregion
 
         #region Constructors
@@ -23,14 +26,16 @@ namespace MyoSharp.Device
         /// <param name="handle">The handle to the Myo.</param>
         /// <param name="myoDeviceBridge">An instance of <see cref="IMyoDeviceBridge"/> for communicating with the device. Cannot be null.</param>
         /// <exception cref="System.ArgumentException">The exception that is thrown when the handle is not set.</exception>
-        /// <exception cref="System.ArgumentNullException">The exception that is thrown when the device bridge is <c>null</c>.</exception>
-        private MyoDeviceDriver(IntPtr handle, IMyoDeviceBridge myoDeviceBridge)
+        /// <exception cref="System.ArgumentNullException">The exception that is thrown when the <paramref name="myoDeviceBridge"> or <paramref name="myoErrorHandlerDriver"> is <c>null</c>.</exception>
+        private MyoDeviceDriver(IntPtr handle, IMyoDeviceBridge myoDeviceBridge, IMyoErrorHandlerDriver myoErrorHandlerDriver)
         {
-            Contract.Requires<ArgumentException>(handle != IntPtr.Zero, "The handle must be set.");
+            Contract.Requires<ArgumentException>(handle != IntPtr.Zero, "handle");
             Contract.Requires<ArgumentNullException>(myoDeviceBridge != null, "myoDeviceBridge");
+            Contract.Requires<ArgumentNullException>(myoErrorHandlerDriver != null, "myoErrorHandlerDriver");
 
             _handle = handle;
             _myoDeviceBridge = myoDeviceBridge;
+            _myoErrorHandlerDriver = myoErrorHandlerDriver;
         }
         #endregion
 
@@ -49,70 +54,111 @@ namespace MyoSharp.Device
         /// <param name="handle">The handle to the Myo.</param>
         /// <param name="myoDeviceBridge">An instance of <see cref="IMyoDeviceBridge"/> for communicating with the device. Cannot be null.</param>
         /// <exception cref="System.ArgumentException">The exception that is thrown when the handle is not set.</exception>
-        /// <exception cref="System.ArgumentNullException">The exception that is thrown when the device bridge is <c>null</c>.</exception>
+        /// <exception cref="System.ArgumentNullException">The exception that is thrown when the <paramref name="myoDeviceBridge"> is <c>null</c>.</exception>
+        [Obsolete("Please switch to the create method that takes in an IMyoErrorHandlerDriver parameter.")]
         public static IMyoDeviceDriver Create(IntPtr handle, IMyoDeviceBridge myoDeviceBridge)
         {
-            Contract.Requires<ArgumentException>(handle != IntPtr.Zero, "The handle must be set.");
+            Contract.Requires<ArgumentException>(handle != IntPtr.Zero, "handle");
             Contract.Requires<ArgumentNullException>(myoDeviceBridge != null, "myoDeviceBridge");
             Contract.Ensures(Contract.Result<IMyoDeviceDriver>() != null);
 
-            return new MyoDeviceDriver(handle, myoDeviceBridge);
+            return Create(handle, myoDeviceBridge, MyoErrorHandlerDriver.Create(MyoErrorHandlerBridge.Create()));
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="IMyoDeviceDriver"/> instance.
+        /// </summary>
+        /// <param name="handle">The handle to the Myo.</param>
+        /// <param name="myoDeviceBridge">An instance of <see cref="IMyoDeviceBridge"/> for communicating with the device. Cannot be null.</param>
+        /// <exception cref="System.ArgumentException">The exception that is thrown when the handle is not set.</exception>
+        /// <exception cref="System.ArgumentNullException">The exception that is thrown when the <paramref name="myoDeviceBridge"> or <paramref name="myoErrorHandlerDriver"> is <c>null</c>.</exception>
+        public static IMyoDeviceDriver Create(IntPtr handle, IMyoDeviceBridge myoDeviceBridge, IMyoErrorHandlerDriver myoErrorHandlerDriver)
+        {
+            Contract.Requires<ArgumentException>(handle != IntPtr.Zero, "handle");
+            Contract.Requires<ArgumentNullException>(myoDeviceBridge != null, "myoDeviceBridge");
+            Contract.Requires<ArgumentNullException>(myoErrorHandlerDriver != null, "myoErrorHandlerDriver");
+            Contract.Ensures(Contract.Result<IMyoDeviceDriver>() != null);
+
+            return new MyoDeviceDriver(
+                handle, 
+                myoDeviceBridge, 
+                myoErrorHandlerDriver);
         }
 
         /// <inheritdoc />
         public void Vibrate(VibrationType type)
         {
-            IntPtr errorHandle;
-            if (PlatformInvocation.Running32Bit)
-            {
-                _myoDeviceBridge.Vibrate32(_handle, type, out errorHandle);
-            }
-            else
-            {
-                _myoDeviceBridge.Vibrate64(_handle, type, out errorHandle);
-            }
+            var command = MyoCommand.Create(
+                _myoErrorHandlerDriver,
+                () =>
+                {
+                    IntPtr errorHandle;
+                    var result = PlatformInvocation.Running32Bit
+                        ? _myoDeviceBridge.Vibrate32(_handle, type, out errorHandle)
+                        : _myoDeviceBridge.Vibrate64(_handle, type, out errorHandle);
+
+                    return MyoCommandResult.Create(
+                        result,
+                        errorHandle);
+                });
+            command.Execute();
         }
 
         /// <inheritdoc />
         public void RequestRssi()
         {
-            IntPtr errorHandle;
-            if (PlatformInvocation.Running32Bit)
-            {
-                _myoDeviceBridge.RequestRssi32(_handle, out errorHandle);
-            }
-            else
-            {
-                _myoDeviceBridge.RequestRssi64(_handle, out errorHandle);
-            }
+            var command = MyoCommand.Create(
+                _myoErrorHandlerDriver,
+                () =>
+                {
+                    IntPtr errorHandle;
+                    var result = PlatformInvocation.Running32Bit
+                        ? _myoDeviceBridge.RequestRssi32(_handle, out errorHandle)
+                        : _myoDeviceBridge.RequestRssi64(_handle, out errorHandle);
+
+                    return MyoCommandResult.Create(
+                        result,
+                        errorHandle);
+                });
+            command.Execute();
         }
 
         /// <inheritdoc />
         public void Lock()
         {
-            IntPtr errorHandle;
-            if (PlatformInvocation.Running32Bit)
+            var command = MyoCommand.Create(
+            _myoErrorHandlerDriver,
+            () =>
             {
-                _myoDeviceBridge.Lock32(_handle, out errorHandle);
-            }
-            else
-            {
-                _myoDeviceBridge.Lock64(_handle, out errorHandle);
-            }
+                IntPtr errorHandle;
+                var result = PlatformInvocation.Running32Bit
+                    ? _myoDeviceBridge.Lock32(_handle, out errorHandle)
+                    : _myoDeviceBridge.Lock64(_handle, out errorHandle);
+
+                return MyoCommandResult.Create(
+                    result,
+                    errorHandle);
+            });
+            command.Execute();
         }
 
         /// <inheritdoc />
         public void Unlock(UnlockType type)
         {
-            IntPtr errorHandle;
-            if (PlatformInvocation.Running32Bit)
+            var command = MyoCommand.Create(
+            _myoErrorHandlerDriver,
+            () =>
             {
-                _myoDeviceBridge.Unlock32(_handle, type, out errorHandle);
-            }
-            else
-            {
-                _myoDeviceBridge.Unlock64(_handle, type, out errorHandle);
-            }
+                IntPtr errorHandle;
+                var result = PlatformInvocation.Running32Bit
+                    ? _myoDeviceBridge.Unlock32(_handle, type, out errorHandle)
+                    : _myoDeviceBridge.Unlock64(_handle, type, out errorHandle);
+
+                return MyoCommandResult.Create(
+                    result,
+                    errorHandle);
+            });
+            command.Execute();
         }
 
         /// <inheritdoc />
@@ -216,16 +262,21 @@ namespace MyoSharp.Device
             var streamEmgType = enabled
                 ? StreamEmgType.Enabled
                 : StreamEmgType.Disabled;
+            
+            var command = MyoCommand.Create(
+                 _myoErrorHandlerDriver,
+                 () =>
+                 {
+                     IntPtr errorHandle;
+                     var result = PlatformInvocation.Running32Bit
+                         ? _myoDeviceBridge.StreamEmg32(_handle, streamEmgType, out errorHandle)
+                         : _myoDeviceBridge.StreamEmg64(_handle, streamEmgType, out errorHandle);
 
-            IntPtr errorHandle;
-            if (PlatformInvocation.Running32Bit)
-            {
-                _myoDeviceBridge.StreamEmg32(_handle, streamEmgType, out errorHandle);
-            }
-            else
-            {
-                _myoDeviceBridge.StreamEmg64(_handle, streamEmgType, out errorHandle);
-            }
+                     return MyoCommandResult.Create(
+                         result,
+                         errorHandle);
+                 });
+            command.Execute();
         }
 
         /// <inheritdoc />

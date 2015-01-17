@@ -4,6 +4,7 @@ using System.Diagnostics.Contracts;
 
 using MyoSharp.Communication;
 using MyoSharp.Discovery;
+using MyoSharp.Exceptions;
 
 namespace MyoSharp.Device
 {
@@ -135,18 +136,43 @@ namespace MyoSharp.Device
         }
 
         /// <summary>
-        /// Creates a new <see cref="IMyoDeviceDriver"/>.
+        /// Creates a new <see cref="IMyoDeviceDriver" />.
         /// </summary>
         /// <param name="myoHandle">The Myo handle.</param>
-        /// <param name="myoDeviceBridge">The Myo device bridge.</param>
-        /// <returns>Returns a new <see cref="IMyoDeviceDriver"/> instance.</returns>
+        /// <param name="myoDeviceBridge">The Myo device bridge. Cannot be <c>null</c>.</param>
+        /// <returns>
+        /// Returns a new <see cref="IMyoDeviceDriver" /> instance.
+        /// </returns>
+        [Obsolete("Please use the CreateMyoDeviceDriver method that accepts an IMyoErrorHandlerDriver reference.")]
         protected virtual IMyoDeviceDriver CreateMyoDeviceDriver(IntPtr myoHandle, IMyoDeviceBridge myoDeviceBridge)
         {
             Contract.Requires<ArgumentException>(myoHandle != IntPtr.Zero, "The handle to the Myo must be set.");
             Contract.Requires<ArgumentNullException>(myoDeviceBridge != null, "myoDeviceBridge");
             Contract.Ensures(Contract.Result<IMyoDeviceDriver>() != null);
 
-            return MyoDeviceDriver.Create(myoHandle, myoDeviceBridge);
+            return CreateMyoDeviceDriver(
+                myoHandle, 
+                myoDeviceBridge, 
+                MyoErrorHandlerDriver.Create(MyoErrorHandlerBridge.Create()));
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="IMyoDeviceDriver" />.
+        /// </summary>
+        /// <param name="myoHandle">The Myo handle.</param>
+        /// <param name="myoDeviceBridge">The Myo device bridge. Cannot be <c>null</c>.</param>
+        /// <param name="myoErrorHandlerDriver">The myo error handler driver. Cannot be <c>null</c>.</param>
+        /// <returns>
+        /// Returns a new <see cref="IMyoDeviceDriver" /> instance.
+        /// </returns>
+        protected virtual IMyoDeviceDriver CreateMyoDeviceDriver(IntPtr myoHandle, IMyoDeviceBridge myoDeviceBridge, IMyoErrorHandlerDriver myoErrorHandlerDriver)
+        {
+            Contract.Requires<ArgumentException>(myoHandle != IntPtr.Zero, "The handle to the Myo must be set.");
+            Contract.Requires<ArgumentNullException>(myoDeviceBridge != null, "myoDeviceBridge");
+            Contract.Requires<ArgumentNullException>(myoErrorHandlerDriver != null, "myoErrorHandlerDriver");
+            Contract.Ensures(Contract.Result<IMyoDeviceDriver>() != null);
+
+            return MyoDeviceDriver.Create(myoHandle, myoDeviceBridge, myoErrorHandlerDriver);
         }
 
         /// <summary>
@@ -259,9 +285,19 @@ namespace MyoSharp.Device
 
             var myoDeviceBridge = CreateMyoDeviceBridge();
 
+            // TODO: replace this obsolete call with the one below
+#pragma warning disable 0618
             var myoDeviceDriver = CreateMyoDeviceDriver(
                 e.MyoHandle,
                 myoDeviceBridge);
+#pragma warning restore 0618
+
+            // TODO: use this call once the obsolete method is removed
+            ////var myoErrorHandlerDriver = MyoErrorHandlerDriver.Create(MyoErrorHandlerBridge.Create());
+            ////var myoDeviceDriver = CreateMyoDeviceDriver(
+            ////    e.MyoHandle,
+            ////    myoDeviceBridge, 
+            ////    myoErrorHandlerDriver);
 
             var myo = CreateMyo(
                 ((IDeviceListener)sender).ChannelListener,

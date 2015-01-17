@@ -4,6 +4,7 @@ using System.Diagnostics.Contracts;
 using System.Runtime.InteropServices;
 using System.Text;
 
+using MyoSharp.Communication;
 using MyoSharp.Internal;
 using MyoSharp.Poses;
 
@@ -29,27 +30,27 @@ namespace MyoSharp.Device
         }
 
         /// <inheritdoc />
-        public void Vibrate32(IntPtr myo, VibrationType type, out IntPtr error)
+        public MyoResult Vibrate32(IntPtr myo, VibrationType type, out IntPtr error)
         {
-            vibrate_32(myo, type, out error);
+            return vibrate_32(myo, type, out error);
         }
 
         /// <inheritdoc />
-        public void Vibrate64(IntPtr myo, VibrationType type, out IntPtr error)
+        public MyoResult Vibrate64(IntPtr myo, VibrationType type, out IntPtr error)
         {
-            vibrate_64(myo, type, out error);
+            return vibrate_64(myo, type, out error);
         }
 
         /// <inheritdoc />
-        public void RequestRssi32(IntPtr myo, out IntPtr error)
+        public MyoResult RequestRssi32(IntPtr myo, out IntPtr error)
         {
-            request_rssi_32(myo, out error);
+            return request_rssi_32(myo, out error);
         }
 
         /// <inheritdoc />
-        public void RequestRssi64(IntPtr myo, out IntPtr error)
+        public MyoResult RequestRssi64(IntPtr myo, out IntPtr error)
         {
-            request_rssi_64(myo, out error);
+            return request_rssi_64(myo, out error);
         }
 
         /// <inheritdoc />
@@ -149,39 +150,39 @@ namespace MyoSharp.Device
         }
 
         /// <inheritdoc />
-        public void Unlock32(IntPtr myo, UnlockType type, out IntPtr error)
+        public MyoResult Unlock32(IntPtr myo, UnlockType type, out IntPtr error)
         {
-            unlock_32(myo, type, out error);
+            return unlock_32(myo, type, out error);
         }
 
         /// <inheritdoc />
-        public void Unlock64(IntPtr myo, UnlockType type, out IntPtr error)
+        public MyoResult Unlock64(IntPtr myo, UnlockType type, out IntPtr error)
         {
-            unlock_64(myo, type, out error);
+            return unlock_64(myo, type, out error);
         }
 
         /// <inheritdoc />
-        public void Lock32(IntPtr myo, out IntPtr error)
+        public MyoResult Lock32(IntPtr myo, out IntPtr error)
         {
-            lock_32(myo, out error);
+            return lock_32(myo, out error);
         }
 
         /// <inheritdoc />
-        public void Lock64(IntPtr myo, out IntPtr error)
+        public MyoResult Lock64(IntPtr myo, out IntPtr error)
         {
-            lock_64(myo, out error);
+            return lock_64(myo, out error);
         }
 
         /// <inheritdoc />
-        public void StreamEmg32(IntPtr myo, StreamEmgType streamEmgType, out IntPtr error)
+        public MyoResult StreamEmg32(IntPtr myo, StreamEmgType streamEmgType, out IntPtr error)
         {
-            stream_emg_32(myo, streamEmgType, out error);
+            return stream_emg_32(myo, streamEmgType, out error);
         }
 
         /// <inheritdoc />
-        public void StreamEmg64(IntPtr myo, StreamEmgType streamEmgType, out IntPtr error)
+        public MyoResult StreamEmg64(IntPtr myo, StreamEmgType streamEmgType, out IntPtr error)
         {
-            stream_emg_64(myo, streamEmgType, out error);
+            return stream_emg_64(myo, streamEmgType, out error);
         }
 
         /// <inheritdoc />
@@ -199,16 +200,16 @@ namespace MyoSharp.Device
 
         #region PInvokes
         [DllImport(PlatformInvocation.MyoDllPath32, EntryPoint = "libmyo_vibrate", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void vibrate_32(IntPtr myo, VibrationType type, out IntPtr error);
+        private static extern MyoResult vibrate_32(IntPtr myo, VibrationType type, out IntPtr error);
 
         [DllImport(PlatformInvocation.MyoDllPath64, EntryPoint = "libmyo_vibrate", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void vibrate_64(IntPtr myo, VibrationType type, out IntPtr error);
+        private static extern MyoResult vibrate_64(IntPtr myo, VibrationType type, out IntPtr error);
 
         [DllImport(PlatformInvocation.MyoDllPath32, EntryPoint = "libmyo_request_rssi", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void request_rssi_32(IntPtr myo, out IntPtr error);
+        private static extern MyoResult request_rssi_32(IntPtr myo, out IntPtr error);
 
         [DllImport(PlatformInvocation.MyoDllPath64, EntryPoint = "libmyo_request_rssi", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void request_rssi_64(IntPtr myo, out IntPtr error);
+        private static extern MyoResult request_rssi_64(IntPtr myo, out IntPtr error);
 
         [DllImport(PlatformInvocation.MyoDllPath32, EntryPoint = "libmyo_event_get_firmware_version", CallingConvention = CallingConvention.Cdecl)]
         private static extern uint event_get_firmware_version_32(IntPtr evt, VersionComponent component);
@@ -259,22 +260,22 @@ namespace MyoSharp.Device
         private static extern sbyte event_get_rssi_64(IntPtr evt);
 
         [DllImport(PlatformInvocation.MyoDllPath32, EntryPoint = "libmyo_myo_unlock", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void unlock_32(IntPtr myo, UnlockType type, out IntPtr error);
+        private static extern MyoResult unlock_32(IntPtr myo, UnlockType type, out IntPtr error);
 
         [DllImport(PlatformInvocation.MyoDllPath64, EntryPoint = "libmyo_myo_unlock", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void unlock_64(IntPtr myo, UnlockType type, out IntPtr error);
+        private static extern MyoResult unlock_64(IntPtr myo, UnlockType type, out IntPtr error);
 
         [DllImport(PlatformInvocation.MyoDllPath32, EntryPoint = "libmyo_myo_lock", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void lock_32(IntPtr myo, out IntPtr error);
+        private static extern MyoResult lock_32(IntPtr myo, out IntPtr error);
 
         [DllImport(PlatformInvocation.MyoDllPath64, EntryPoint = "libmyo_myo_lock", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void lock_64(IntPtr myo, out IntPtr error);
+        private static extern MyoResult lock_64(IntPtr myo, out IntPtr error);
 
         [DllImport(PlatformInvocation.MyoDllPath32, EntryPoint = "libmyo_set_stream_emg", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void stream_emg_32(IntPtr myo, StreamEmgType type, out IntPtr error);
+        private static extern MyoResult stream_emg_32(IntPtr myo, StreamEmgType type, out IntPtr error);
 
         [DllImport(PlatformInvocation.MyoDllPath64, EntryPoint = "libmyo_set_stream_emg", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void stream_emg_64(IntPtr myo, StreamEmgType type, out IntPtr error);
+        private static extern MyoResult stream_emg_64(IntPtr myo, StreamEmgType type, out IntPtr error);
 
         [DllImport(PlatformInvocation.MyoDllPath32, EntryPoint = "libmyo_event_get_emg", CallingConvention = CallingConvention.Cdecl)]
         private static extern sbyte event_get_emg_32(IntPtr evt, int sensor);

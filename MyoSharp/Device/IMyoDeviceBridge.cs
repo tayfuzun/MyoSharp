@@ -4,6 +4,7 @@ using System.Diagnostics.Contracts;
 using System.Text;
 
 using MyoSharp.Poses;
+using MyoSharp.Communication;
 
 namespace MyoSharp.Device
 {
@@ -14,13 +15,13 @@ namespace MyoSharp.Device
     public interface IMyoDeviceBridge
     {
         #region Methods
-        void Vibrate32(IntPtr myo, VibrationType type, out IntPtr error);
+        MyoResult Vibrate32(IntPtr myo, VibrationType type, out IntPtr error);
 
-        void Vibrate64(IntPtr myo, VibrationType type, out IntPtr error);
+        MyoResult Vibrate64(IntPtr myo, VibrationType type, out IntPtr error);
 
-        void RequestRssi32(IntPtr myo, out IntPtr error);
+        MyoResult RequestRssi32(IntPtr myo, out IntPtr error);
 
-        void RequestRssi64(IntPtr myo, out IntPtr error);
+        MyoResult RequestRssi64(IntPtr myo, out IntPtr error);
 
         uint EventGetFirmwareVersion32(IntPtr evt, VersionComponent component);
 
@@ -54,17 +55,17 @@ namespace MyoSharp.Device
 
         sbyte EventGetRssi64(IntPtr evt);
 
-        void Unlock32(IntPtr myo, UnlockType type, out IntPtr error);
+        MyoResult Unlock32(IntPtr myo, UnlockType type, out IntPtr error);
 
-        void Unlock64(IntPtr myo, UnlockType type, out IntPtr error);
+        MyoResult Unlock64(IntPtr myo, UnlockType type, out IntPtr error);
 
-        void Lock32(IntPtr myo, out IntPtr error);
+        MyoResult Lock32(IntPtr myo, out IntPtr error);
 
-        void Lock64(IntPtr myo, out IntPtr error);
+        MyoResult Lock64(IntPtr myo, out IntPtr error);
 
-        void StreamEmg32(IntPtr myo, StreamEmgType streamEmgType, out IntPtr error);
+        MyoResult StreamEmg32(IntPtr myo, StreamEmgType streamEmgType, out IntPtr error);
 
-        void StreamEmg64(IntPtr myo, StreamEmgType streamEmgType, out IntPtr error);
+        MyoResult StreamEmg64(IntPtr myo, StreamEmgType streamEmgType, out IntPtr error);
 
         sbyte EventGetEmg32(IntPtr evt, int sensor);
 
@@ -76,32 +77,36 @@ namespace MyoSharp.Device
     internal abstract class IMyoDeviceBridgeContract : IMyoDeviceBridge
     {
         #region Methods
-        public void Vibrate32(IntPtr myo, VibrationType type, out IntPtr error)
+        public MyoResult Vibrate32(IntPtr myo, VibrationType type, out IntPtr error)
         {
             Contract.Requires<ArgumentException>(myo != IntPtr.Zero, "The pointer to the Myo must be set.");
 
             error = default(IntPtr);
+            return default(MyoResult);
         }
 
-        public void Vibrate64(IntPtr myo, VibrationType type, out IntPtr error)
+        public MyoResult Vibrate64(IntPtr myo, VibrationType type, out IntPtr error)
         {
             Contract.Requires<ArgumentException>(myo != IntPtr.Zero, "The pointer to the Myo must be set.");
 
             error = default(IntPtr);
+            return default(MyoResult);
         }
 
-        public void RequestRssi32(IntPtr myo, out IntPtr error)
+        public MyoResult RequestRssi32(IntPtr myo, out IntPtr error)
         {
             Contract.Requires<ArgumentException>(myo != IntPtr.Zero, "The pointer to the Myo must be set.");
 
             error = default(IntPtr);
+            return default(MyoResult);
         }
 
-        public void RequestRssi64(IntPtr myo, out IntPtr error)
+        public MyoResult RequestRssi64(IntPtr myo, out IntPtr error)
         {
             Contract.Requires<ArgumentException>(myo != IntPtr.Zero, "The pointer to the Myo must be set.");
 
             error = default(IntPtr);
+            return default(MyoResult);
         }
 
         public uint EventGetFirmwareVersion32(IntPtr evt, VersionComponent component)
@@ -216,46 +221,52 @@ namespace MyoSharp.Device
             return default(sbyte);
         }
 
-        public void Unlock32(IntPtr myo, UnlockType type, out IntPtr error)
+        public MyoResult Unlock32(IntPtr myo, UnlockType type, out IntPtr error)
         {
             Contract.Requires<ArgumentException>(myo != IntPtr.Zero, "The pointer to Myo event must be set.");
 
             error = default(IntPtr);
+            return default(MyoResult);
         }
 
-        public void Unlock64(IntPtr myo, UnlockType type, out IntPtr error)
+        public MyoResult Unlock64(IntPtr myo, UnlockType type, out IntPtr error)
         {
             Contract.Requires<ArgumentException>(myo != IntPtr.Zero, "The pointer to Myo event must be set.");
 
             error = default(IntPtr);
+            return default(MyoResult);
         }
 
-        public void Lock32(IntPtr myo, out IntPtr error)
+        public MyoResult Lock32(IntPtr myo, out IntPtr error)
         {
             Contract.Requires<ArgumentException>(myo != IntPtr.Zero, "The pointer to Myo event must be set.");
 
             error = default(IntPtr);
+            return default(MyoResult);
         }
 
-        public void Lock64(IntPtr myo, out IntPtr error)
+        public MyoResult Lock64(IntPtr myo, out IntPtr error)
         {
             Contract.Requires<ArgumentException>(myo != IntPtr.Zero, "The pointer to Myo event must be set.");
 
             error = default(IntPtr);
+            return default(MyoResult);
         }
 
-        public void StreamEmg32(IntPtr myo, StreamEmgType streamEmgType, out IntPtr error)
+        public MyoResult StreamEmg32(IntPtr myo, StreamEmgType streamEmgType, out IntPtr error)
         {
             Contract.Requires<ArgumentException>(myo != IntPtr.Zero, "The pointer to Myo event must be set.");
 
             error = default(IntPtr);
+            return default(MyoResult);
         }
 
-        public void StreamEmg64(IntPtr myo, StreamEmgType streamEmgType, out IntPtr error)
+        public MyoResult StreamEmg64(IntPtr myo, StreamEmgType streamEmgType, out IntPtr error)
         {
             Contract.Requires<ArgumentException>(myo != IntPtr.Zero, "The pointer to Myo event must be set.");
 
             error = default(IntPtr);
+            return default(MyoResult);
         }
 
         public sbyte EventGetEmg32(IntPtr evt, int sensor)

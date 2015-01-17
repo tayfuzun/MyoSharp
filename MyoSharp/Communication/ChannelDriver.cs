@@ -49,7 +49,7 @@ namespace MyoSharp.Communication
         /// <exception cref="System.ArgumentNullException">
         /// The exception that is thrown when <paramref name="channelBridge"/> is null.
         /// </exception>
-        [Obsolete("Please switch to the constructor that takes in an IMyoErrorHandlerDriver parameter.")]
+        [Obsolete("Please switch to the create method that takes in an IMyoErrorHandlerDriver parameter.")]
         public static IChannelDriver Create(IChannelBridge channelBridge)
         {
             Contract.Requires<ArgumentNullException>(channelBridge != null, "channelBridge");
