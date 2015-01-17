@@ -16,6 +16,11 @@ namespace MyoSharp.Discovery
         /// The event that is triggered when a device has paired.
         /// </summary>
         event EventHandler<PairedEventArgs> Paired;
+
+        /// <summary>
+        /// The event that is triggered when a device has been unpaired.
+        /// </summary>
+        event EventHandler<PairedEventArgs> Unpaired;
         #endregion
 
         #region Properties
@@ -32,6 +37,8 @@ namespace MyoSharp.Discovery
     {
         #region Events
         public abstract event EventHandler<PairedEventArgs> Paired;
+
+        public abstract event EventHandler<PairedEventArgs> Unpaired;
         #endregion
 
         #region Properties

@@ -43,6 +43,9 @@ namespace MyoSharp.Discovery
         #region Events
         /// <inheritdoc />
         public event EventHandler<PairedEventArgs> Paired;
+
+        /// <inheritdoc />
+        public event EventHandler<PairedEventArgs> Unpaired;
         #endregion
 
         #region Properties
@@ -125,6 +128,23 @@ namespace MyoSharp.Discovery
             }
         }
 
+        /// <summary>
+        /// Called when a device has been unpaired.
+        /// </summary>
+        /// <param name="myoHandle">The Myo handle.</param>
+        /// <param name="eventTimeUtc">The event time in UTC.</param>
+        protected virtual void OnUnpaired(IntPtr myoHandle, DateTime eventTimeUtc)
+        {
+            Contract.Requires<ArgumentException>(myoHandle != IntPtr.Zero, "The handle to the Myo must be set.");
+
+            var handler = Unpaired;
+            if (handler != null)
+            {
+                var args = new PairedEventArgs(myoHandle, eventTimeUtc);
+                handler.Invoke(this, args);
+            }
+        }
+
         [ContractInvariantMethod]
         private void ObjectInvariant()
         {
@@ -137,9 +157,15 @@ namespace MyoSharp.Discovery
         {
             Contract.Requires<ArgumentNullException>(sender != null, "sender");
 
-            if (e.EventType == MyoEventType.Paired)
+            switch (e.EventType)
             {
-                OnPaired(e.MyoHandle, e.Timestamp);
+                case MyoEventType.Paired:
+                    OnPaired(e.MyoHandle, e.Timestamp);
+                    break;
+
+                case MyoEventType.Unpaired:
+                    OnUnpaired(e.MyoHandle, e.Timestamp);
+                    break;
             }
         }
         #endregion

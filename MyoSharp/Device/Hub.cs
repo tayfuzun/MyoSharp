@@ -47,6 +47,7 @@ namespace MyoSharp.Device
 
             _deviceListener = deviceListener;
             _deviceListener.Paired += DeviceListener_Paired;
+            _deviceListener.Unpaired += DeviceListener_Unpaired;
         }
 
         /// <summary>
@@ -215,6 +216,7 @@ namespace MyoSharp.Device
                     _myos.Clear();
 
                     _deviceListener.Paired -= DeviceListener_Paired;
+                    _deviceListener.Unpaired -= DeviceListener_Unpaired;
                 }
             }
             finally
@@ -283,6 +285,11 @@ namespace MyoSharp.Device
         {
             Contract.Requires<ArgumentNullException>(sender != null, "sender");
 
+            if (_myos.ContainsKey(e.MyoHandle))
+            {
+                return;
+            }
+
             var myoDeviceBridge = CreateMyoDeviceBridge();
 
             // TODO: replace this obsolete call with the one below
@@ -303,7 +310,23 @@ namespace MyoSharp.Device
                 ((IDeviceListener)sender).ChannelListener,
                 myoDeviceDriver);
 
+            _myos[myo.Handle] = myo;
             HookMyoEvents(myo);
+        }
+
+        private void DeviceListener_Unpaired(object sender, PairedEventArgs e)
+        {
+            Contract.Requires<ArgumentNullException>(sender != null, "sender");
+
+            IMyo myo;
+            if (!_myos.TryGetValue(e.MyoHandle, out myo) || myo == null)
+            {
+                return;
+            }
+
+            UnhookMyoEvents(myo);
+            _myos.Remove(myo.Handle);
+            myo.Dispose();
         }
 
         private void Myo_Disconnected(object sender, MyoEventArgs e)
@@ -311,16 +334,12 @@ namespace MyoSharp.Device
             Contract.Requires<ArgumentNullException>(sender != null, "sender");
 
             OnMyoDisconnected(e);
-            UnhookMyoEvents(e.Myo);
-            _myos.Remove(e.Myo.Handle);
-            e.Myo.Dispose();
         }
 
         private void Myo_Connected(object sender, MyoEventArgs e)
         {
             Contract.Requires<ArgumentNullException>(sender != null, "sender");
 
-            _myos[e.Myo.Handle] = e.Myo;
             OnMyoConnected(e);
         }
 
