@@ -17,6 +17,7 @@ The goal of this project is to create a high-level object-oriented C# API for de
 MyoSharp is compatible with .NET 2.0+
 
 ### Getting Started
+* [`Environment`](#environment)
 * [`Setup`](#setup)
 * [`Pose Sequences`](#poseseq)
 * [`Holding Poses`](#posehold)
@@ -24,9 +25,19 @@ MyoSharp is compatible with .NET 2.0+
 * [`Acquiring EMG Data`](#emg)
 * [`License`](#license)
 
+<a name='environment' />
+### Environment
+* We suggest that you clone down the MyoSharp repository to a directory relative to your project. This will allow you to safely pull down future changes into this repository.
+  * **NOTE**: You aren't required to do it this way. You can copy the MyoSharp project and files into your solution if you want, but in my opinion that would make updates a little bit trickier. It's up to you though.
+* You should create your new solution and reference the MyoSharp project called "MyoSharp.csproj". This is the project file for the MyoSharp assembly. The other assemblies are examples, and your final project will **NOT** be required to reference these other projects.
+  * **NOTE**: MyoSharp is targeted at the .NET 2.0 framework. If you're building projects targeting later frameworks, you should still have no issue referencing MyoSharp assemblies. If you're targeting prior to .NET 2.0... I can't help you.
+* MyoSharp uses [Code Contracts](https://msdn.microsoft.com/en-us/library/dd264808(v=vs.100).aspx). It was our opinion that providing code contracts would allow for a more clear API for our consumers. Please install code contracts to use this project.
+  * [Microsoft Research: Code Contracts](http://research.microsoft.com/en-us/projects/contracts/)
+  * [Visual Studio Gallery: Code Contracts for .NET](https://visualstudiogallery.msdn.microsoft.com/1ec7db13-3363-46c9-851f-1ce455f66970)
 
 <a name='setup' />
 ### Sample Usage
+Here's a simple example of a console program that shows MyoSharp in action:
 ``` C#
 using System;
 
