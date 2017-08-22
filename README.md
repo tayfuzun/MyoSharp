@@ -18,15 +18,15 @@ MyoSharp is compatible with .NET 2.0+
 
 ### Getting Started
 * [`Environment`](#environment)
-* [`Setup`](#setup)
-* [`Visualization in WinForms`](#winformvis)
-* [`Pose Sequences`](#poseseq)
-* [`Holding Poses`](#posehold)
-* [`Roll, Pitch and Yaw Data`](#rpy)
-* [`Acquiring EMG Data`](#emg)
+* [`Sample usage`](#sample-usage)
+* [`Visualization in WinForms`](#visualizations-in-winforms)
+* [`Pose Sequences`](#detecting-sequences-of-poses)
+* [`Holding Poses`](#detecting-poses-being-held)
+* [`Roll, Pitch and Yaw Data`](#getting-roll-pitch-and-yaw-data)
+* [`Acquiring EMG Data`](#acquiring-emg-data)
 * [`License`](#license)
 
-<a name='environment' />
+
 ### Environment
 * We suggest that you clone down the MyoSharp repository to a directory relative to your project. This will allow you to safely pull down future changes into this repository.
   * **NOTE**: You aren't required to do it this way. You can copy the MyoSharp project and files into your solution if you want, but in my opinion that would make updates a little bit trickier. It's up to you though.
@@ -36,7 +36,7 @@ MyoSharp is compatible with .NET 2.0+
   * [Microsoft Research: Code Contracts](http://research.microsoft.com/en-us/projects/contracts/)
   * [Visual Studio Gallery: Code Contracts for .NET](https://visualstudiogallery.msdn.microsoft.com/1ec7db13-3363-46c9-851f-1ce455f66970)
 
-<a name='setup' />
+
 ### Sample Usage
 Here's a simple example of a console program that shows MyoSharp in action:
 ``` C#
@@ -131,12 +131,9 @@ namespace MyoSharp.ConsoleSample
 }
 ```
 
-<a name='winformvis' />
 ### Visualizations in WinForms
 Running the MyoSHarp.EmgVisualization project will pop up a form that allows you to view the EMG data that comes in from the device. It uses a ZedGraph component to do all of the drawing, and has some simple features like toggling sensors and zooming in to regions. It's primitive, but it should give you an idea what the data looks like.
 
-
-<a name='poseseq' />
 ### Detecting Sequences of Poses
 With this implementation, you can define your own creative sequences of poses. See the example below.
 ``` C#
@@ -210,7 +207,6 @@ namespace MyoSharp.ConsoleSample
 }
 ```
 
-<a name='posehold' />
 ### Detecting Poses Being Held
 It's easy to be notified when a pose is being held by the user. You can even define an interval to adjust granularity. See the example below.
 ``` C#
@@ -288,7 +284,7 @@ namespace MyoSharp.ConsoleSample
     }
 }
 ```
-<a name='rpy' />
+
 ### Getting Roll, Pitch and Yaw data
 Don't get lost in the orientation Quaternion vectors, use the <strong>OrientationDataEventArgs</strong> object to get the roll, pitch and yaw of the Myo
 ``` C#
@@ -371,7 +367,7 @@ namespace MyoSharp.ConsoleSample
     }
 }
 ```
-<a name='emg' />
+
 ### Acquiring EMG Data
 Thalmic has now opened up access to the raw EMG data that comes off of the Myo device. Simply enable EMG data streaming on your Myo and listen to the <strong>EmgDataAcquired</strong> event.
 ``` C#
@@ -445,7 +441,6 @@ namespace MyoSharp.ConsoleSample
 }
 ```
 
-<a name='license' />
 ### License
 MyoSharp uses the MIT License.
 Copyright (c) 2014 Nick Cosentino, Tayfun Uzun
