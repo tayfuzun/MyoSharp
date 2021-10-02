@@ -49,29 +49,29 @@ using MyoSharp.Exceptions;
 
 namespace MyoSharp.ConsoleSample
 {
-    /// <summary>
-    /// This example will show you the basics for setting up and working with 
-    /// a Myo using MyoSharp. Primary communication with the device happens 
-    /// over Bluetooth, but this C# wrapper hooks into the unmanaged Myo SDK to
-    /// listen on their "hub". The unmanaged hub feeds us information about 
-    /// events, so a channel within MyoSharp is responsible for publishing 
-    /// these events for other C# code to consume. A device listener uses a 
-    /// channel to listen for pairing events. When a Myo pairs up, a device 
-    /// listener publishes events for others to listen to. Once we have access 
-    /// to a channel and a Myo handle (from something like a Pair event), we 
-    /// can create our own Myo object. With a Myo object, we can do things like
-    /// cause it to vibrate or monitor for poses changes.
-    /// </summary>
-    /// <remarks>
-    /// Not sure how to use this example?
-    /// - Open Visual Studio
-    /// - Go to the solution explorer
-    /// - Find the project that this file is contained within
-    /// - Right click on the project in the solution explorer, go to "properties"
-    /// - Go to the "Application" tab
-    /// - Under "Startup object" pick this example from the list
-    /// - Hit F5 and you should be good to go!
-    /// </remarks>
+    /* <summary>
+     This example will show you the basics for setting up and working with 
+     a Myo using MyoSharp. Primary communication with the device happens 
+     over Bluetooth, but this C# wrapper hooks into the unmanaged Myo SDK to
+     listen on their "hub". The unmanaged hub feeds us information about 
+     events, so a channel within MyoSharp is responsible for publishing 
+     these events for other C# code to consume. A device listener uses a 
+     channel to listen for pairing events. When a Myo pairs up, a device 
+     listener publishes events for others to listen to. Once we have access 
+     to a channel and a Myo handle (from something like a Pair event), we 
+     can create our own Myo object. With a Myo object, we can do things like
+     cause it to vibrate or monitor for poses changes.
+     </summary>
+     <remarks>
+     Not sure how to use this example?
+     - Open Visual Studio
+     - Go to the solution explorer
+     - Find the project that this file is contained within
+     - Right click on the project in the solution explorer, go to "properties"
+     - Go to the "Application" tab
+     - Under "Startup object" pick this example from the list
+     - Hit F5 and you should be good to go!
+     </remarks>*/
     internal class BasicSetupExample
     {
         #region Methods
